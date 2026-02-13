@@ -1,0 +1,24 @@
+repos:
+  - repo: https://github.com/psf/black
+    rev: 25.1.0
+    hooks:
+      - id: black
+        args: [--line-length=100, --target-version=py312]
+
+  - repo: local
+    hooks:
+      - id: pylint
+        name: pylint
+        entry: .venv/bin/pylint
+        language: system
+        types: [python]
+        args: [--rcfile=pyproject.toml]
+
+      - id: pytest
+        name: pytest
+        entry: .venv/bin/pytest
+        language: system
+        types: [python]
+        args: [tests/unit/, -v, --tb=short]
+        pass_filenames: false
+        always_run: true
