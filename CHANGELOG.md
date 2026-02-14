@@ -8,6 +8,29 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-02-13 (Conversational Analytics)
+
+### Added
+- Google Analytics 4 integration (GA4Client, service layer, 3 REST endpoints, 3 MCP tools)
+- Google Search Console integration (SearchConsoleClient, service layer, 4 REST endpoints, 4 MCP tools)
+- Google Tag Manager integration (TagManagerClient, service layer, 6 REST endpoints, 4 MCP tools)
+- MCP server (FastMCP 2.x) with 12 tools, mounted at /mcp and available via stdio
+- Service account authentication with readonly scopes for GA4, SC, GTM
+- Pydantic Settings configuration (GOOGLE_SERVICE_ACCOUNT_KEY_PATH, GA4_PROPERTY_ID, SEARCH_CONSOLE_SITE_URL)
+- Custom exception hierarchy (AnnyError, AuthError, APIError) with HTTP status mapping
+- Lazy singleton client factories via lru_cache
+- Date range parser supporting named ranges (last_7_days, last_28_days, etc.) and explicit dates
+- Text table formatter for MCP tool output
+- Error handler mapping AnnyError subtypes to HTTP 401/502/500
+- `make mcp` target for stdio MCP server
+- 88 tests (77 unit + 11 integration), pylint 10/10, 86% coverage
+
+### Changed
+- Updated requirements.txt with google-auth, google-analytics-data, google-api-python-client, pydantic-settings, fastmcp
+- Updated pyproject.toml with new dependencies and pylint config
+- Updated .env.example with Google service account configuration
+- Updated CLAUDE.md with full architecture, MCP tools, and REST API documentation
+
 ## [0.1.0] - 2026-02-13 (Initial Scaffold)
 
 ### Added

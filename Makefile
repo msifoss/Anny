@@ -1,4 +1,4 @@
-.PHONY: help install test unit integration lint format format-check audit clean run
+.PHONY: help install test unit integration lint format format-check audit clean run mcp
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
@@ -38,3 +38,6 @@ clean: ## Remove build artifacts
 
 run: ## Start the development server
 	.venv/bin/uvicorn src.anny.main:app --reload --host 0.0.0.0 --port 8000
+
+mcp: ## Start the MCP server in stdio mode
+	.venv/bin/python -m anny.cli.mcp_stdio
