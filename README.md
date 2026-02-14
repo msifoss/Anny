@@ -91,7 +91,7 @@ Anny/
 
 ```bash
 # Clone the repository
-git clone https://github.com/msichris/Anny.git
+git clone https://github.com/msifoss/Anny.git
 cd Anny
 
 # Create virtual environment and install dependencies
