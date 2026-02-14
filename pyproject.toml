@@ -7,6 +7,12 @@ name = "anny"
 version = "0.1.0"
 description = "A modern Python web application built with FastAPI"
 requires-python = ">=3.12"
+license = {text = "MIT"}
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.34.0",
+    "python-dotenv>=1.0.0",
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -29,4 +35,5 @@ disable = [
     "missing-class-docstring",
     "missing-function-docstring",
     "too-few-public-methods",
+    "import-error",
 ]
