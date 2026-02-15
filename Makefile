@@ -1,4 +1,4 @@
-.PHONY: help install test unit integration lint format format-check audit clean run mcp
+.PHONY: help install test unit integration e2e smoke lint format format-check audit clean run mcp
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
@@ -19,6 +19,12 @@ unit: ## Run unit tests only
 
 integration: ## Run integration tests only
 	.venv/bin/pytest tests/integration/ -v --tb=short
+
+e2e: ## Run e2e tests (requires ANNY_E2E=1 and real credentials)
+	ANNY_E2E=1 .venv/bin/pytest tests/e2e/ -v --tb=short
+
+smoke: ## Run smoke test against live server
+	./scripts/smoke_test.sh
 
 lint: ## Run linter
 	.venv/bin/pylint src/anny/ tests/

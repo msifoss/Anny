@@ -21,6 +21,11 @@ ENV/
 *.pem
 *.key
 
+# Google Service Account keys
+*service-account*.json
+*service_account*.json
+credentials*.json
+
 # IDE
 .vscode/settings.json
 .idea/

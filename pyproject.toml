@@ -26,6 +26,9 @@ where = ["src"]
 testpaths = ["tests"]
 pythonpath = ["src"]
 addopts = "-v --tb=short"
+markers = [
+    "e2e: end-to-end tests requiring real Google credentials (deselect with '-m \"not e2e\"')",
+]
 
 [tool.black]
 line-length = 100
@@ -43,4 +46,5 @@ disable = [
     "import-error",
     "too-many-arguments",
     "too-many-positional-arguments",
+    "duplicate-code",
 ]
