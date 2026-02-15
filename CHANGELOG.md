@@ -8,6 +8,17 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- Service account setup guide (`docs/manuals/SERVICE-ACCOUNT-SETUP.md`)
+- Smoke test script (`scripts/smoke_test.sh`) — curl-based endpoint validation with color-coded output
+- 19 e2e tests (GA4, Search Console, Tag Manager, health) gated behind `ANNY_E2E=1`
+- `make e2e` and `make smoke` targets
+- `e2e` pytest marker registration
+- `.gitignore` patterns for service account JSON key files
+
+### Changed
+- CI pipeline narrowed to `tests/unit/` and `tests/integration/` (skips e2e collection)
+
 ## [0.2.0] - 2026-02-13 (Conversational Analytics)
 
 ### Added

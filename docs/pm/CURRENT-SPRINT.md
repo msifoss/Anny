@@ -13,7 +13,8 @@
 | Item | Size | Status |
 |------|------|--------|
 | Update README with setup instructions | M | done |
-| Test with real service account credentials | M | executable |
+| E2e test infrastructure (setup guide, smoke test, pytest e2e) | M | done |
+| Validate with real service account credentials | S | executable |
 | Dockerfile + docker-compose | M | executable |
 | MCP stdio config docs (Claude Desktop) | S | executable |
 | Deploy to cloud (target TBD) | L | executable |
@@ -22,8 +23,8 @@
 
 | Metric | Value |
 |--------|-------|
-| Commits | 1 |
-| Tests | 88 |
+| Commits | 3 |
+| Tests | 107 (88 unit/integration + 19 e2e) |
 | Coverage | 86% |
 | Deploys | 0 |
 

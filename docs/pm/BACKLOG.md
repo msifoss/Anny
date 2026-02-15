@@ -26,7 +26,8 @@ Last groomed: 2026-02-15
 
 | # | Item | Size | Status | Notes |
 |---|------|------|--------|-------|
-| 8 | Test with real Google credentials | M | executable | Bolt 2 |
+| 8 | E2e test infrastructure (setup guide, smoke test, pytest e2e) | M | done | Bolt 2 |
+| 8a | Validate with real service account credentials | S | executable | Bolt 2 — run `make smoke` / `make e2e` |
 | 9 | Dockerfile + docker-compose | M | executable | Bolt 2 |
 | 10 | README with setup + usage docs | M | done | Bolt 2 |
 | 11 | MCP stdio config for Claude Desktop | S | executable | Bolt 2 |
