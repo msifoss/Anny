@@ -4,7 +4,7 @@
 > Size: S (< 1hr), M (< half day), L (~ 1 day), XL (multi-day).
 > Status: executable | blocked | done
 
-Last groomed: 2026-02-14
+Last groomed: 2026-02-15
 
 ---
 
@@ -28,7 +28,7 @@ Last groomed: 2026-02-14
 |---|------|------|--------|-------|
 | 8 | Test with real Google credentials | M | executable | Bolt 2 |
 | 9 | Dockerfile + docker-compose | M | executable | Bolt 2 |
-| 10 | README with setup + usage docs | M | executable | Bolt 2 |
+| 10 | README with setup + usage docs | M | done | Bolt 2 |
 | 11 | MCP stdio config for Claude Desktop | S | executable | Bolt 2 |
 
 ### Could Have
