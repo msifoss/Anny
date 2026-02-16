@@ -28,7 +28,7 @@ Last groomed: 2026-02-15
 |---|------|------|--------|-------|
 | 8 | E2e test infrastructure (setup guide, smoke test, pytest e2e) | M | done | Bolt 2 |
 | 8a | Validate with real service account credentials | S | done | Bolt 2 — smoke 8/8, e2e 19/19 |
-| 9 | Dockerfile + docker-compose | M | executable | Bolt 2 |
+| 9 | Dockerfile + docker-compose | M | done | Bolt 2 |
 | 10 | README with setup + usage docs | M | done | Bolt 2 |
 | 11 | MCP stdio config for Claude Desktop | S | executable | Bolt 2 |
 

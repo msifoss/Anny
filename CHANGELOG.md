@@ -9,6 +9,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Added
+- Docker containerization: multi-stage `Dockerfile`, `docker-compose.yml`, `.dockerignore`
+- `make docker-build` and `make docker-run` targets
 - Service account setup guide (`docs/manuals/SERVICE-ACCOUNT-SETUP.md`)
 - Smoke test script (`scripts/smoke_test.sh`) — curl-based endpoint validation with color-coded output
 - 19 e2e tests (GA4, Search Console, Tag Manager, health) gated behind `ANNY_E2E=1`
@@ -17,6 +19,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `.gitignore` patterns for service account JSON key files
 
 ### Changed
+- `.env.example` trimmed to only the 3 fields accepted by Settings (removed APP_NAME, APP_ENV, etc.)
 - CI pipeline narrowed to `tests/unit/` and `tests/integration/` (skips e2e collection)
 
 ## [0.2.0] - 2026-02-13 (Conversational Analytics)
