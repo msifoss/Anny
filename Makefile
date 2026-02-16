@@ -1,4 +1,4 @@
-.PHONY: help install test unit integration e2e smoke lint format format-check audit clean run mcp
+.PHONY: help install test unit integration e2e smoke lint format format-check audit clean run mcp docker-build docker-run
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
@@ -47,3 +47,9 @@ run: ## Start the development server
 
 mcp: ## Start the MCP server in stdio mode
 	.venv/bin/python -m anny.cli.mcp_stdio
+
+docker-build: ## Build Docker image
+	docker build -t anny .
+
+docker-run: ## Run with Docker Compose
+	docker compose up -d

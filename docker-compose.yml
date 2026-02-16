@@ -1,0 +1,11 @@
+services:
+  anny:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./service-account-key.json:/secrets/service-account.json:ro
+    environment:
+      - GOOGLE_SERVICE_ACCOUNT_KEY_PATH=/secrets/service-account.json
+      - GA4_PROPERTY_ID=${GA4_PROPERTY_ID}
+      - SEARCH_CONSOLE_SITE_URL=${SEARCH_CONSOLE_SITE_URL}
