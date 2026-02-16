@@ -14,7 +14,7 @@
 |------|------|--------|
 | Update README with setup instructions | M | done |
 | E2e test infrastructure (setup guide, smoke test, pytest e2e) | M | done |
-| Validate with real service account credentials | S | executable |
+| Validate with real service account credentials | S | done |
 | Dockerfile + docker-compose | M | executable |
 | MCP stdio config docs (Claude Desktop) | S | executable |
 | Deploy to cloud (target TBD) | L | executable |
