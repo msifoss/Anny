@@ -9,6 +9,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Added
+- MCP stdio setup guide (`docs/manuals/MCP-STDIO-SETUP.md`) — Claude Desktop, Claude Code, Docker configs
 - Docker containerization: multi-stage `Dockerfile`, `docker-compose.yml`, `.dockerignore`
 - `make docker-build` and `make docker-run` targets
 - Service account setup guide (`docs/manuals/SERVICE-ACCOUNT-SETUP.md`)
