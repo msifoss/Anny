@@ -1,4 +1,4 @@
-.PHONY: help install test unit integration e2e smoke lint format format-check audit clean run mcp docker-build docker-run
+.PHONY: help install test unit integration e2e smoke lint format format-check audit clean run mcp docker-build docker-run provision setup deploy ssl-setup
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
@@ -53,3 +53,15 @@ docker-build: ## Build Docker image
 
 docker-run: ## Run with Docker Compose
 	docker compose up -d
+
+provision: ## Provision Vultr VPS and DNS (requires VULTR_API_KEY)
+	./scripts/server-provision.sh
+
+setup: ## Bootstrap VPS with Docker, nginx, UFW, fail2ban
+	./scripts/server-setup.sh
+
+deploy: ## Deploy/update app on VPS
+	./scripts/deploy.sh
+
+ssl-setup: ## Obtain SSL cert and enable HTTPS (requires CERTBOT_EMAIL)
+	./scripts/ssl-setup.sh

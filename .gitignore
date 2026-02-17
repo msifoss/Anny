@@ -48,5 +48,8 @@ htmlcov/
 # Temporary files
 tmp/
 
+# Deployment
+.server-ip
+
 # MyPy
 .mypy_cache/

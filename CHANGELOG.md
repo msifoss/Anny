@@ -9,6 +9,13 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Added
+- Vultr VPS deployment infrastructure for anny.membies.com
+- Server provisioning script (`scripts/server-provision.sh`) — Vultr API, DNS A record
+- Server setup script (`scripts/server-setup.sh`) — Docker, nginx, UFW, fail2ban, deploy user
+- Deploy script (`scripts/deploy.sh`) — rsync, secrets upload, container build, health check
+- SSL setup script (`scripts/ssl-setup.sh`) — certbot, HTTPS nginx config
+- Nginx configs: `deploy/nginx-http.conf` (pre-SSL), `deploy/nginx-https.conf` (post-SSL)
+- `make provision`, `make setup`, `make deploy`, `make ssl-setup` targets
 - MCP stdio setup guide (`docs/manuals/MCP-STDIO-SETUP.md`) — Claude Desktop, Claude Code, Docker configs
 - Docker containerization: multi-stage `Dockerfile`, `docker-compose.yml`, `.dockerignore`
 - `make docker-build` and `make docker-run` targets
@@ -20,6 +27,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `.gitignore` patterns for service account JSON key files
 
 ### Changed
+- `docker-compose.yml` hardened for production: localhost-only port binding, `restart: unless-stopped`, log rotation (10m/3 files), secrets mount path
 - `.env.example` trimmed to only the 3 fields accepted by Settings (removed APP_NAME, APP_ENV, etc.)
 - CI pipeline narrowed to `tests/unit/` and `tests/integration/` (skips e2e collection)
 

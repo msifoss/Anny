@@ -36,9 +36,9 @@ Last groomed: 2026-02-16
 
 | # | Item | Size | Status | Notes |
 |---|------|------|--------|-------|
-| 12 | Rate limiting / request throttling | S | executable | |
+| 12 | Rate limiting / request throttling | S | executable | Bolt 3 |
 | 13 | Structured logging (JSON) | S | executable | |
-| 14 | API key auth for REST endpoints | M | executable | |
+| 14 | API key auth for REST endpoints | M | executable | Bolt 3 |
 
 ---
 
@@ -48,14 +48,14 @@ Last groomed: 2026-02-16
 
 | # | Item | Size | Status | Notes |
 |---|------|------|--------|-------|
-| 15 | Cloud deployment (target TBD) | L | executable | Bolt 2 |
-| 16 | CI pipeline update for new deps | S | executable | |
+| 15 | Cloud deployment (Vultr VPS) | L | done | Bolt 2 — anny.membies.com |
+| 16 | CI pipeline update for new deps | S | executable | Bolt 3 |
 
 ### Should Have
 
 | # | Item | Size | Status | Notes |
 |---|------|------|--------|-------|
-| 17 | Health check with dependency status | S | executable | Check Google API connectivity |
+| 17 | Health check with dependency status | S | executable | Bolt 3 — check Google API connectivity |
 | 18 | Monitoring / alerting setup | M | executable | |
 
 ---

@@ -1,11 +1,17 @@
 services:
   anny:
     build: .
+    restart: unless-stopped
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     volumes:
-      - ./service-account-key.json:/secrets/service-account.json:ro
+      - ./secrets/service-account.json:/secrets/service-account.json:ro
     environment:
       - GOOGLE_SERVICE_ACCOUNT_KEY_PATH=/secrets/service-account.json
       - GA4_PROPERTY_ID=${GA4_PROPERTY_ID}
       - SEARCH_CONSOLE_SITE_URL=${SEARCH_CONSOLE_SITE_URL}
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

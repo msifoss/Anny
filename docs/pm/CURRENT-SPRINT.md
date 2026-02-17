@@ -1,10 +1,10 @@
-# Bolt 2 — Live Testing & Deploy (2026-02-14)
+# Bolt 3 — Production Hardening & Ops (2026-02-16)
 
-**Goal:** Validate with real Google credentials, containerize, and deploy
+**Goal:** Harden the deployed service with auth, observability, and CI updates
 
 **Status:** IN PROGRESS
 
-**Last updated:** 2026-02-16
+**Last updated:** 2026-02-17
 
 ---
 
@@ -12,21 +12,19 @@
 
 | Item | Size | Status |
 |------|------|--------|
-| Update README with setup instructions | M | done |
-| E2e test infrastructure (setup guide, smoke test, pytest e2e) | M | done |
-| Validate with real service account credentials | S | done |
-| Dockerfile + docker-compose | M | done |
-| MCP stdio config docs (Claude Desktop) | S | done |
-| Deploy to cloud (target TBD) | L | executable |
+| CI pipeline update for new deps | S | executable |
+| API key auth for REST endpoints | M | executable |
+| Health check with dependency status | S | executable |
+| Rate limiting / request throttling | S | executable |
 
 ## Metrics
 
 | Metric | Value |
 |--------|-------|
-| Commits | 6 |
+| Commits | 0 |
 | Tests | 107 (88 unit/integration + 19 e2e) |
 | Coverage | 86% |
-| Deploys | 0 |
+| Deploys | 1 (anny.membies.com live) |
 
 ## Blockers
 
