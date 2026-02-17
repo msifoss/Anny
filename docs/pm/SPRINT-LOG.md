@@ -4,6 +4,50 @@ Archive of completed Bolts.
 
 ---
 
+## Bolt 3 — Production Hardening & Ops (2026-02-16 → 2026-02-17)
+
+**Goal:** Harden the deployed service with auth, observability, and CI updates
+
+**Outcome:** PIVOTED — No planned items completed. Session shifted to memory layer implementation, deploy fix, and deep analytics audit. All Bolt 3 items returned to backlog. Opened Bolt 4 with new theme.
+
+### Items Completed (Unplanned)
+
+| Item | Size | Notes |
+|------|------|-------|
+| Memory layer (MemoryStore + service + 9 MCP tools) | L | JSON file store at ~/.anny/memory.json |
+| 39 new tests (store, service, tools) | M | 127 unit+int total |
+| Deploy script permission fix | S | chmod 640→644 for Docker UID compat |
+| 16-month analytics audit | L | Nov 2024–Feb 2026, cached 56 datasets |
+| docs/insights/ directory | M | Audit, strengths, data cache |
+
+### Items Not Completed (Returned to Backlog)
+
+| Item | Size | Notes |
+|------|------|-------|
+| CI pipeline update for new deps | S | Still executable |
+| API key auth for REST endpoints | M | Still executable |
+| Health check with dependency status | S | Still executable |
+| Rate limiting / request throttling | S | Still executable |
+
+### Metrics
+
+| Metric | Value |
+|--------|-------|
+| Commits | 0 (work uncommitted) |
+| Tests | 146 collected / 127 passing |
+| Coverage | ~81% |
+| Pylint | 10/10 |
+| Deploys | 0 (live fix via SSH) |
+| MCP Tools | 12 → 21 |
+
+### Retro
+
+- **Went well:** Memory layer followed existing client/service/MCP pattern perfectly. Analytics audit surfaced actionable insights (paid→organic migration, AI referrals, social collapse).
+- **Improve:** Bolt goal didn't match actual work priorities. Should have re-scoped earlier instead of letting unplanned work accumulate.
+- **Action:** Be willing to close/pivot Bolts mid-sprint when priorities shift.
+
+---
+
 ## Bolt 2 — Live Testing & Deploy (2026-02-14 → 2026-02-16)
 
 **Goal:** Validate with real Google credentials, containerize, and deploy

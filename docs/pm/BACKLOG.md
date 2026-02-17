@@ -4,7 +4,7 @@
 > Size: S (< 1hr), M (< half day), L (~ 1 day), XL (multi-day).
 > Status: executable | blocked | done
 
-Last groomed: 2026-02-16
+Last groomed: 2026-02-17
 
 ---
 
@@ -36,9 +36,9 @@ Last groomed: 2026-02-16
 
 | # | Item | Size | Status | Notes |
 |---|------|------|--------|-------|
-| 12 | Rate limiting / request throttling | S | executable | Bolt 3 |
+| 12 | Rate limiting / request throttling | S | executable | Returned from Bolt 3 |
 | 13 | Structured logging (JSON) | S | executable | |
-| 14 | API key auth for REST endpoints | M | executable | Bolt 3 |
+| 14 | API key auth for REST endpoints | M | executable | Returned from Bolt 3 |
 
 ---
 
@@ -49,18 +49,25 @@ Last groomed: 2026-02-16
 | # | Item | Size | Status | Notes |
 |---|------|------|--------|-------|
 | 15 | Cloud deployment (Vultr VPS) | L | done | Bolt 2 — anny.membies.com |
-| 16 | CI pipeline update for new deps | S | executable | Bolt 3 |
+| 16 | CI pipeline update for new deps | S | executable | Returned from Bolt 3 |
 
 ### Should Have
 
 | # | Item | Size | Status | Notes |
 |---|------|------|--------|-------|
-| 17 | Health check with dependency status | S | executable | Bolt 3 — check Google API connectivity |
+| 17 | Health check with dependency status | S | executable | Returned from Bolt 3 — check Google API connectivity |
 | 18 | Monitoring / alerting setup | M | executable | |
 
 ---
 
 ## Phase 3 — Feature Expansion
+
+### Must Have
+
+| # | Item | Size | Status | Notes |
+|---|------|------|--------|-------|
+| 24 | Memory layer (MemoryStore + service + 9 MCP tools) | L | done | Bolt 4 — insights, watchlist, segments |
+| 25 | Query cache for MemoryStore | M | executable | Bolt 4 — cache API responses to avoid re-querying |
 
 ### Could Have
 
@@ -71,6 +78,9 @@ Last groomed: 2026-02-16
 | 21 | GTM workspace management (create/publish) | L | executable | Requires write scopes |
 | 22 | Multi-property support | M | executable | Query across multiple GA4 properties |
 | 23 | Data export (CSV/JSON download) | S | executable | |
+| 26 | GA4 key event creation via Admin API | M | blocked | Needs analytics.edit scope + Admin API |
+| 27 | Conversion optimization audit tooling | M | executable | Only 9/40+ content pages have CTAs |
+| 28 | Social channel reactivation strategy | S | executable | Organic social dropped 92% Q3→Q4 |
 
 ---
 

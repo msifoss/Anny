@@ -19,6 +19,7 @@ Anny is a conversational analytics tool that gives LLMs (via MCP) and programmat
          │  ga4_service          │
          │  search_console_svc   │
          │  tag_manager_svc      │
+         │  memory_service       │
          └───────────┬───────────┘
                      ▼
          ┌───────────────────────┐
@@ -26,6 +27,7 @@ Anny is a conversational analytics tool that gives LLMs (via MCP) and programmat
          │  GA4Client            │
          │  SearchConsoleClient  │
          │  TagManagerClient     │
+         │  MemoryStore (JSON)   │
          └───────────┬───────────┘
                      ▼
          ┌───────────────────────┐
@@ -75,6 +77,7 @@ Anny/
 │       ├── clients/
 │       │   ├── __init__.py
 │       │   ├── ga4.py           # GA4Client (Google Analytics Data API)
+│       │   ├── memory.py        # MemoryStore (JSON file-backed memory)
 │       │   ├── search_console.py # SearchConsoleClient
 │       │   └── tag_manager.py   # TagManagerClient (GTM API v2)
 │       ├── cli/
@@ -91,12 +94,13 @@ Anny/
 │           └── services/
 │               ├── __init__.py
 │               ├── ga4_service.py
+│               ├── memory_service.py
 │               ├── search_console_service.py
 │               └── tag_manager_service.py
 ├── tests/
 │   ├── __init__.py
 │   ├── conftest.py
-│   ├── unit/                    # 77 unit tests
+│   ├── unit/                    # 116 unit tests
 │   ├── integration/             # 11 integration tests
 │   └── mocks/
 ├── scripts/
@@ -137,6 +141,15 @@ Anny/
 | `gtm_list_containers` | List containers for an account |
 | `gtm_container_setup` | Summary of tags/triggers/variables |
 | `gtm_list_tags` | List tags in a container |
+| `save_insight` | Save a key analytics finding |
+| `list_insights` | List all saved insights |
+| `delete_insight` | Remove an insight |
+| `add_to_watchlist` | Track a page with optional baseline metrics |
+| `list_watchlist` | List watched pages |
+| `remove_from_watchlist` | Stop tracking a page |
+| `save_segment` | Save a reusable filter segment |
+| `list_segments` | List saved segments |
+| `get_context` | Load all memory at session start |
 
 ## REST API Endpoints
 - `GET /health` — Health check
@@ -156,17 +169,18 @@ Anny/
 
 ## Conventions
 - Python: formatted with Black (line-length=100), linted with pylint
-- Tests: pytest with pytest-cov (88 tests, 86% coverage)
+- Tests: pytest with pytest-cov (127 tests, 81% coverage)
 - Task runner: `make help` for all targets
 - FastAPI app in `src/anny/main.py`
 - Pre-commit hooks enforce format + lint + test on every commit
 - Service layer shared between REST and MCP — never duplicate Google API logic
 - Lazy credentials — clients created on first use, not at startup
 
-## Current Status (2026-02-13)
-- **Code:** Full implementation. 88 tests, pylint 10/10, 86% coverage.
-- **Services:** GA4, Search Console, Tag Manager — all implemented.
-- **MCP:** 12 tools, HTTP at /mcp + stdio entry point.
+## Current Status (2026-02-17)
+- **Code:** Full implementation. 127 tests, pylint 10/10, 81% coverage.
+- **Services:** GA4, Search Console, Tag Manager, Memory — all implemented.
+- **MCP:** 21 tools, HTTP at /mcp + stdio entry point.
+- **Memory:** JSON file store at `~/.anny/memory.json` — insights, watchlist, segments.
 - **Pipeline:** GitHub Actions CI configured.
-- **Deployment:** Not yet deployed.
+- **Deployment:** Live at https://anny.membies.com (Vultr VPS, Docker, nginx, TLS).
 - **Git:** GitHub repo, branch `main`

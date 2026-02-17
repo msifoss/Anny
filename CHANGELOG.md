@@ -8,7 +8,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-02-17 (Memory Layer + Deployment + Compliance)
+
 ### Added
+- Memory layer: `MemoryStore` client, `memory_service`, 9 MCP tools (save/list/delete insights, watchlist, segments + get_context)
+- `~/.anny/memory.json` persistent store with sortable ID generation
+- `get_memory_store()` lazy singleton in dependencies
+- 39 new tests (14 store, 15 service, 10 tools) — 127 unit+int total
+- `docs/insights/` directory with analytics audit, positioning strengths, and cached API data
+- 16-month analytics audit (Nov 2024–Feb 2026) with quarter-by-quarter analysis
 - Vultr VPS deployment infrastructure for anny.membies.com
 - Server provisioning script (`scripts/server-provision.sh`) — Vultr API, DNS A record
 - Server setup script (`scripts/server-setup.sh`) — Docker, nginx, UFW, fail2ban, deploy user
@@ -25,11 +33,22 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `make e2e` and `make smoke` targets
 - `e2e` pytest marker registration
 - `.gitignore` patterns for service account JSON key files
+- Formal requirements (`docs/REQUIREMENTS.md`) — 8 FR, 8 NFR, 9 SEC requirements
+- Traceability matrix (`docs/TRACEABILITY-MATRIX.md`) — requirements mapped to code and tests
+- User stories (`docs/USER-STORIES.md`) — 12 stories across 3 personas
+- OPS readiness checklist (`docs/standards/OPS-READINESS-CHECKLIST.md`) — 47 items, scored 28/47
+- Security audit (`docs/security/security-audit-2026-02-17.md`) — 1 High, 4 Medium, 5 Low
+- AI-DLC framework docs (7 standards documents addressing all 10 shortcomings)
+- Release runbook (`docs/manuals/RELEASE_RUNBOOK.md`) — doc sync matrix, rollback procedure
 
 ### Changed
 - `docker-compose.yml` hardened for production: localhost-only port binding, `restart: unless-stopped`, log rotation (10m/3 files), secrets mount path
 - `.env.example` trimmed to only the 3 fields accepted by Settings (removed APP_NAME, APP_ENV, etc.)
 - CI pipeline narrowed to `tests/unit/` and `tests/integration/` (skips e2e collection)
+- Version bumped to 0.3.0 in `pyproject.toml` and `main.py`
+- CLAUDE.md updated with deployment status (live at anny.membies.com)
+- SECURITY.md updated with audit findings and security controls
+- Deploy script fixed: `chmod 640` → `chmod 644` for Docker UID compatibility
 
 ## [0.2.0] - 2026-02-13 (Conversational Analytics)
 
