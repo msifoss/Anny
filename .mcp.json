@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "anny": {
+      "type": "url",
+      "url": "https://anny.membies.com/mcp/mcp"
+    }
+  }
+}

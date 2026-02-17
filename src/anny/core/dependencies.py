@@ -4,6 +4,7 @@ from google.analytics.data_v1beta import BetaAnalyticsDataClient
 from googleapiclient.discovery import build
 
 from anny.clients.ga4 import GA4Client
+from anny.clients.memory import MemoryStore
 from anny.clients.search_console import SearchConsoleClient
 from anny.clients.tag_manager import TagManagerClient
 from anny.core.auth import get_google_credentials
@@ -34,3 +35,8 @@ def get_tag_manager_client() -> TagManagerClient:
     creds = get_credentials()
     service = build("tagmanager", "v2", credentials=creds)
     return TagManagerClient(service)
+
+
+@functools.lru_cache
+def get_memory_store() -> MemoryStore:
+    return MemoryStore(settings.memory_store_path)
