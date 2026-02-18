@@ -1,7 +1,10 @@
 import logging
 import os
+import time
+from collections import defaultdict
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 
 from anny.api.error_handlers import anny_error_handler
 from anny.api.ga4_routes import router as ga4_router
@@ -28,6 +31,35 @@ app.include_router(sc_router)
 app.include_router(gtm_router)
 
 app.mount("/mcp", mcp_app)
+
+# --- Rate limiting for /api/* endpoints ---
+RATE_LIMIT_REQUESTS = 60
+RATE_LIMIT_WINDOW = 60  # seconds
+_rate_limit_store: dict[str, list[float]] = defaultdict(list)
+
+
+@app.middleware("http")
+async def rate_limit_middleware(request: Request, call_next):
+    if not request.url.path.startswith("/api/"):
+        return await call_next(request)
+
+    client_ip = request.client.host if request.client else "unknown"
+    now = time.time()
+    window_start = now - RATE_LIMIT_WINDOW
+
+    # Prune expired entries and add current request
+    timestamps = _rate_limit_store[client_ip]
+    _rate_limit_store[client_ip] = [t for t in timestamps if t > window_start]
+    _rate_limit_store[client_ip].append(now)
+
+    if len(_rate_limit_store[client_ip]) > RATE_LIMIT_REQUESTS:
+        logger.warning("Rate limit exceeded for %s", client_ip)
+        return JSONResponse(
+            status_code=429,
+            content={"detail": "Rate limit exceeded. Try again later."},
+        )
+
+    return await call_next(request)
 
 
 @app.get("/health")

@@ -1,5 +1,7 @@
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 from anny.core.services import ga4_service
 
 
@@ -66,3 +68,15 @@ def test_get_traffic_summary():
     assert "sessions" in call_args.kwargs["metrics"]
     assert call_args.kwargs["dimensions"] == ["sessionSource"]
     assert len(rows) == 1
+
+
+def test_get_report_rejects_empty_metrics():
+    mock_client = MagicMock()
+    with pytest.raises(ValueError, match="metric"):
+        ga4_service.get_report(mock_client, metrics="", dimensions="date")
+
+
+def test_get_report_rejects_empty_dimensions():
+    mock_client = MagicMock()
+    with pytest.raises(ValueError, match="dimension"):
+        ga4_service.get_report(mock_client, metrics="sessions", dimensions="")

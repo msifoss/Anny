@@ -54,3 +54,19 @@ def test_case_insensitive():
 def test_unknown_range_raises():
     with pytest.raises(ValueError, match="Unknown date range"):
         parse_date_range("last_week")
+
+
+def test_explicit_range_invalid_format():
+    with pytest.raises(ValueError, match="Invalid date format"):
+        parse_date_range("not-a-date,also-bad")
+
+
+def test_explicit_range_start_after_end():
+    with pytest.raises(ValueError, match="Start date .* is after end date"):
+        parse_date_range("2024-12-31,2024-01-01")
+
+
+def test_explicit_range_same_day():
+    start, end = parse_date_range("2024-06-15,2024-06-15")
+    assert start == "2024-06-15"
+    assert end == "2024-06-15"

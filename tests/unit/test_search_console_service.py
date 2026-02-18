@@ -1,5 +1,7 @@
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 from anny.core.services import search_console_service
 
 
@@ -79,3 +81,9 @@ def test_get_performance_summary():
     call_args = mock_client.query.call_args
     assert call_args.kwargs["dimensions"] is None
     assert len(rows) == 1
+
+
+def test_get_search_analytics_rejects_empty_dimensions():
+    mock_client = MagicMock()
+    with pytest.raises(ValueError, match="dimension"):
+        search_console_service.get_search_analytics(mock_client, dimensions="")

@@ -9,7 +9,9 @@ def get_search_analytics(
     row_limit: int = 10,
 ) -> list[dict]:
     """Run a custom Search Console query."""
-    dimension_list = [d.strip() for d in dimensions.split(",")]
+    dimension_list = [d.strip() for d in dimensions.split(",") if d.strip()]
+    if not dimension_list:
+        raise ValueError("At least one dimension is required")
     start_date, end_date = parse_date_range(date_range)
 
     return client.query(

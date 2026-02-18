@@ -22,7 +22,17 @@ def parse_date_range(date_range: str) -> tuple[str, str]:
     """
     if "," in date_range:
         parts = date_range.split(",", 1)
-        return parts[0].strip(), parts[1].strip()
+        start_str, end_str = parts[0].strip(), parts[1].strip()
+        try:
+            start_dt = date.fromisoformat(start_str)
+            end_dt = date.fromisoformat(end_str)
+        except ValueError as exc:
+            raise ValueError(
+                f"Invalid date format: '{date_range}'. Use YYYY-MM-DD,YYYY-MM-DD"
+            ) from exc
+        if start_dt > end_dt:
+            raise ValueError(f"Start date {start_str} is after end date {end_str}")
+        return start_str, end_str
 
     key = date_range.lower().strip()
     if key not in NAMED_RANGES:

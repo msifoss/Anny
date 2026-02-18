@@ -10,8 +10,12 @@ def get_report(
     limit: int = 10,
 ) -> list[dict]:
     """Run a custom GA4 report."""
-    metric_list = [m.strip() for m in metrics.split(",")]
-    dimension_list = [d.strip() for d in dimensions.split(",")]
+    metric_list = [m.strip() for m in metrics.split(",") if m.strip()]
+    dimension_list = [d.strip() for d in dimensions.split(",") if d.strip()]
+    if not metric_list:
+        raise ValueError("At least one metric is required")
+    if not dimension_list:
+        raise ValueError("At least one dimension is required")
     start_date, end_date = parse_date_range(date_range)
 
     return client.run_report(
