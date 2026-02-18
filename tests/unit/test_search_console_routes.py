@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 from fastapi.testclient import TestClient
 
 from anny.clients.search_console import SearchConsoleClient
-from anny.core.dependencies import get_search_console_client
+from anny.core.dependencies import get_search_console_client, verify_api_key
 from anny.main import app
 
 
@@ -11,9 +11,19 @@ def _mock_sc_client():
     return MagicMock(spec=SearchConsoleClient)
 
 
+def _setup_overrides(mock_client):
+    app.dependency_overrides[get_search_console_client] = lambda: mock_client
+    app.dependency_overrides[verify_api_key] = lambda: None
+
+
+def _teardown_overrides():
+    app.dependency_overrides.pop(get_search_console_client, None)
+    app.dependency_overrides.pop(verify_api_key, None)
+
+
 def test_query_endpoint():
     mock_client = _mock_sc_client()
-    app.dependency_overrides[get_search_console_client] = lambda: mock_client
+    _setup_overrides(mock_client)
 
     with patch(
         "anny.core.services.search_console_service.parse_date_range",
@@ -23,7 +33,7 @@ def test_query_endpoint():
         tc = TestClient(app)
         response = tc.post("/api/search-console/query", json={"dimensions": "query"})
 
-    app.dependency_overrides.clear()
+    _teardown_overrides()
 
     assert response.status_code == 200
     data = response.json()
@@ -33,7 +43,7 @@ def test_query_endpoint():
 
 def test_top_queries_endpoint():
     mock_client = _mock_sc_client()
-    app.dependency_overrides[get_search_console_client] = lambda: mock_client
+    _setup_overrides(mock_client)
 
     with patch(
         "anny.core.services.search_console_service.parse_date_range",
@@ -43,7 +53,7 @@ def test_top_queries_endpoint():
         tc = TestClient(app)
         response = tc.get("/api/search-console/top-queries")
 
-    app.dependency_overrides.clear()
+    _teardown_overrides()
 
     assert response.status_code == 200
     assert response.json()["row_count"] == 1
@@ -51,7 +61,7 @@ def test_top_queries_endpoint():
 
 def test_top_pages_endpoint():
     mock_client = _mock_sc_client()
-    app.dependency_overrides[get_search_console_client] = lambda: mock_client
+    _setup_overrides(mock_client)
 
     with patch(
         "anny.core.services.search_console_service.parse_date_range",
@@ -61,7 +71,7 @@ def test_top_pages_endpoint():
         tc = TestClient(app)
         response = tc.get("/api/search-console/top-pages")
 
-    app.dependency_overrides.clear()
+    _teardown_overrides()
 
     assert response.status_code == 200
     assert response.json()["row_count"] == 1
@@ -69,7 +79,7 @@ def test_top_pages_endpoint():
 
 def test_summary_endpoint():
     mock_client = _mock_sc_client()
-    app.dependency_overrides[get_search_console_client] = lambda: mock_client
+    _setup_overrides(mock_client)
 
     with patch(
         "anny.core.services.search_console_service.parse_date_range",
@@ -79,7 +89,7 @@ def test_summary_endpoint():
         tc = TestClient(app)
         response = tc.get("/api/search-console/summary")
 
-    app.dependency_overrides.clear()
+    _teardown_overrides()
 
     assert response.status_code == 200
     assert response.json()["row_count"] == 1
