@@ -21,8 +21,8 @@ logging.basicConfig(
 logger = logging.getLogger("anny")
 
 mcp_app = mcp.http_app(path="/mcp")
-app = FastAPI(title="Anny", version="0.3.0", lifespan=mcp_app.lifespan)
-logger.info("Anny v0.3.0 starting")
+app = FastAPI(title="Anny", version="0.4.0", lifespan=mcp_app.lifespan)
+logger.info("Anny v0.4.0 starting")
 
 app.add_exception_handler(AnnyError, anny_error_handler)
 

@@ -8,6 +8,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-02-18 (Security Hardening + Production Auth)
+
 ### Added
 - API key authentication for all 13 REST endpoints via `X-API-Key` header
 - `ANNY_API_KEY` environment variable in Settings (empty = auth disabled)
@@ -21,13 +23,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Custom date range validation: ISO format check, start <= end enforcement
 - CSV field validation: reject empty metrics/dimensions in service layer
 - Input bounds clamping in MCP tools (`MAX_LIMIT=100`, `MAX_ROW_LIMIT=1000`)
+- `ANNY_API_KEY` passed to Docker container via `docker-compose.yml`
 - 18 new tests (145 unit+int total, 164 collected)
 
 ### Changed
 - Exception handling: `except Exception` replaced with specific types (`GoogleAPICallError`, `HttpError`, `ValueError`/`KeyError`)
 - Credential error messages scrubbed — generic "invalid key file format" instead of exception details
 - Pre-commit hooks streamlined: removed pytest (kept black + pylint), tests run via `make test` + CI
-- SECURITY.md: H-001 (unauthenticated REST API) resolved
+- Route tests refactored to properly override `verify_api_key` (fixes failures when `ANNY_API_KEY` is set)
+- SECURITY.md: H-001 (unauthenticated REST API) resolved, M-001 (rate limiting) resolved
 - `.env.example`: added `ANNY_API_KEY=` entry
 
 ## [0.3.0] - 2026-02-17 (Memory Layer + Deployment + Compliance)
