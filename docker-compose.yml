@@ -10,6 +10,7 @@ services:
       - GOOGLE_SERVICE_ACCOUNT_KEY_PATH=/secrets/service-account.json
       - GA4_PROPERTY_ID=${GA4_PROPERTY_ID}
       - SEARCH_CONSOLE_SITE_URL=${SEARCH_CONSOLE_SITE_URL}
+      - ANNY_API_KEY=${ANNY_API_KEY}
     logging:
       driver: json-file
       options:
