@@ -1,5 +1,7 @@
 import functools
 
+from fastapi import Security
+from fastapi.security import APIKeyHeader
 from google.analytics.data_v1beta import BetaAnalyticsDataClient
 from googleapiclient.discovery import build
 
@@ -9,6 +11,18 @@ from anny.clients.search_console import SearchConsoleClient
 from anny.clients.tag_manager import TagManagerClient
 from anny.core.auth import get_google_credentials
 from anny.core.config import settings
+from anny.core.exceptions import AuthError
+
+api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
+
+
+async def verify_api_key(api_key: str = Security(api_key_header)):
+    """Validate X-API-Key header. Auth is disabled when ANNY_API_KEY is empty."""
+    if not settings.anny_api_key:
+        return api_key
+    if not api_key or api_key != settings.anny_api_key:
+        raise AuthError("Invalid or missing API key")
+    return api_key
 
 
 @functools.lru_cache

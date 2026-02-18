@@ -151,8 +151,14 @@ Anny/
 | `list_segments` | List saved segments |
 | `get_context` | Load all memory at session start |
 
+## REST API Authentication
+- All `/api/*` endpoints require `X-API-Key` header when `ANNY_API_KEY` is set
+- `GET /health` is unauthenticated (monitoring)
+- MCP endpoints (`/mcp/*`) are unauthenticated (auth at transport layer)
+- Set `ANNY_API_KEY=` (empty) to disable auth in development
+
 ## REST API Endpoints
-- `GET /health` — Health check
+- `GET /health` — Health check (no auth)
 - `POST /api/ga4/report` — Custom GA4 report
 - `GET /api/ga4/top-pages` — Top pages
 - `GET /api/ga4/traffic-summary` — Traffic summary
@@ -169,7 +175,7 @@ Anny/
 
 ## Conventions
 - Python: formatted with Black (line-length=100), linted with pylint
-- Tests: pytest with pytest-cov (127 tests, 81% coverage)
+- Tests: pytest with pytest-cov (135 tests, 82% coverage)
 - Task runner: `make help` for all targets
 - FastAPI app in `src/anny/main.py`
 - Pre-commit hooks enforce format + lint + test on every commit
@@ -177,7 +183,7 @@ Anny/
 - Lazy credentials — clients created on first use, not at startup
 
 ## Current Status (2026-02-17)
-- **Code:** Full implementation. 127 tests, pylint 10/10, 81% coverage.
+- **Code:** Full implementation. 135 tests, pylint 10/10, 82% coverage.
 - **Services:** GA4, Search Console, Tag Manager, Memory — all implemented.
 - **MCP:** 21 tools, HTTP at /mcp + stdio entry point.
 - **Memory:** JSON file store at `~/.anny/memory.json` — insights, watchlist, segments.

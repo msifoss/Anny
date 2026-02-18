@@ -13,7 +13,7 @@ Do not test against production systems without authorization.
 
 | Round | Date | Findings | Status |
 |-------|------|----------|--------|
-| 1 | 2026-02-17 | 1 High, 4 Medium, 5 Low | Open (H-001: API auth needed) |
+| 1 | 2026-02-17 | 1 High, 4 Medium, 5 Low | H-001 resolved (API key auth added) |
 
 See `docs/security/security-audit-2026-02-17.md` for full details.
 
@@ -21,8 +21,9 @@ See `docs/security/security-audit-2026-02-17.md` for full details.
 
 ### Authentication
 - Google APIs: Service account with readonly scopes (GA4, SC, GTM)
-- REST API: No authentication (HIGH finding — backlog item #14)
+- REST API: API key auth via `X-API-Key` header (`ANNY_API_KEY` env var)
 - MCP: No authentication (inherits from transport layer)
+- Health endpoint (`/health`) excluded from auth for monitoring
 
 ### Authorization
 - All Google API scopes are readonly — no write access to any service
@@ -64,7 +65,6 @@ pip-audit
 Last scan: 2026-02-17 — 1 vulnerability found (diskcache CVE-2025-69872, transitive)
 
 ## Known Limitations
-- REST API accessible without authentication on public internet (H-001)
 - No rate limiting (M-001)
 - No CORS policy (M-002)
 - Memory store file has default permissions (L-005)

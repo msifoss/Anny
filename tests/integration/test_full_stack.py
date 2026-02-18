@@ -15,6 +15,7 @@ from anny.core.dependencies import (
     get_ga4_client,
     get_search_console_client,
     get_tag_manager_client,
+    verify_api_key,
 )
 from anny.main import app
 
@@ -23,6 +24,7 @@ class TestGA4FullStack:  # pylint: disable=attribute-defined-outside-init
     def setup_method(self):
         self.mock_client = MagicMock(spec=GA4Client)
         app.dependency_overrides[get_ga4_client] = lambda: self.mock_client
+        app.dependency_overrides[verify_api_key] = lambda: None
         self.tc = TestClient(app)
 
     def teardown_method(self):
@@ -71,6 +73,7 @@ class TestSearchConsoleFullStack:  # pylint: disable=attribute-defined-outside-i
     def setup_method(self):
         self.mock_client = MagicMock(spec=SearchConsoleClient)
         app.dependency_overrides[get_search_console_client] = lambda: self.mock_client
+        app.dependency_overrides[verify_api_key] = lambda: None
         self.tc = TestClient(app)
 
     def teardown_method(self):
@@ -115,6 +118,7 @@ class TestTagManagerFullStack:  # pylint: disable=attribute-defined-outside-init
     def setup_method(self):
         self.mock_client = MagicMock(spec=TagManagerClient)
         app.dependency_overrides[get_tag_manager_client] = lambda: self.mock_client
+        app.dependency_overrides[verify_api_key] = lambda: None
         self.tc = TestClient(app)
 
     def teardown_method(self):
