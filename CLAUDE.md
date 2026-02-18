@@ -51,7 +51,7 @@ Anny/
 ├── SECURITY.md                  # Security policy and controls
 ├── CHANGELOG.md                 # Version history
 ├── Makefile                     # Standard targets (test, lint, format, audit, mcp)
-├── .pre-commit-config.yaml      # Format + lint + test on every commit
+├── .pre-commit-config.yaml      # Format + lint on every commit
 ├── .gitignore                   # Python ignores
 ├── .env.example                 # Environment config template
 ├── pyproject.toml               # Python project config (pytest, black, pylint)
@@ -100,7 +100,7 @@ Anny/
 ├── tests/
 │   ├── __init__.py
 │   ├── conftest.py
-│   ├── unit/                    # 116 unit tests
+│   ├── unit/                    # 134 unit tests
 │   ├── integration/             # 11 integration tests
 │   └── mocks/
 ├── scripts/

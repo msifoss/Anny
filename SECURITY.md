@@ -65,6 +65,5 @@ pip-audit
 Last scan: 2026-02-17 — 1 vulnerability found (diskcache CVE-2025-69872, transitive)
 
 ## Known Limitations
-- No rate limiting (M-001)
 - No CORS policy (M-002)
 - Memory store file has default permissions (L-005)

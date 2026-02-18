@@ -50,8 +50,8 @@ Anny gives LLMs and programmatic clients unified access to your Google analytics
 - Single service account for all three APIs (readonly)
 - Named date ranges (`last_7_days`, `last_28_days`) -- no date math required
 - Lazy credential loading -- the health check works without any Google credentials
-- 88 tests, pylint 10/10, 86% coverage
-- Pre-commit hooks enforce formatting, linting, and tests
+- 145 tests, pylint 10/10, 83% coverage
+- Pre-commit hooks enforce formatting and linting
 
 ---
 
@@ -422,7 +422,8 @@ Pre-commit hooks run automatically on every commit:
 
 1. **Black** -- Code formatting (line length 100)
 2. **pylint** -- Linting (10/10 score enforced)
-3. **pytest** -- Tests must pass
+
+Tests run via `make test` and CI pipeline (not in pre-commit, to keep commits fast).
 
 ---
 
@@ -501,7 +502,7 @@ make format-check && make lint && make test
 
 4. Submit a pull request
 
-Pre-commit hooks enforce formatting, linting, and tests automatically on every commit.
+Pre-commit hooks enforce formatting and linting automatically on every commit.
 
 ---
 

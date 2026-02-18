@@ -80,7 +80,7 @@ All Google API errors shall be caught and mapped to appropriate error types (Aut
 
 ### NFR-004: Code Quality
 - Python 3.12+, formatted with Black (line-length 100), linted with pylint (score 10/10)
-- Pre-commit hooks enforce format + lint + test on every commit
+- Pre-commit hooks enforce format + lint on every commit; tests run via `make test` + CI
 
 ### NFR-005: Test Coverage
 - Minimum 80% code coverage
