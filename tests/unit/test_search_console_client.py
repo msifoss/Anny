@@ -1,6 +1,8 @@
 from unittest.mock import MagicMock
 
 import pytest
+from googleapiclient.errors import HttpError
+from httplib2 import Response
 
 from anny.clients.search_console import SearchConsoleClient
 from anny.core.exceptions import APIError
@@ -65,7 +67,9 @@ def test_query_no_dimensions():
 
 def test_query_api_failure():
     service = MagicMock()
-    service.searchanalytics().query().execute.side_effect = RuntimeError("API error")
+    service.searchanalytics().query().execute.side_effect = HttpError(
+        Response({"status": "403"}), b"forbidden"
+    )
     client = SearchConsoleClient(service, "https://example.com")
 
     with pytest.raises(APIError, match="Search Console query failed"):

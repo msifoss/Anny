@@ -1,6 +1,7 @@
 from unittest.mock import MagicMock
 
 import pytest
+from google.api_core.exceptions import GoogleAPICallError
 
 from anny.clients.ga4 import GA4Client
 from anny.core.exceptions import APIError
@@ -61,7 +62,7 @@ def test_run_report_empty_response():
 
 def test_run_report_api_failure():
     mock_api = MagicMock()
-    mock_api.run_report.side_effect = RuntimeError("connection failed")
+    mock_api.run_report.side_effect = GoogleAPICallError("connection failed")
 
     client = GA4Client(mock_api, "123456")
     with pytest.raises(APIError, match="GA4 report failed"):

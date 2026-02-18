@@ -8,6 +8,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- API key authentication for all 13 REST endpoints via `X-API-Key` header
+- `ANNY_API_KEY` environment variable in Settings (empty = auth disabled)
+- `verify_api_key` dependency in `dependencies.py` using FastAPI `APIKeyHeader`
+- 8 new auth tests in `tests/unit/test_api_auth.py` (135 unit+int total)
+
+### Changed
+- SECURITY.md: H-001 (unauthenticated REST API) resolved
+- `.env.example`: added `ANNY_API_KEY=` entry
+
 ## [0.3.0] - 2026-02-17 (Memory Layer + Deployment + Compliance)
 
 ### Added

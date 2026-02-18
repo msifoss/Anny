@@ -14,6 +14,9 @@ from anny.core.services import (
     tag_manager_service,
 )
 
+MAX_LIMIT = 100
+MAX_ROW_LIMIT = 1000
+
 mcp = FastMCP("Anny")
 
 
@@ -38,6 +41,7 @@ def ga4_report(
         date_range: Named range (last_7_days, last_28_days, last_90_days) or YYYY-MM-DD,YYYY-MM-DD
         limit: Max rows to return (1-100)
     """
+    limit = max(1, min(limit, MAX_LIMIT))
     client = get_ga4_client()
     rows = ga4_service.get_report(client, metrics, dimensions, date_range, limit)
     return format_table(rows)
@@ -51,6 +55,7 @@ def ga4_top_pages(date_range: str = "last_28_days", limit: int = 10) -> str:
         date_range: Named range (last_7_days, last_28_days, last_90_days) or YYYY-MM-DD,YYYY-MM-DD
         limit: Max rows to return (1-100)
     """
+    limit = max(1, min(limit, MAX_LIMIT))
     client = get_ga4_client()
     rows = ga4_service.get_top_pages(client, date_range, limit)
     return format_table(rows)
@@ -84,6 +89,7 @@ def search_console_query(
         date_range: Named range (last_7_days, last_28_days, last_90_days) or YYYY-MM-DD,YYYY-MM-DD
         row_limit: Max rows to return (1-1000)
     """
+    row_limit = max(1, min(row_limit, MAX_ROW_LIMIT))
     client = get_search_console_client()
     rows = search_console_service.get_search_analytics(client, dimensions, date_range, row_limit)
     return format_table(rows)
@@ -97,6 +103,7 @@ def search_console_top_queries(date_range: str = "last_28_days", limit: int = 10
         date_range: Named range (last_7_days, last_28_days, last_90_days) or YYYY-MM-DD,YYYY-MM-DD
         limit: Max rows to return (1-100)
     """
+    limit = max(1, min(limit, MAX_LIMIT))
     client = get_search_console_client()
     rows = search_console_service.get_top_queries(client, date_range, limit)
     return format_table(rows)
@@ -110,6 +117,7 @@ def search_console_top_pages(date_range: str = "last_28_days", limit: int = 10) 
         date_range: Named range (last_7_days, last_28_days, last_90_days) or YYYY-MM-DD,YYYY-MM-DD
         limit: Max rows to return (1-100)
     """
+    limit = max(1, min(limit, MAX_LIMIT))
     client = get_search_console_client()
     rows = search_console_service.get_top_pages(client, date_range, limit)
     return format_table(rows)

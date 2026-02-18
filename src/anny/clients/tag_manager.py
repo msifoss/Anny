@@ -1,6 +1,11 @@
+import logging
+
 from googleapiclient.discovery import Resource
+from googleapiclient.errors import HttpError
 
 from anny.core.exceptions import APIError
+
+logger = logging.getLogger("anny")
 
 
 class TagManagerClient:
@@ -13,8 +18,11 @@ class TagManagerClient:
         """List all GTM accounts accessible by the service account."""
         try:
             response = self._service.accounts().list().execute()
-        except Exception as exc:
-            raise APIError(f"GTM list accounts failed: {exc}", service="tag_manager") from exc
+        except HttpError as exc:
+            raise APIError(
+                f"GTM list accounts failed: {exc.status_code} {exc.reason}",
+                service="tag_manager",
+            ) from exc
 
         return [
             {
@@ -30,8 +38,11 @@ class TagManagerClient:
         parent = f"accounts/{account_id.removeprefix('accounts/')}"
         try:
             response = self._service.accounts().containers().list(parent=parent).execute()
-        except Exception as exc:
-            raise APIError(f"GTM list containers failed: {exc}", service="tag_manager") from exc
+        except HttpError as exc:
+            raise APIError(
+                f"GTM list containers failed: {exc.status_code} {exc.reason}",
+                service="tag_manager",
+            ) from exc
 
         return [
             {
@@ -55,8 +66,11 @@ class TagManagerClient:
                 .list(parent=workspace_path)
                 .execute()
             )
-        except Exception as exc:
-            raise APIError(f"GTM list tags failed: {exc}", service="tag_manager") from exc
+        except HttpError as exc:
+            raise APIError(
+                f"GTM list tags failed: {exc.status_code} {exc.reason}",
+                service="tag_manager",
+            ) from exc
 
         return [
             {
@@ -79,8 +93,11 @@ class TagManagerClient:
                 .list(parent=workspace_path)
                 .execute()
             )
-        except Exception as exc:
-            raise APIError(f"GTM list triggers failed: {exc}", service="tag_manager") from exc
+        except HttpError as exc:
+            raise APIError(
+                f"GTM list triggers failed: {exc.status_code} {exc.reason}",
+                service="tag_manager",
+            ) from exc
 
         return [
             {
@@ -103,8 +120,11 @@ class TagManagerClient:
                 .list(parent=workspace_path)
                 .execute()
             )
-        except Exception as exc:
-            raise APIError(f"GTM list variables failed: {exc}", service="tag_manager") from exc
+        except HttpError as exc:
+            raise APIError(
+                f"GTM list variables failed: {exc.status_code} {exc.reason}",
+                service="tag_manager",
+            ) from exc
 
         return [
             {

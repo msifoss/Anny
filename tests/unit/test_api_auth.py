@@ -58,7 +58,7 @@ class TestAPIKeyAuth:  # pylint: disable=attribute-defined-outside-init
     def test_health_endpoint_no_auth_required(self):
         response = self.tc.get("/health")
         assert response.status_code == 200
-        assert response.json() == {"status": "healthy"}
+        assert response.json()["status"] in ("healthy", "degraded")
 
     @patch("anny.core.dependencies.settings")
     def test_auth_applies_to_post_endpoints(self, mock_settings):

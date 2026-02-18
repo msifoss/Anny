@@ -1,6 +1,11 @@
+import logging
+
 from googleapiclient.discovery import Resource
+from googleapiclient.errors import HttpError
 
 from anny.core.exceptions import APIError
+
+logger = logging.getLogger("anny")
 
 
 class SearchConsoleClient:
@@ -34,9 +39,14 @@ class SearchConsoleClient:
             response = (
                 self._service.searchanalytics().query(siteUrl=self._site_url, body=body).execute()
             )
-        except Exception as exc:
-            raise APIError(f"Search Console query failed: {exc}", service="search_console") from exc
+        except HttpError as exc:
+            logger.error("Search Console query failed: %s %s", exc.status_code, exc.reason)
+            raise APIError(
+                f"Search Console query failed: {exc.status_code} {exc.reason}",
+                service="search_console",
+            ) from exc
 
+        logger.info("Search Console query returned %d rows", len(response.get("rows", [])))
         return self._flatten_response(response, dimensions or [])
 
     @staticmethod

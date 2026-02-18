@@ -169,4 +169,6 @@ class TestHealthAndMCP:
         tc = TestClient(app)
         response = tc.get("/health")
         assert response.status_code == 200
-        assert response.json() == {"status": "healthy"}
+        data = response.json()
+        assert data["status"] in ("healthy", "degraded")
+        assert "checks" in data

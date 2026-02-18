@@ -4,6 +4,48 @@ Archive of completed Bolts.
 
 ---
 
+## Bolt 4 — Analytics Intelligence (2026-02-17 → 2026-02-17)
+
+**Goal:** Build memory and caching layer so Anny retains insights, watchlists, and query results across sessions
+
+**Outcome:** ACHIEVED — Memory layer delivered with full test coverage. API key auth pulled from backlog and completed as bonus (H-001 closed). Query cache deferred to backlog. Codebase audit identified 12 hardening items, triggering Bolt 5.
+
+### Items Completed
+
+| Item | Size | Notes |
+|------|------|-------|
+| Memory layer — MemoryStore client + service + 9 MCP tools | L | JSON file store at ~/.anny/memory.json |
+| Memory layer tests (store, service, tools — 39 tests) | M | 127 unit+int total |
+| Deploy script permission fix (chmod 644) | S | Docker UID compatibility |
+| Analytics insights audit (16-month deep analysis) | L | Nov 2024–Feb 2026, 56 cached datasets |
+| API key auth for all 13 REST endpoints (H-001) | M | X-API-Key header, ANNY_API_KEY env var |
+| Auth tests (8 tests) | S | valid/invalid/missing key, override bypass |
+
+### Items Not Completed (Returned to Backlog)
+
+| Item | Size | Notes |
+|------|------|-------|
+| Query cache for MemoryStore | M | Still executable — deferred to feature phase |
+
+### Metrics
+
+| Metric | Value |
+|--------|-------|
+| Commits | 5 |
+| Tests | 154 collected / 135 unit+int passing / 19 e2e |
+| Coverage | 82% |
+| Pylint | 10/10 |
+| Deploys | 1 (anny.membies.com live) |
+| MCP Tools | 21 |
+
+### Retro
+
+- **Went well:** API key auth followed existing dependency injection pattern perfectly. Codebase audit surfaced concrete, actionable items rather than vague concerns.
+- **Improve:** Query cache was planned but never started — should have been scoped more tightly or dropped earlier.
+- **Action:** Keep Bolt scope to items you'll actually work on. Defer "nice to haves" to backlog immediately.
+
+---
+
 ## Bolt 3 — Production Hardening & Ops (2026-02-16 → 2026-02-17)
 
 **Goal:** Harden the deployed service with auth, observability, and CI updates

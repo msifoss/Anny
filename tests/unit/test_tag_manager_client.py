@@ -1,6 +1,8 @@
 from unittest.mock import MagicMock
 
 import pytest
+from googleapiclient.errors import HttpError
+from httplib2 import Response
 
 from anny.clients.tag_manager import TagManagerClient
 from anny.core.exceptions import APIError
@@ -30,7 +32,9 @@ def test_list_accounts_empty():
 
 def test_list_accounts_api_failure():
     service = MagicMock()
-    service.accounts().list().execute.side_effect = RuntimeError("fail")
+    service.accounts().list().execute.side_effect = HttpError(
+        Response({"status": "500"}), b"internal error"
+    )
     client = TagManagerClient(service)
 
     with pytest.raises(APIError, match="GTM list accounts failed"):

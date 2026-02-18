@@ -1,3 +1,4 @@
+import fcntl
 import json
 import os
 import random
@@ -29,19 +30,34 @@ class MemoryStore:
         if not os.path.exists(self._path):
             return {"insights": [], "watchlist": [], "segments": []}
         with open(self._path, "r", encoding="utf-8") as f:
-            return json.load(f)
+            fcntl.flock(f, fcntl.LOCK_SH)
+            try:
+                return json.load(f)
+            finally:
+                fcntl.flock(f, fcntl.LOCK_UN)
 
-    def _write(self, data: dict) -> None:
-        """Write data to the JSON file, creating parent directories if needed."""
+    def _modify(self, mutate_fn):
+        """Atomically read, modify, and write the store under an exclusive lock."""
         os.makedirs(os.path.dirname(self._path), exist_ok=True)
-        with open(self._path, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=2)
+        if not os.path.exists(self._path):
+            with open(self._path, "w", encoding="utf-8") as f:
+                json.dump({"insights": [], "watchlist": [], "segments": []}, f, indent=2)
+        with open(self._path, "r+", encoding="utf-8") as f:
+            fcntl.flock(f, fcntl.LOCK_EX)
+            try:
+                data = json.load(f)
+                result = mutate_fn(data)
+                f.seek(0)
+                json.dump(data, f, indent=2)
+                f.truncate()
+            finally:
+                fcntl.flock(f, fcntl.LOCK_UN)
+        return result
 
     # --- Insights ---
 
     def add_insight(self, text: str, source: str, tags: list[str]) -> dict:
         """Add an insight and return it."""
-        data = self._read()
         insight = {
             "id": _generate_id("ins"),
             "text": text,
@@ -49,8 +65,11 @@ class MemoryStore:
             "tags": tags,
             "created_at": datetime.now(timezone.utc).isoformat(),
         }
-        data["insights"].append(insight)
-        self._write(data)
+
+        def _mutate(data):
+            data["insights"].append(insight)
+
+        self._modify(_mutate)
         return insight
 
     def list_insights(self) -> list[dict]:
@@ -59,19 +78,20 @@ class MemoryStore:
 
     def delete_insight(self, insight_id: str) -> bool:
         """Delete an insight by ID. Returns True if found and deleted."""
-        data = self._read()
-        original_len = len(data["insights"])
-        data["insights"] = [i for i in data["insights"] if i["id"] != insight_id]
-        if len(data["insights"]) < original_len:
-            self._write(data)
-            return True
-        return False
+        deleted = []
+
+        def _mutate(data):
+            original_len = len(data["insights"])
+            data["insights"] = [i for i in data["insights"] if i["id"] != insight_id]
+            deleted.append(len(data["insights"]) < original_len)
+
+        self._modify(_mutate)
+        return deleted[0]
 
     # --- Watchlist ---
 
     def add_watchlist_item(self, page_path: str, label: str, baseline: dict | None = None) -> dict:
         """Add a watchlist item and return it."""
-        data = self._read()
         item = {
             "id": _generate_id("wtc"),
             "page_path": page_path,
@@ -79,8 +99,11 @@ class MemoryStore:
             "baseline": baseline or {},
             "created_at": datetime.now(timezone.utc).isoformat(),
         }
-        data["watchlist"].append(item)
-        self._write(data)
+
+        def _mutate(data):
+            data["watchlist"].append(item)
+
+        self._modify(_mutate)
         return item
 
     def list_watchlist(self) -> list[dict]:
@@ -89,13 +112,15 @@ class MemoryStore:
 
     def delete_watchlist_item(self, item_id: str) -> bool:
         """Delete a watchlist item by ID. Returns True if found and deleted."""
-        data = self._read()
-        original_len = len(data["watchlist"])
-        data["watchlist"] = [i for i in data["watchlist"] if i["id"] != item_id]
-        if len(data["watchlist"]) < original_len:
-            self._write(data)
-            return True
-        return False
+        deleted = []
+
+        def _mutate(data):
+            original_len = len(data["watchlist"])
+            data["watchlist"] = [i for i in data["watchlist"] if i["id"] != item_id]
+            deleted.append(len(data["watchlist"]) < original_len)
+
+        self._modify(_mutate)
+        return deleted[0]
 
     # --- Segments ---
 
@@ -103,7 +128,6 @@ class MemoryStore:
         self, name: str, description: str, filter_type: str, patterns: list[str]
     ) -> dict:
         """Add a segment and return it."""
-        data = self._read()
         segment = {
             "id": _generate_id("seg"),
             "name": name,
@@ -112,8 +136,11 @@ class MemoryStore:
             "patterns": patterns,
             "created_at": datetime.now(timezone.utc).isoformat(),
         }
-        data["segments"].append(segment)
-        self._write(data)
+
+        def _mutate(data):
+            data["segments"].append(segment)
+
+        self._modify(_mutate)
         return segment
 
     def list_segments(self) -> list[dict]:
@@ -122,13 +149,15 @@ class MemoryStore:
 
     def delete_segment(self, segment_id: str) -> bool:
         """Delete a segment by ID. Returns True if found and deleted."""
-        data = self._read()
-        original_len = len(data["segments"])
-        data["segments"] = [s for s in data["segments"] if s["id"] != segment_id]
-        if len(data["segments"]) < original_len:
-            self._write(data)
-            return True
-        return False
+        deleted = []
+
+        def _mutate(data):
+            original_len = len(data["segments"])
+            data["segments"] = [s for s in data["segments"] if s["id"] != segment_id]
+            deleted.append(len(data["segments"]) < original_len)
+
+        self._modify(_mutate)
+        return deleted[0]
 
     # --- Bulk ---
 

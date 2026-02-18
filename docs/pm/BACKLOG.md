@@ -36,9 +36,9 @@ Last groomed: 2026-02-17
 
 | # | Item | Size | Status | Notes |
 |---|------|------|--------|-------|
-| 12 | Rate limiting / request throttling | S | executable | Returned from Bolt 3 |
-| 13 | Structured logging (JSON) | S | executable | |
-| 14 | API key auth for REST endpoints | M | executable | Returned from Bolt 3 |
+| 12 | Rate limiting / request throttling | M | executable | Bolt 5 |
+| 13 | Structured logging (JSON) | M | executable | Bolt 5 |
+| 14 | API key auth for REST endpoints | M | done | Bolt 4 — X-API-Key header, ANNY_API_KEY env var, H-001 closed |
 
 ---
 
@@ -50,12 +50,22 @@ Last groomed: 2026-02-17
 |---|------|------|--------|-------|
 | 15 | Cloud deployment (Vultr VPS) | L | done | Bolt 2 — anny.membies.com |
 | 16 | CI pipeline update for new deps | S | executable | Returned from Bolt 3 |
+| 29 | Fix timing attack in verify_api_key | S | executable | Bolt 5 — use hmac.compare_digest |
+| 30 | Add file locking to MemoryStore | S | executable | Bolt 5 — prevent concurrent write data loss |
+| 31 | Health check validates dependencies | S | executable | Bolt 5 — creds, config, memory path |
+| 32 | Startup config validation (fail fast) | S | executable | Bolt 5 — missing required env vars |
+| 33 | Fix bare except Exception in clients + auth | S | executable | Bolt 5 — catch specific Google API exceptions |
+| 34 | Scrub credentials from error messages | S | executable | Bolt 5 — prevent secret leakage in logs |
+| 35 | Add input bounds to MCP tools | S | executable | Bolt 5 — match REST Pydantic validation |
+| 36 | Validate CSV fields in service layer | S | executable | Bolt 5 — no empty metrics/dimensions |
+| 37 | Validate custom date ranges in date_utils | S | executable | Bolt 5 — reject invalid dates, enforce order |
+| 38 | Move pytest out of pre-commit | S | executable | Bolt 5 — keep format + lint only, tests in CI |
 
 ### Should Have
 
 | # | Item | Size | Status | Notes |
 |---|------|------|--------|-------|
-| 17 | Health check with dependency status | S | executable | Returned from Bolt 3 — check Google API connectivity |
+| 17 | Health check with dependency status | S | done | Superseded by #31 |
 | 18 | Monitoring / alerting setup | M | executable | |
 
 ---

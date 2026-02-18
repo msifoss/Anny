@@ -1,6 +1,6 @@
-# Bolt 4 — Analytics Intelligence (2026-02-17)
+# Bolt 5 — Production Hardening & Code Quality (2026-02-17)
 
-**Goal:** Build memory and caching layer so Anny retains insights, watchlists, and query results across sessions
+**Goal:** Fix security vulnerabilities, add operational visibility, and harden error handling across the codebase
 
 **Status:** IN PROGRESS
 
@@ -12,26 +12,28 @@
 
 | Item | Size | Status |
 |------|------|--------|
-| Memory layer — MemoryStore client + service + 9 MCP tools | L | done |
-| Memory layer tests (store, service, tools — 39 tests) | M | done |
-| Deploy script permission fix (chmod 644) | S | done |
-| Analytics insights audit (16-month deep analysis) | L | done |
-| Query cache for MemoryStore (avoid re-hitting APIs) | M | executable |
-| Commit + push memory layer and insights work | S | executable |
-
-## Carried from Bolt 3 (returned to backlog)
-
-CI pipeline update, API key auth, health check, rate limiting — moved back to backlog.
+| Fix timing attack in verify_api_key (hmac.compare_digest) | S | executable |
+| Add file locking to MemoryStore | S | executable |
+| Health check validates dependencies (creds, config, memory) | S | executable |
+| Startup config validation (fail fast on missing config) | S | executable |
+| Structured logging throughout app | M | executable |
+| Fix bare except Exception in clients + auth | S | executable |
+| Scrub credentials from error messages | S | executable |
+| Add input bounds to MCP tools (match REST validation) | S | executable |
+| Validate CSV fields in service layer | S | executable |
+| Validate custom date ranges in date_utils | S | executable |
+| Rate limiting middleware | M | executable |
+| Move pytest out of pre-commit (keep format + lint only) | S | executable |
 
 ## Metrics
 
 | Metric | Value |
 |--------|-------|
-| Commits | 0 (pending) |
-| Tests | 146 collected / 127 unit+int passing / 19 e2e |
-| Coverage | ~81% |
+| Commits | 0 |
+| Tests | 154 collected / 135 unit+int passing / 19 e2e |
+| Coverage | 82% |
 | Deploys | 1 (anny.membies.com live) |
-| MCP Tools | 21 (12 original + 9 memory) |
+| MCP Tools | 21 |
 
 ## Blockers
 

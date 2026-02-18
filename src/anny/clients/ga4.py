@@ -1,3 +1,5 @@
+import logging
+
 from google.analytics.data_v1beta import BetaAnalyticsDataClient
 from google.analytics.data_v1beta.types import (
     DateRange,
@@ -6,8 +8,11 @@ from google.analytics.data_v1beta.types import (
     RunReportRequest,
     RunReportResponse,
 )
+from google.api_core.exceptions import GoogleAPICallError
 
 from anny.core.exceptions import APIError
+
+logger = logging.getLogger("anny")
 
 
 class GA4Client:
@@ -40,9 +45,11 @@ class GA4Client:
 
         try:
             response: RunReportResponse = self._client.run_report(request)
-        except Exception as exc:
-            raise APIError(f"GA4 report failed: {exc}", service="ga4") from exc
+        except GoogleAPICallError as exc:
+            logger.error("GA4 report failed: %s", exc.message)
+            raise APIError(f"GA4 report failed: {exc.message}", service="ga4") from exc
 
+        logger.info("GA4 report returned %d rows", len(response.rows))
         return self._flatten_response(response, metrics, dimensions)
 
     @staticmethod
