@@ -12,9 +12,21 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - API key authentication for all 13 REST endpoints via `X-API-Key` header
 - `ANNY_API_KEY` environment variable in Settings (empty = auth disabled)
 - `verify_api_key` dependency in `dependencies.py` using FastAPI `APIKeyHeader`
-- 8 new auth tests in `tests/unit/test_api_auth.py` (135 unit+int total)
+- Constant-time API key comparison via `hmac.compare_digest()` (timing attack fix)
+- File locking in MemoryStore with `fcntl.flock()` and atomic `_modify()` pattern
+- Enhanced health check: validates config, credentials file, memory path writability
+- Startup config validation with `validate_config()` logging warnings for missing settings
+- Structured logging via `logging.getLogger("anny")` across all modules
+- Rate limiting middleware: 60 requests/minute per IP on `/api/*` endpoints (429 response)
+- Custom date range validation: ISO format check, start <= end enforcement
+- CSV field validation: reject empty metrics/dimensions in service layer
+- Input bounds clamping in MCP tools (`MAX_LIMIT=100`, `MAX_ROW_LIMIT=1000`)
+- 18 new tests (145 unit+int total, 164 collected)
 
 ### Changed
+- Exception handling: `except Exception` replaced with specific types (`GoogleAPICallError`, `HttpError`, `ValueError`/`KeyError`)
+- Credential error messages scrubbed — generic "invalid key file format" instead of exception details
+- Pre-commit hooks streamlined: removed pytest (kept black + pylint), tests run via `make test` + CI
 - SECURITY.md: H-001 (unauthenticated REST API) resolved
 - `.env.example`: added `ANNY_API_KEY=` entry
 

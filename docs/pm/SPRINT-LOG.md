@@ -4,6 +4,52 @@ Archive of completed Bolts.
 
 ---
 
+## Bolt 5 — Production Hardening & Code Quality (2026-02-17 → 2026-02-18)
+
+**Goal:** Fix security vulnerabilities, add operational visibility, and harden error handling across the codebase
+
+**Outcome:** ACHIEVED — All 12 items completed in 2 commits. Timing attack fixed, file locking added, health check enhanced, structured logging throughout, exception handling tightened, input validation hardened, rate limiting added, pre-commit streamlined.
+
+### Items Completed
+
+| Item | Size | Notes |
+|------|------|-------|
+| Fix timing attack in verify_api_key | S | hmac.compare_digest() for constant-time comparison |
+| Add file locking to MemoryStore | S | fcntl.flock() with atomic _modify() pattern |
+| Health check validates dependencies | S | Config, credentials file, memory path checks |
+| Startup config validation (fail fast) | S | validate_config() with logging warnings |
+| Structured logging throughout app | M | logging.getLogger("anny") in all modules |
+| Fix bare except Exception in clients + auth | S | GoogleAPICallError (GA4), HttpError (SC/GTM), ValueError/KeyError (auth) |
+| Scrub credentials from error messages | S | Generic "invalid key file format" instead of exception details |
+| Add input bounds to MCP tools | S | MAX_LIMIT=100, MAX_ROW_LIMIT=1000, clamping in all 5 tools |
+| Validate CSV fields in service layer | S | Filter empty strings, raise ValueError on empty metrics/dimensions |
+| Validate custom date ranges in date_utils | S | ISO format validation, start <= end enforcement |
+| Rate limiting middleware | M | 60 req/min per IP on /api/*, in-memory, 429 response |
+| Move pytest out of pre-commit | S | Keep black + pylint only, tests via make test + CI |
+
+### Items Not Completed (Returned to Backlog)
+
+(none — all items completed)
+
+### Metrics
+
+| Metric | Value |
+|--------|-------|
+| Commits | 2 |
+| Tests | 164 collected / 145 unit+int passing / 19 e2e |
+| Coverage | 83% |
+| Pylint | 10/10 |
+| Deploys | 0 (hardened code not yet deployed) |
+| MCP Tools | 21 |
+
+### Retro
+
+- **Went well:** Clean sweep — all 12 items done. Priority ordering (critical → high → medium → low) kept focus. Each fix was small and self-contained.
+- **Improve:** Should deploy the hardened code before closing the Bolt to validate in production.
+- **Action:** Deploy hardened build to anny.membies.com as first action in next session.
+
+---
+
 ## Bolt 4 — Analytics Intelligence (2026-02-17 → 2026-02-17)
 
 **Goal:** Build memory and caching layer so Anny retains insights, watchlists, and query results across sessions

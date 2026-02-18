@@ -175,18 +175,19 @@ Anny/
 
 ## Conventions
 - Python: formatted with Black (line-length=100), linted with pylint
-- Tests: pytest with pytest-cov (135 tests, 82% coverage)
+- Tests: pytest with pytest-cov (145 tests, 83% coverage)
 - Task runner: `make help` for all targets
 - FastAPI app in `src/anny/main.py`
-- Pre-commit hooks enforce format + lint + test on every commit
+- Pre-commit hooks enforce format + lint on every commit (tests via `make test` + CI)
 - Service layer shared between REST and MCP — never duplicate Google API logic
 - Lazy credentials — clients created on first use, not at startup
 
-## Current Status (2026-02-17)
-- **Code:** Full implementation. 135 tests, pylint 10/10, 82% coverage.
+## Current Status (2026-02-18)
+- **Code:** Full implementation. 145 tests, pylint 10/10, 83% coverage.
 - **Services:** GA4, Search Console, Tag Manager, Memory — all implemented.
+- **Security:** API key auth (X-API-Key header), timing-safe comparison, credential scrubbing, rate limiting (60 req/min).
 - **MCP:** 21 tools, HTTP at /mcp + stdio entry point.
-- **Memory:** JSON file store at `~/.anny/memory.json` — insights, watchlist, segments.
+- **Memory:** JSON file store at `~/.anny/memory.json` — insights, watchlist, segments. File-locked for concurrency.
 - **Pipeline:** GitHub Actions CI configured.
 - **Deployment:** Live at https://anny.membies.com (Vultr VPS, Docker, nginx, TLS).
 - **Git:** GitHub repo, branch `main`
