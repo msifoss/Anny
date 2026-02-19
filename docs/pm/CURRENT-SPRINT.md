@@ -1,6 +1,6 @@
 # Holding Pattern (2026-02-18)
 
-No active Bolt. Bolt 5 completed 2026-02-18. Next Bolt opens when work begins on backlog items.
+No active Bolt. Bolt 5 completed 2026-02-18. v0.4.0 released and deployed.
 
 **Last completed:** Bolt 5 — Production Hardening & Code Quality (all 12 items done)
 
@@ -8,10 +8,11 @@ No active Bolt. Bolt 5 completed 2026-02-18. Next Bolt opens when work begins on
 
 | Metric | Value |
 |--------|-------|
+| Version | v0.4.0 |
 | Tests | 164 collected / 145 unit+int passing / 19 e2e |
 | Coverage | 83% |
 | Pylint | 10/10 |
-| Deploys | 1 (anny.membies.com live) |
+| Deploys | 2 (v0.3.0 + v0.4.0 to anny.membies.com) |
 | MCP Tools | 21 |
 
 ## Top Backlog Items (Ready to Work)

@@ -35,11 +35,11 @@ Archive of completed Bolts.
 
 | Metric | Value |
 |--------|-------|
-| Commits | 2 |
+| Commits | 7 |
 | Tests | 164 collected / 145 unit+int passing / 19 e2e |
 | Coverage | 83% |
 | Pylint | 10/10 |
-| Deploys | 0 (hardened code not yet deployed) |
+| Deploys | 1 (v0.4.0 to anny.membies.com) |
 | MCP Tools | 21 |
 
 ### Retro
