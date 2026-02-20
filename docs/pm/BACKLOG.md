@@ -70,9 +70,9 @@ Last groomed: 2026-02-21
 | # | Item | Size | Status | Notes |
 |---|------|------|--------|-------|
 | 17 | Health check with dependency status | S | done | Superseded by #31 |
-| 18 | Monitoring / alerting setup | M | executable | |
+| 18 | Monitoring / alerting setup | M | done | Bolt 7 — JSON logging, uptime monitor, Sentry |
 | 40 | Docker volume for memory.json persistence | S | done | Named volume + Dockerfile mkdir, deployed |
-| 44 | Centralized logging (M-006) | M | executable | Log shipping + alerting — deferred from Bolt 6 |
+| 44 | Centralized logging (M-006) | M | done | Bolt 7 — JSON logging, ring buffer, /api/logs endpoint |
 
 ---
 

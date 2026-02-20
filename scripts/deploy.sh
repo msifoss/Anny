@@ -87,13 +87,22 @@ TIMEOUT=60
 while [[ $ELAPSED -lt $TIMEOUT ]]; do
     if remote "curl -sf http://localhost:8000/health" >/dev/null 2>&1; then
         ok "Health check passed"
+
+        # --- Post-deploy smoke test ---
+        if [[ -x "${SCRIPT_DIR}/smoke_test.sh" ]]; then
+            info "Running post-deploy smoke test..."
+            if ANNY_BASE_URL="https://${DOMAIN}" "${SCRIPT_DIR}/smoke_test.sh"; then
+                ok "Smoke test passed"
+            else
+                echo "  (smoke test failed — deploy succeeded but some endpoints may be unhealthy)"
+            fi
+        fi
+
         echo ""
         echo "============================================"
         echo "  Deploy Successful"
-        echo "  http://${DOMAIN}/health"
+        echo "  https://${DOMAIN}/health"
         echo "============================================"
-        echo ""
-        echo "Next: make ssl-setup"
         exit 0
     fi
     sleep 5

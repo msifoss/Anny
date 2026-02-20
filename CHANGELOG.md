@@ -8,10 +8,24 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- Structured JSON logging via `python-json-logger` with request-ID tracking (`core/logging.py`)
+- Request-ID middleware: UUID per request, `X-Request-ID` response header on all responses
+- Request logging middleware: logs method, path, status, duration_ms, client_ip (skips `/health`)
+- Sentry error tracking via `sentry-sdk[fastapi]` (enabled when `SENTRY_DSN` env var is set)
+- Admin logs endpoint `GET /api/logs` with limit and level filtering (auth-protected)
+- In-memory ring buffer (1000 entries) for recent log access without SSH
+- Uptime monitor script (`scripts/uptime_monitor.sh`) with state tracking and webhook alerting
+- Post-deploy smoke test in `scripts/deploy.sh`
+- 26 new tests: logging, logs endpoint, request middleware, Sentry init (182 total)
+- `sentry_dsn` setting in config, `SENTRY_DSN` in `.env.example`
+
 ### Changed
 - CI pipeline: added pip caching via `actions/setup-python` `cache: 'pip'`
 - CI pipeline: enforce coverage floor (`--cov-fail-under=80`) and pylint score (`--fail-under=9.5`)
 - Dev dependencies pinned to exact versions in `requirements-dev.txt`
+- Version bumped to 0.6.0
+- Dependencies: added `python-json-logger==4.0.0`, `sentry-sdk[fastapi]==2.53.0`
 
 ## [0.5.0] - 2026-02-20 (Security Audit Round 2 — 11 Findings Fixed)
 

@@ -72,6 +72,7 @@ Anny/
 │       │   ├── models.py        # Pydantic request/response models
 │       │   ├── error_handlers.py # AnnyError → HTTP status mapping
 │       │   ├── ga4_routes.py    # GA4 REST endpoints
+│       │   ├── logs_routes.py    # Admin logs endpoint
 │       │   ├── search_console_routes.py
 │       │   └── tag_manager_routes.py
 │       ├── clients/
@@ -91,6 +92,7 @@ Anny/
 │           ├── dependencies.py  # Lazy singleton client factories
 │           ├── exceptions.py    # AnnyError, AuthError, APIError
 │           ├── formatting.py    # Text table formatting for MCP
+│           ├── logging.py       # JSON logging, request-ID, ring buffer
 │           └── services/
 │               ├── __init__.py
 │               ├── ga4_service.py
@@ -174,10 +176,11 @@ Anny/
 - `GET /api/tag-manager/triggers` — GTM triggers
 - `GET /api/tag-manager/variables` — GTM variables
 - `GET /api/tag-manager/container-setup` — Full container overview
+- `GET /api/logs` — Recent log entries (admin, auth required)
 
 ## Conventions
 - Python: formatted with Black (line-length=100), linted with pylint
-- Tests: pytest with pytest-cov (156 tests, 84% coverage)
+- Tests: pytest with pytest-cov (182 tests, 85% coverage)
 - Task runner: `make help` for all targets
 - FastAPI app in `src/anny/main.py`
 - Pre-commit hooks enforce format + lint on every commit (tests via `make test` + CI)
@@ -185,8 +188,9 @@ Anny/
 - Lazy credentials — clients created on first use, not at startup
 
 ## Current Status (2026-02-20)
-- **Code:** Full implementation. 145 tests, pylint 10/10, 83% coverage.
+- **Code:** Full implementation. 182 tests, pylint 10/10, 85% coverage.
 - **Services:** GA4, Search Console, Tag Manager, Memory — all implemented.
+- **Observability:** Structured JSON logging, request-ID tracking, Sentry error tracking (optional), admin logs endpoint, uptime monitor script.
 - **Security:** API key auth (REST X-API-Key + MCP Bearer token), timing-safe comparison, credential scrubbing, rate limiting (60 req/min).
 - **MCP:** 21 tools, HTTP at /mcp (Bearer auth) + stdio entry point.
 - **Memory:** JSON file store at `~/.anny/memory.json` — insights, watchlist, segments. File-locked for concurrency.

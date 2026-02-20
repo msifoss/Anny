@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     search_console_site_url: str = ""
     memory_store_path: str = "~/.anny/memory.json"
     anny_api_key: str = ""
+    sentry_dsn: str = ""
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 
