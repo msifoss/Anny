@@ -8,6 +8,9 @@ from anny.core.services import export_service, ga4_service, search_console_servi
 
 router = APIRouter(prefix="/api/export", tags=["Export"])
 
+MAX_LIMIT = 100
+MAX_ROW_LIMIT = 1000
+
 
 def _stream(data: bytes, filename: str, export_format: str) -> StreamingResponse:
     if export_format == "csv":
@@ -20,7 +23,7 @@ def _stream(data: bytes, filename: str, export_format: str) -> StreamingResponse
     return StreamingResponse(
         iter([data]),
         media_type=media,
-        headers={"Content-Disposition": f"attachment; filename={filename}"},
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
 
 
@@ -34,6 +37,7 @@ async def export_ga4_report(
     client: GA4Client = Depends(get_ga4_client),
     _: str = Security(verify_api_key),
 ):
+    limit = max(1, min(limit, MAX_LIMIT))
     rows = ga4_service.get_report(client, metrics, dimensions, date_range, limit)
     data = export_service.to_csv(rows) if export_format == "csv" else export_service.to_json(rows)
     return _stream(data, "ga4-report", export_format)
@@ -47,6 +51,7 @@ async def export_ga4_top_pages(
     client: GA4Client = Depends(get_ga4_client),
     _: str = Security(verify_api_key),
 ):
+    limit = max(1, min(limit, MAX_LIMIT))
     rows = ga4_service.get_top_pages(client, date_range=date_range, limit=limit)
     data = export_service.to_csv(rows) if export_format == "csv" else export_service.to_json(rows)
     return _stream(data, "ga4-top-pages", export_format)
@@ -73,6 +78,7 @@ async def export_sc_query(
     client: SearchConsoleClient = Depends(get_search_console_client),
     _: str = Security(verify_api_key),
 ):
+    row_limit = max(1, min(row_limit, MAX_ROW_LIMIT))
     rows = search_console_service.get_search_analytics(client, dimensions, date_range, row_limit)
     data = export_service.to_csv(rows) if export_format == "csv" else export_service.to_json(rows)
     return _stream(data, "sc-query", export_format)
@@ -86,6 +92,7 @@ async def export_sc_top_queries(
     client: SearchConsoleClient = Depends(get_search_console_client),
     _: str = Security(verify_api_key),
 ):
+    limit = max(1, min(limit, MAX_LIMIT))
     rows = search_console_service.get_top_queries(client, date_range=date_range, limit=limit)
     data = export_service.to_csv(rows) if export_format == "csv" else export_service.to_json(rows)
     return _stream(data, "sc-top-queries", export_format)
@@ -99,6 +106,7 @@ async def export_sc_top_pages(
     client: SearchConsoleClient = Depends(get_search_console_client),
     _: str = Security(verify_api_key),
 ):
+    limit = max(1, min(limit, MAX_LIMIT))
     rows = search_console_service.get_top_pages(client, date_range=date_range, limit=limit)
     data = export_service.to_csv(rows) if export_format == "csv" else export_service.to_json(rows)
     return _stream(data, "sc-top-pages", export_format)

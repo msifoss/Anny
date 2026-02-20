@@ -91,3 +91,41 @@ def test_export_invalid_format_422():
     _teardown()
 
     assert response.status_code == 422
+
+
+def test_export_content_disposition_quoted_filename():
+    mock_client = MagicMock(spec=GA4Client)
+    _setup_ga4(mock_client)
+
+    with patch(
+        "anny.core.services.ga4_service.parse_date_range", return_value=("2024-01-01", "2024-01-28")
+    ):
+        mock_client.run_report.return_value = [{"pagePath": "/", "screenPageViews": "500"}]
+        tc = TestClient(app)
+        response = tc.get("/api/export/ga4/top-pages?format=csv")
+
+    _teardown()
+
+    assert response.status_code == 200
+    cd = response.headers["content-disposition"]
+    assert 'filename="ga4-top-pages.csv"' in cd
+
+
+def test_export_limit_clamped():
+    mock_client = MagicMock(spec=GA4Client)
+    _setup_ga4(mock_client)
+
+    with patch(
+        "anny.core.services.ga4_service.parse_date_range", return_value=("2024-01-01", "2024-01-28")
+    ):
+        mock_client.run_report.return_value = [{"pagePath": "/"}]
+        tc = TestClient(app)
+        response = tc.get("/api/export/ga4/top-pages?format=csv&limit=999999")
+
+    _teardown()
+
+    assert response.status_code == 200
+    # Verify the service was called with clamped limit (100), not 999999
+    mock_client.run_report.assert_called_once()
+    call_kwargs = mock_client.run_report.call_args[1]
+    assert call_kwargs["limit"] <= 100
