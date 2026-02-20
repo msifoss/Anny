@@ -4,7 +4,7 @@
 > Size: S (< 1hr), M (< half day), L (~ 1 day), XL (multi-day).
 > Status: executable | blocked | done
 
-Last groomed: 2026-02-20
+Last groomed: 2026-02-21
 
 ---
 
@@ -49,7 +49,7 @@ Last groomed: 2026-02-20
 | # | Item | Size | Status | Notes |
 |---|------|------|--------|-------|
 | 15 | Cloud deployment (Vultr VPS) | L | done | Bolt 2 — anny.membies.com |
-| 16 | CI pipeline update for new deps | S | executable | Returned from Bolt 3 |
+| 16 | CI pipeline update for new deps | S | done | Pip cache, coverage gate 80%, pylint gate 9.5, dev deps pinned |
 | 29 | Fix timing attack in verify_api_key | S | done | Bolt 5 — hmac.compare_digest |
 | 30 | Add file locking to MemoryStore | S | done | Bolt 5 — fcntl.flock + atomic _modify() |
 | 31 | Health check validates dependencies | S | done | Bolt 5 — config, creds, memory checks |

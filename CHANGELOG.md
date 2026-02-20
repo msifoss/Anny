@@ -8,6 +8,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+- CI pipeline: added pip caching via `actions/setup-python` `cache: 'pip'`
+- CI pipeline: enforce coverage floor (`--cov-fail-under=80`) and pylint score (`--fail-under=9.5`)
+- Dev dependencies pinned to exact versions in `requirements-dev.txt`
+
 ## [0.5.0] - 2026-02-20 (Security Audit Round 2 — 11 Findings Fixed)
 
 ### Added

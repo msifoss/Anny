@@ -1,8 +1,14 @@
-# Holding Pattern (2026-02-20)
+# Holding Pattern (2026-02-21)
 
 No active Bolt. Bolt 6 completed 2026-02-20. v0.5.0 released and deployed.
 
 **Last completed:** Bolt 6 — Security Audit Round 2 (11 findings fixed, v0.5.0 released)
+
+## Recent (Outside Bolt)
+
+| Item | Size | Date | Notes |
+|------|------|------|-------|
+| #16 CI pipeline update | S | 2026-02-21 | Pip cache, coverage gate 80%, pylint gate 9.5, dev deps pinned |
 
 ## Metrics (Current)
 
@@ -10,8 +16,8 @@ No active Bolt. Bolt 6 completed 2026-02-20. v0.5.0 released and deployed.
 |--------|-------|
 | Version | v0.5.0 |
 | Tests | 175 collected / 156 unit+int passing / 19 e2e |
-| Coverage | 84% |
-| Pylint | 10/10 |
+| Coverage | 84% (CI gate: 80%) |
+| Pylint | 10/10 (CI gate: 9.5) |
 | Deploys | 4 (v0.3.0 + v0.4.0 + v0.5.0 + memory fix to anny.membies.com) |
 | MCP Tools | 21 |
 
@@ -19,10 +25,10 @@ No active Bolt. Bolt 6 completed 2026-02-20. v0.5.0 released and deployed.
 
 | # | Item | Size | Phase |
 |---|------|------|-------|
-| 16 | CI pipeline update for new deps | S | Deployment |
 | 18 | Monitoring / alerting setup | M | Deployment |
 | 44 | Centralized logging (M-006) | M | Deployment |
 | 25 | Query cache for MemoryStore | M | Feature |
+| 19 | GA4 realtime report tool | M | Feature |
 
 ## Blockers
 
