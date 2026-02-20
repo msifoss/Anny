@@ -8,6 +8,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- (Bolt 8 — Phase 3 Feature Expansion in progress)
+
 ## [0.6.0] - 2026-02-20 (Monitoring, Alerting & Centralized Logging — Bolt 7)
 
 ### Added
