@@ -40,9 +40,9 @@ class SearchConsoleClient:
                 self._service.searchanalytics().query(siteUrl=self._site_url, body=body).execute()
             )
         except HttpError as exc:
-            logger.error("Search Console query failed: %s %s", exc.status_code, exc.reason)
+            logger.warning("Search Console query failed: %s %s", exc.status_code, exc.reason)
             raise APIError(
-                f"Search Console query failed: {exc.status_code} {exc.reason}",
+                "Search Console query failed",
                 service="search_console",
             ) from exc
 

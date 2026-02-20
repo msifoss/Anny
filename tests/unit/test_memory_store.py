@@ -1,4 +1,6 @@
 import json
+import os
+import stat
 
 from anny.clients.memory import MemoryStore, _generate_id
 
@@ -132,3 +134,13 @@ def test_creates_parent_directories(tmp_path):
     with open(path, "r", encoding="utf-8") as f:
         data = json.load(f)
     assert len(data["insights"]) == 1
+
+
+def test_file_created_with_restricted_permissions(tmp_path):
+    """Memory file should be created with 0600 (owner-only read/write)."""
+    path = str(tmp_path / "secure_memory.json")
+    store = MemoryStore(path)
+    store.add_insight("Secret insight", "ga4", [])
+
+    file_mode = stat.S_IMODE(os.stat(path).st_mode)
+    assert file_mode == 0o600

@@ -1,4 +1,5 @@
 import logging
+import os
 
 from google.oauth2 import service_account
 
@@ -19,10 +20,10 @@ def get_google_credentials(key_path: str) -> service_account.Credentials:
         raise AuthError("GOOGLE_SERVICE_ACCOUNT_KEY_PATH is not set")
     try:
         creds = service_account.Credentials.from_service_account_file(key_path, scopes=SCOPES)
-        logger.info("Loaded service account credentials from %s", key_path)
+        logger.info("Loaded service account credentials from %s", os.path.basename(key_path))
         return creds
     except FileNotFoundError as exc:
-        raise AuthError(f"Service account key file not found: {key_path}") from exc
+        raise AuthError("Service account key file not found") from exc
     except (ValueError, KeyError) as exc:
         logger.error("Invalid service account key file: %s", exc)
         raise AuthError("Failed to load credentials: invalid key file format") from exc

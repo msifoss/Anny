@@ -1,0 +1,191 @@
+================================================================================
+SECURITY AUDIT: Anny
+Date: 2026-02-20 14:30
+Scope: Full codebase (all source, infrastructure, dependencies)
+Auditor: Claude (AI-assisted)
+Previous Audit: 2026-02-17 (1 High, 4 Medium, 5 Low — H-001 resolved)
+================================================================================
+
+## Summary
+
+| Category           | Findings | Critical | High | Medium | Low |
+|--------------------|----------|----------|------|--------|-----|
+| Authentication     | 2        | 0        | 0    | 2      | 0   |
+| Input Validation   | 2        | 0        | 0    | 1      | 1   |
+| Secrets            | 1        | 0        | 0    | 0      | 1   |
+| Encryption         | 0        | 0        | 0    | 0      | 0   |
+| Network            | 1        | 0        | 0    | 1      | 0   |
+| Infrastructure     | 1        | 0        | 1    | 0      | 0   |
+| Dependencies       | 2        | 0        | 0    | 1      | 1   |
+| Monitoring         | 1        | 0        | 0    | 1      | 0   |
+| Operational        | 1        | 0        | 0    | 0      | 1   |
+| **Total**          | **11**   | **0**    | **1**| **6**  | **4** |
+
+Progress since last audit:
+- H-001 (unauthenticated REST API) — RESOLVED in v0.4.0
+- M-001 (no rate limiting) — RESOLVED in v0.4.0
+- NEW: MCP HTTP auth added (Bearer token) — closes the MCP auth gap
+
+## Findings
+
+### High
+
+[H-001] Service account key file permissions too open
+File: scripts/deploy.sh:75
+Category: Infrastructure
+Description: deploy.sh sets `chmod 644` on the service account key file after
+  uploading to the VPS. This makes the key world-readable on the server. Any
+  local user or compromised process can read Google API credentials.
+Risk: An attacker with filesystem read access (via another compromised service,
+  container escape, or local user) could steal the service account key and
+  access GA4, Search Console, and GTM data directly.
+Fix: Change `chmod 644` to `chmod 600` on line 75 of scripts/deploy.sh.
+
+### Medium
+
+[M-001] No rate limiting on MCP HTTP endpoint
+File: src/anny/main.py:43-44
+Category: Authentication
+Description: Rate limiting middleware only applies to `/api/*` endpoints. The
+  MCP endpoint at `/mcp` is exempt. An authenticated attacker could send
+  unlimited requests to MCP tools, exhausting Google API quotas.
+Risk: Denial of service via Google API quota exhaustion. Rate-limited to
+  auth-bearing clients only (mitigates anonymous abuse).
+Fix: Extend rate limiting middleware to include `/mcp` paths, or add per-tool
+  rate limiting in the MCP layer.
+
+[M-002] No CORS policy configured
+File: src/anny/main.py
+Category: Network
+Description: No CORS middleware is configured on the FastAPI app. Browser-based
+  clients could make cross-origin requests to the API. Low risk for an API
+  consumed by MCP clients and CLI tools, but could be exploited if API keys
+  are leaked.
+Risk: Cross-origin request forgery from malicious websites if API key is known.
+Fix: Add FastAPI CORSMiddleware with explicit origin allowlist.
+  (Carried forward from previous audit.)
+
+[M-003] Google API error messages passed through to clients
+File: src/anny/clients/ga4.py:50, search_console.py:44, tag_manager.py:22-24
+Category: Input Validation
+Description: Error messages from Google APIs (status codes, reasons, internal
+  messages) are passed directly to API/MCP clients via APIError. These may
+  reveal account structure, quota details, or internal API state.
+Risk: Information disclosure that aids reconnaissance.
+Fix: Return generic error messages to clients ("Report generation failed")
+  while logging full details at WARNING level internally.
+
+[M-004] Memory store file created with default permissions
+File: src/anny/clients/memory.py:43
+Category: Authentication
+Description: The memory store JSON file is created with default umask
+  (typically 0644, world-readable). The file may contain user-authored
+  insights and analytics findings.
+Risk: Local information disclosure on shared systems.
+Fix: Set explicit permissions with `os.chmod(self._path, 0o600)` after
+  file creation in `_modify()`.
+  (Carried forward from previous audit as L-005, upgraded to Medium.)
+
+[M-005] Dependencies not pinned to exact versions
+File: requirements.txt
+Category: Dependencies
+Description: All 8 production dependencies use minimum version constraints
+  (e.g., `>=0.115.0`) instead of exact pins. A new release of any dependency
+  could introduce breaking changes or security regressions without explicit
+  testing.
+Risk: Supply chain attack via compromised package update, or unexpected
+  breakage in CI/production.
+Fix: Pin all production dependencies to exact versions (e.g.,
+  `fastapi==0.129.0`). Use `pip-compile` or a lock file for reproducibility.
+
+[M-006] No centralized logging or alerting
+File: src/anny/main.py
+Category: Monitoring
+Description: Auth failures are logged locally but there is no centralized log
+  aggregation, no alerting on repeated auth failures, and no audit trail for
+  which MCP tools are called or by whom.
+Risk: Delayed detection of brute-force attempts or unauthorized access.
+Fix: Add structured logging, ship logs to a centralized service, and alert
+  on auth failure thresholds.
+
+### Low
+
+[L-001] GTM path parameters not format-validated
+File: src/anny/clients/tag_manager.py:38, src/anny/api/tag_manager_routes.py
+Category: Input Validation
+Description: User-supplied `account_id` and `container_path` parameters are
+  passed to Google APIs without format validation. Google's API rejects invalid
+  paths (returning 404/400), so exploitation risk is minimal.
+Risk: Unnecessary API calls and verbose error messages from invalid paths.
+Fix: Add regex validation (e.g., `^[0-9]+$` for account_id,
+  `^accounts/[0-9]+/containers/[0-9]+$` for container_path).
+
+[L-002] Service account key path logged at startup
+File: src/anny/core/auth.py:22
+Category: Secrets
+Description: The full filesystem path to the service account key is logged at
+  INFO level on startup. The key contents are never logged.
+Risk: Path disclosure in log aggregation systems (minimal impact).
+Fix: Log only the filename, not the full path.
+
+[L-003] Known CVE in transitive dependency
+File: requirements.txt (transitive: diskcache 5.6.3)
+Category: Dependencies
+Description: pip-audit reports CVE-2025-69872 in diskcache 5.6.3, a transitive
+  dependency. Anny does not use diskcache directly.
+Risk: Low — transitive dependency, not directly exploitable in Anny's usage.
+Fix: Monitor for a patched version and upgrade when available.
+
+[L-004] No pre-commit secret scanning
+File: .pre-commit-config.yaml
+Category: Operational
+Description: Pre-commit hooks run Black and pylint but no secret scanning tool
+  (gitleaks, detect-secrets, truffleHog). Accidental secret commits rely on
+  .gitignore patterns only.
+Risk: Accidental commit of API keys or credentials.
+Fix: Add `gitleaks` or `detect-secrets` to .pre-commit-config.yaml.
+
+## Recommendations
+
+Priority order:
+1. Fix deploy.sh chmod 644 -> 600 (H-001) — 1-line fix
+2. Pin production dependencies to exact versions (M-005)
+3. Sanitize Google API error messages before returning to clients (M-003)
+4. Set explicit 0600 permissions on memory store file (M-004)
+5. Extend rate limiting to MCP endpoints (M-001)
+6. Add CORS middleware (M-002)
+7. Add secret scanning to pre-commit hooks (L-004)
+8. Add GTM path format validation (L-001)
+9. Set up centralized logging/alerting (M-006)
+
+## Accepted Risks
+
+| Item                                   | Rationale                                      |
+|----------------------------------------|------------------------------------------------|
+| Single shared API key (not per-user)   | Single-user deployment, acceptable complexity  |
+| MCP stdio transport unauthenticated    | Local process — auth at transport layer by design |
+| No SAST in CI pipeline                 | pylint + pip-audit provide baseline coverage   |
+| Docker group grants root-equivalent    | Dedicated deploy user on single-tenant VPS     |
+| DebugTokenVerifier for MCP auth        | Simple Bearer validation, sufficient for API key model |
+
+## Changes Since Last Audit (2026-02-17)
+
+### Resolved
+- H-001: REST API now requires X-API-Key header (v0.4.0)
+- M-001: Rate limiting added (60 req/min on /api/*)
+- MCP HTTP endpoint now secured with Bearer token auth (new in this release)
+
+### New Findings
+- H-001 (new): deploy.sh chmod 644 on service account key
+- M-001 (new): MCP endpoint exempt from rate limiting
+- M-005 (new): Dependencies not pinned
+- M-006 (new): No centralized logging/alerting
+
+### Carried Forward
+- M-002: No CORS policy (from previous audit)
+- M-004: Memory store file permissions (was L-005, upgraded)
+- L-003: diskcache CVE (from previous audit)
+
+================================================================================
+END OF AUDIT
+================================================================================

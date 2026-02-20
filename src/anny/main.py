@@ -4,6 +4,7 @@ import time
 from collections import defaultdict
 
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from anny.api.error_handlers import anny_error_handler
@@ -28,8 +29,17 @@ if settings.anny_api_key:
     logger.info("MCP HTTP auth enabled (Bearer token)")
 
 mcp_app = mcp.http_app(path="/")
-app = FastAPI(title="Anny", version="0.4.0", lifespan=mcp_app.lifespan)
-logger.info("Anny v0.4.0 starting")
+app = FastAPI(title="Anny", version="0.5.0", lifespan=mcp_app.lifespan)
+logger.info("Anny v0.5.0 starting")
+
+# --- CORS middleware (restrictive defaults) ---
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[],
+    allow_methods=["GET", "POST"],
+    allow_headers=["X-API-Key", "Authorization"],
+    allow_credentials=False,
+)
 
 app.add_exception_handler(AnnyError, anny_error_handler)
 
@@ -47,7 +57,7 @@ _rate_limit_store: dict[str, list[float]] = defaultdict(list)
 
 @app.middleware("http")
 async def rate_limit_middleware(request: Request, call_next):
-    if not request.url.path.startswith("/api/"):
+    if not (request.url.path.startswith("/api/") or request.url.path.startswith("/mcp")):
         return await call_next(request)
 
     client_ip = request.client.host if request.client else "unknown"

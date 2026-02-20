@@ -75,3 +75,15 @@ class TestAPIKeyAuth:  # pylint: disable=attribute-defined-outside-init
         app.dependency_overrides[verify_api_key] = lambda: None
         response = self.tc.get("/api/ga4/top-pages")
         assert response.status_code == 200
+
+
+def test_mcp_path_is_rate_limited():
+    """Requests to /mcp should be subject to rate limiting."""
+    from anny.main import _rate_limit_store  # pylint: disable=import-outside-toplevel
+
+    # Simulate a burst that exceeds the limit
+    _rate_limit_store["testclient"] = [__import__("time").time()] * 60
+
+    tc = TestClient(app)
+    response = tc.get("/mcp/")
+    assert response.status_code == 429

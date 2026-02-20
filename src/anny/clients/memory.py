@@ -42,6 +42,7 @@ class MemoryStore:
         if not os.path.exists(self._path):
             with open(self._path, "w", encoding="utf-8") as f:
                 json.dump({"insights": [], "watchlist": [], "segments": []}, f, indent=2)
+            os.chmod(self._path, 0o600)
         with open(self._path, "r+", encoding="utf-8") as f:
             fcntl.flock(f, fcntl.LOCK_EX)
             try:

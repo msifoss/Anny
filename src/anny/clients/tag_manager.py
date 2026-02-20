@@ -1,4 +1,5 @@
 import logging
+import re
 
 from googleapiclient.discovery import Resource
 from googleapiclient.errors import HttpError
@@ -19,8 +20,9 @@ class TagManagerClient:
         try:
             response = self._service.accounts().list().execute()
         except HttpError as exc:
+            logger.warning("GTM list accounts failed: %s %s", exc.status_code, exc.reason)
             raise APIError(
-                f"GTM list accounts failed: {exc.status_code} {exc.reason}",
+                "GTM list accounts failed",
                 service="tag_manager",
             ) from exc
 
@@ -33,14 +35,29 @@ class TagManagerClient:
             for a in response.get("account", [])
         ]
 
+    @staticmethod
+    def _validate_account_id(account_id: str) -> None:
+        """Validate account_id contains only digits."""
+        raw = account_id.removeprefix("accounts/")
+        if not re.fullmatch(r"\d+", raw):
+            raise APIError("Invalid account ID format", service="tag_manager")
+
+    @staticmethod
+    def _validate_container_path(container_path: str) -> None:
+        """Validate container_path matches expected GTM path format."""
+        if not re.fullmatch(r"accounts/\d+/containers/\d+(/workspaces/\w+)?", container_path):
+            raise APIError("Invalid container path format", service="tag_manager")
+
     def list_containers(self, account_id: str) -> list[dict]:
         """List containers for a given account."""
+        self._validate_account_id(account_id)
         parent = f"accounts/{account_id.removeprefix('accounts/')}"
         try:
             response = self._service.accounts().containers().list(parent=parent).execute()
         except HttpError as exc:
+            logger.warning("GTM list containers failed: %s %s", exc.status_code, exc.reason)
             raise APIError(
-                f"GTM list containers failed: {exc.status_code} {exc.reason}",
+                "GTM list containers failed",
                 service="tag_manager",
             ) from exc
 
@@ -56,6 +73,7 @@ class TagManagerClient:
 
     def list_tags(self, container_path: str) -> list[dict]:
         """List tags in a container workspace."""
+        self._validate_container_path(container_path)
         workspace_path = self._ensure_workspace_path(container_path)
         try:
             response = (
@@ -67,8 +85,9 @@ class TagManagerClient:
                 .execute()
             )
         except HttpError as exc:
+            logger.warning("GTM list tags failed: %s %s", exc.status_code, exc.reason)
             raise APIError(
-                f"GTM list tags failed: {exc.status_code} {exc.reason}",
+                "GTM list tags failed",
                 service="tag_manager",
             ) from exc
 
@@ -83,6 +102,7 @@ class TagManagerClient:
 
     def list_triggers(self, container_path: str) -> list[dict]:
         """List triggers in a container workspace."""
+        self._validate_container_path(container_path)
         workspace_path = self._ensure_workspace_path(container_path)
         try:
             response = (
@@ -94,8 +114,9 @@ class TagManagerClient:
                 .execute()
             )
         except HttpError as exc:
+            logger.warning("GTM list triggers failed: %s %s", exc.status_code, exc.reason)
             raise APIError(
-                f"GTM list triggers failed: {exc.status_code} {exc.reason}",
+                "GTM list triggers failed",
                 service="tag_manager",
             ) from exc
 
@@ -110,6 +131,7 @@ class TagManagerClient:
 
     def list_variables(self, container_path: str) -> list[dict]:
         """List variables in a container workspace."""
+        self._validate_container_path(container_path)
         workspace_path = self._ensure_workspace_path(container_path)
         try:
             response = (
@@ -121,8 +143,9 @@ class TagManagerClient:
                 .execute()
             )
         except HttpError as exc:
+            logger.warning("GTM list variables failed: %s %s", exc.status_code, exc.reason)
             raise APIError(
-                f"GTM list variables failed: {exc.status_code} {exc.reason}",
+                "GTM list variables failed",
                 service="tag_manager",
             ) from exc
 

@@ -72,7 +72,7 @@ info "Uploading service account key..."
 scp $SSH_OPTS -i "$SSH_KEY" \
     "${SA_KEY}" \
     "deploy@${SERVER_IP}:${REMOTE_DIR}/secrets/service-account.json"
-remote "chmod 644 ${REMOTE_DIR}/secrets/service-account.json"
+remote "chmod 600 ${REMOTE_DIR}/secrets/service-account.json"
 ok "Service account key uploaded"
 
 # --- Build and start ---

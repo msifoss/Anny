@@ -13,9 +13,10 @@ Do not test against production systems without authorization.
 
 | Round | Date | Findings | Status |
 |-------|------|----------|--------|
+| 2 | 2026-02-20 | 1 High, 6 Medium, 4 Low | H-001 new (deploy.sh chmod) |
 | 1 | 2026-02-17 | 1 High, 4 Medium, 5 Low | H-001 resolved (API key auth added) |
 
-See `docs/security/security-audit-2026-02-17.md` for full details.
+See `docs/security/20260220-143000-security-audit.txt` for latest details.
 
 ## Security Controls
 
@@ -30,7 +31,7 @@ See `docs/security/security-audit-2026-02-17.md` for full details.
 - No role-based access control (single-user deployment)
 
 ### Encryption
-- **At rest:** Service account key file on VPS filesystem (chmod 644)
+- **At rest:** Service account key file on VPS filesystem (chmod 644 — should be 600, see H-001)
 - **In transit:** HTTPS enforced via nginx (TLS 1.2+, HSTS)
 - **Secrets:** Environment variables via `.env` — never commit secrets
 
@@ -62,8 +63,13 @@ See `docs/security/security-audit-2026-02-17.md` for full details.
 pip-audit
 ```
 
-Last scan: 2026-02-17 — 1 vulnerability found (diskcache CVE-2025-69872, transitive)
+Last scan: 2026-02-20 — 1 vulnerability found (diskcache CVE-2025-69872, transitive)
 
 ## Known Limitations
+- Service account key chmod 644 on VPS (H-001 — should be 600)
+- MCP endpoint exempt from rate limiting (M-001)
 - No CORS policy (M-002)
-- Memory store file has default permissions (L-005)
+- Google API errors passed through to clients (M-003)
+- Memory store file has default permissions (M-004)
+- Dependencies not pinned to exact versions (M-005)
+- No centralized logging or alerting (M-006)

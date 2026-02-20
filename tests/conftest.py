@@ -2,7 +2,13 @@ import pytest
 from fastapi.testclient import TestClient
 
 from anny.core.dependencies import verify_api_key
-from anny.main import app
+from anny.main import _rate_limit_store, app
+
+
+@pytest.fixture(autouse=True)
+def _clear_rate_limit_store():
+    """Clear the rate limit store before each test to prevent cross-test pollution."""
+    _rate_limit_store.clear()
 
 
 @pytest.fixture

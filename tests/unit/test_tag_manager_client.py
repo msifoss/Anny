@@ -116,3 +116,27 @@ def test_ensure_workspace_path_preserves_existing():
     # pylint: disable=protected-access
     path = "accounts/123/containers/456/workspaces/5"
     assert TagManagerClient._ensure_workspace_path(path) == path
+
+
+def test_validate_account_id_rejects_injection():
+    # pylint: disable=protected-access
+    with pytest.raises(APIError, match="Invalid account ID"):
+        TagManagerClient._validate_account_id("123; DROP TABLE")
+
+
+def test_validate_account_id_accepts_numeric():
+    # pylint: disable=protected-access
+    TagManagerClient._validate_account_id("123456")
+    TagManagerClient._validate_account_id("accounts/123456")
+
+
+def test_validate_container_path_rejects_invalid():
+    # pylint: disable=protected-access
+    with pytest.raises(APIError, match="Invalid container path"):
+        TagManagerClient._validate_container_path("../../../etc/passwd")
+
+
+def test_validate_container_path_accepts_valid():
+    # pylint: disable=protected-access
+    TagManagerClient._validate_container_path("accounts/123/containers/456")
+    TagManagerClient._validate_container_path("accounts/123/containers/456/workspaces/default")
