@@ -1,7 +1,7 @@
 # Anny — Requirements
 
-**Version:** 0.4.0
-**Last updated:** 2026-02-17
+**Version:** 0.6.0
+**Last updated:** 2026-02-20
 
 ---
 
@@ -64,6 +64,15 @@ The system shall accept named date ranges (last_7_days, last_28_days, etc.) and 
 
 ### FR-008: Shared Service Layer
 REST and MCP interfaces shall share a single service layer with zero duplication of Google API logic.
+
+### FR-009: Observability
+The system shall provide structured logging, error tracking, and operational monitoring.
+
+- **FR-009.1:** Structured JSON logging with request-ID tracking via contextvars
+- **FR-009.2:** Request-ID middleware adding `X-Request-ID` header to all responses
+- **FR-009.3:** Admin logs endpoint (`GET /api/logs`) with level filtering and in-memory ring buffer
+- **FR-009.4:** Sentry error tracking (opt-in via `SENTRY_DSN` env var)
+- **FR-009.5:** Request logging middleware (method, path, status, duration_ms, client_ip)
 
 ---
 

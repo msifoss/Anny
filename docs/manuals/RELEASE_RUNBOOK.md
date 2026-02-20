@@ -1,7 +1,7 @@
 # Release Runbook
 
 **Project:** Anny
-**Last updated:** 2026-02-17
+**Last updated:** 2026-02-20
 
 ---
 
@@ -104,3 +104,5 @@ docker compose build && docker compose up -d
 | 0.2.0 | 2026-02-13 | — | GA4 + SC + GTM integrations |
 | 0.3.0 | 2026-02-17 | v0.3.0 | Memory layer + deployment |
 | 0.4.0 | 2026-02-18 | v0.4.0 | Security hardening + production auth |
+| 0.5.0 | 2026-02-20 | v0.5.0 | Security audit round 2 (11 findings fixed) |
+| 0.6.0 | 2026-02-20 | v0.6.0 | Monitoring, alerting & centralized logging |

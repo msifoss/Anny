@@ -13,8 +13,8 @@ Do not test against production systems without authorization.
 
 | Round | Date | Findings | Status |
 |-------|------|----------|--------|
-| 2 | 2026-02-20 | 1 High, 6 Medium, 4 Low | H-001 new (deploy.sh chmod) |
-| 1 | 2026-02-17 | 1 High, 4 Medium, 5 Low | H-001 resolved (API key auth added) |
+| 2 | 2026-02-20 | 1 High, 6 Medium, 4 Low | All resolved (Bolt 6 + Bolt 7) |
+| 1 | 2026-02-17 | 1 High, 4 Medium, 5 Low | All resolved (Bolt 5 + Bolt 6) |
 
 See `docs/security/20260220-143000-security-audit.txt` for latest details.
 
@@ -31,30 +31,40 @@ See `docs/security/20260220-143000-security-audit.txt` for latest details.
 - No role-based access control (single-user deployment)
 
 ### Encryption
-- **At rest:** Service account key file on VPS filesystem (chmod 644 — should be 600, see H-001)
+- **At rest:** Service account key file on VPS filesystem (chmod 600, owner-only)
 - **In transit:** HTTPS enforced via nginx (TLS 1.2+, HSTS)
 - **Secrets:** Environment variables via `.env` — never commit secrets
 
 ### Input Validation
 - Pydantic models for all request/response schemas
 - FastAPI automatic request validation
+- GTM account IDs and container paths regex-enforced
+- CSV fields validated in service layer (reject empty metrics/dimensions)
+- Date ranges validated (ISO format, start <= end)
+- MCP tool input bounds clamped (MAX_LIMIT=100, MAX_ROW_LIMIT=1000)
 
 ### Network Security
 - UFW firewall: ports 22, 80, 443 only
 - fail2ban for SSH brute-force protection
 - Docker ports bound to localhost only (127.0.0.1:8000)
 - nginx reverse proxy with security headers
+- CORS middleware with restrictive defaults (no open origins)
+- Rate limiting: 60 req/min per IP on `/api/*` and `/mcp` paths
 
 ### Container Security
 - Non-root user (anny, UID 1000)
 - Multi-stage Docker build
 - Read-only secrets mount
 - Log rotation configured
+- Memory store file created with 0600 permissions (owner-only)
 
 ### Monitoring
 - Docker health check (30s interval)
 - nginx access/error logs
-- No centralized log aggregation or alerting (yet)
+- Structured JSON logging with request-ID tracking
+- In-memory ring buffer with admin `GET /api/logs` endpoint
+- Sentry error tracking (opt-in via SENTRY_DSN)
+- Uptime monitor script with webhook alerting (cron every 5 min)
 
 ## Dependency Management
 
@@ -63,13 +73,12 @@ See `docs/security/20260220-143000-security-audit.txt` for latest details.
 pip-audit
 ```
 
+All production dependencies pinned to exact versions in `requirements.txt`.
+
 Last scan: 2026-02-20 — 1 vulnerability found (diskcache CVE-2025-69872, transitive)
 
 ## Known Limitations
-- Service account key chmod 644 on VPS (H-001 — should be 600)
-- MCP endpoint exempt from rate limiting (M-001)
-- No CORS policy (M-002)
-- Google API errors passed through to clients (M-003)
-- Memory store file has default permissions (M-004)
-- Dependencies not pinned to exact versions (M-005)
-- No centralized logging or alerting (M-006)
+- No automated rollback on failed deploy
+- No load/performance testing
+- No disaster recovery plan (backup strategy, RTO/RPO)
+- Gitleaks secret scanning only in pre-commit (not in CI)

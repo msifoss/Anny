@@ -1,7 +1,7 @@
 # Anny — Operational Readiness Checklist
 
-**Last scored:** 2026-02-18
-**Score:** 31/47 (66%)
+**Last scored:** 2026-02-20
+**Score:** 37/47 (79%)
 
 ---
 
@@ -27,15 +27,15 @@
 
 ## 2. Testing (7 items)
 
-- [x] 2.1 Unit tests exist (134 unit tests)
+- [x] 2.1 Unit tests exist (171 unit tests)
 - [x] 2.2 Integration tests exist (11 integration tests)
 - [x] 2.3 E2e tests exist (19 e2e tests, gated behind ANNY_E2E=1)
-- [x] 2.4 Test coverage >= 80% (83%)
+- [x] 2.4 Test coverage >= 80% (85%)
 - [ ] 2.5 Pre-commit hooks run tests (removed — tests run via `make test` + CI)
 - [ ] 2.6 Load/performance testing exists
-- [ ] 2.7 Smoke test runs automatically post-deploy (manual: `make smoke`)
+- [x] 2.7 Smoke test runs automatically post-deploy (`scripts/smoke_test.sh` called from `deploy.sh`)
 
-**Section: 4/7**
+**Section: 5/7**
 
 ---
 
@@ -48,7 +48,7 @@
 - [x] 3.5 SSH hardened (fail2ban, key-only auth)
 - [x] 3.6 Non-root container user (UID 1000)
 - [x] 3.7 Dependency vulnerability scanning (pip-audit in CI)
-- [x] 3.8 Security review conducted within last 30 days (2026-02-17, H-001 resolved)
+- [x] 3.8 Security review conducted within last 30 days (2026-02-20, all findings resolved)
 
 **Section: 8/8**
 
@@ -58,24 +58,24 @@
 
 - [x] 4.1 Service account auth for Google APIs (readonly scopes)
 - [x] 4.2 API key auth for REST endpoints (X-API-Key header, ANNY_API_KEY env var, timing-safe comparison)
-- [x] 4.3 Rate limiting configured (60 req/min per IP on /api/*, in-memory)
+- [x] 4.3 Rate limiting configured (60 req/min per IP on /api/* and /mcp, in-memory)
 - [x] 4.4 Localhost-only port binding in docker-compose
-- [ ] 4.5 CORS policy configured (not implemented)
+- [x] 4.5 CORS policy configured (CORSMiddleware, restrictive defaults, no open origins)
 
-**Section: 4/5**
+**Section: 5/5**
 
 ---
 
 ## 5. Monitoring & Observability (6 items)
 
-- [x] 5.1 Structured logging (logging.getLogger("anny") across all modules, text format)
-- [ ] 5.2 Log aggregation (centralized log collection)
+- [x] 5.1 Structured logging (JSON via python-json-logger, request-ID tracking via contextvars)
+- [x] 5.2 Log aggregation (in-memory ring buffer, `GET /api/logs` admin endpoint with level filtering)
 - [x] 5.3 Health check endpoint (`GET /health` with dependency validation)
 - [x] 5.4 Docker health check (HEALTHCHECK in Dockerfile)
-- [ ] 5.5 Uptime monitoring / alerting
-- [ ] 5.6 Error tracking (Sentry or equivalent)
+- [x] 5.5 Uptime monitoring / alerting (`scripts/uptime_monitor.sh`, cron every 5 min, webhook alerts)
+- [x] 5.6 Error tracking (Sentry via `sentry-sdk[fastapi]`, opt-in via SENTRY_DSN)
 
-**Section: 3/6**
+**Section: 6/6**
 
 ---
 
@@ -119,45 +119,43 @@
 | Category | Score | Pct |
 |----------|-------|-----|
 | Source Control & CI/CD | 6/7 | 86% |
-| Testing | 4/7 | 57% |
+| Testing | 5/7 | 71% |
 | Security | 8/8 | 100% |
-| Auth & Authorization | 4/5 | 80% |
-| Monitoring & Observability | 3/6 | 50% |
+| Auth & Authorization | 5/5 | 100% |
+| Monitoring & Observability | 6/6 | 100% |
 | Deployment & Infrastructure | 5/7 | 71% |
 | Documentation | 3/4 | 75% |
 | Disaster Recovery | 0/3 | 0% |
-| **Total** | **31/47** | **66%** |
+| **Total** | **37/47** | **79%** |
 
 ---
 
-## Changes from Last Score (28/47 → 31/47)
+## Changes from Last Score (31/47 → 37/47)
 
 | Item | Change | Notes |
 |------|--------|-------|
-| 3.8 Security review | [ ] → [x] | Audit 2026-02-17, H-001 resolved |
-| 4.2 API key auth | [ ] → [x] | X-API-Key header, timing-safe |
-| 4.3 Rate limiting | [ ] → [x] | 60 req/min per IP |
-| 5.1 Structured logging | [ ] → [x] | logging.getLogger("anny") throughout |
-| 2.5 Pre-commit tests | [x] → [ ] | Intentionally removed (tests via CI) |
+| 2.1 Unit tests | updated | 134 → 171 unit tests |
+| 2.4 Coverage | updated | 83% → 85% |
+| 2.7 Smoke test post-deploy | [ ] → [x] | Bolt 7 — smoke_test.sh called from deploy.sh |
+| 4.5 CORS policy | [ ] → [x] | Bolt 6 — CORSMiddleware with restrictive defaults |
+| 5.1 Structured logging | updated | Text → JSON (python-json-logger + request-ID) |
+| 5.2 Log aggregation | [ ] → [x] | Bolt 7 — ring buffer + GET /api/logs endpoint |
+| 5.5 Uptime monitoring | [ ] → [x] | Bolt 7 — uptime_monitor.sh, cron */5, webhook alerts |
+| 5.6 Error tracking | [ ] → [x] | Bolt 7 — Sentry via sentry-sdk[fastapi] |
 
-Net change: +3
+Net change: +6
 
 ---
 
 ## Priority Actions to Reach 90% (42/47)
 
-Need 11 more items. Highest-impact actions:
+Need 5 more items. Highest-impact actions:
 
-1. **CORS policy** (4.5) — S, FastAPI middleware
-2. **Smoke test post-deploy** (2.7) — S, add to deploy.sh
-3. **Uptime monitoring** (5.5) — S, free tier (UptimeRobot/Healthchecks.io)
-4. **Incident runbook** (7.4) — S, new doc
-5. **CD step in CI** (1.7) — M, GitHub Actions deploy job
-6. **Rollback on failed deploy** (6.6) — M, deploy.sh enhancement
-7. **Backup strategy** (8.1) — S, document strategy for memory.json + .env
-8. **RTO/RPO** (8.2, 8.3) — S, define in ops docs
-9. **Pre-commit tests or equivalent** (2.5) — S, re-add if desired
-10. **Log aggregation** (5.2) — M, centralized logging
-11. **Error tracking** (5.6) — M, Sentry integration
-12. **Load testing** (2.6) — M, basic k6/locust script
-13. **Blue-green deploy** (6.7) — L, requires infra changes
+1. **Incident runbook** (7.4) — S, new doc
+2. **Backup strategy** (8.1) — S, document strategy for memory.json + .env
+3. **RTO/RPO** (8.2, 8.3) — S, define in ops docs
+4. **CD step in CI** (1.7) — M, GitHub Actions deploy job
+5. **Rollback on failed deploy** (6.6) — M, deploy.sh enhancement
+6. **Pre-commit tests or equivalent** (2.5) — S, re-add if desired
+7. **Load testing** (2.6) — M, basic k6/locust script
+8. **Blue-green deploy** (6.7) — L, requires infra changes
