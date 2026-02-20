@@ -1,0 +1,116 @@
+================================================================================
+CAPTAIN'S LOG: bolt7-observability-v060
+Date: 2026-02-20 10:58:28
+Previous Log: caplog-20260220-162531-security-audit-round2-v050.txt
+================================================================================
+
+## Summary
+Implemented Bolt 7 — Monitoring, Alerting & Centralized Logging. Added structured
+JSON logging with request-ID tracking, Sentry error tracking, admin logs endpoint,
+uptime monitor, and post-deploy smoke test. Deployed v0.6.0 to production,
+configured uptime cron on VPS, then ran Mother Hen compliance audit and fixed all
+6 items of documentation drift. Phase 2 (Deployment & Operations) is now fully
+complete. OPS readiness score jumped from 31/47 to 37/47 (79%).
+
+## Current State
+- v0.6.0 deployed to anny.membies.com, health check healthy, X-Request-ID confirmed
+- 182 tests passing (was 156), pylint 10/10, 85% coverage (was 84%)
+- Uptime monitor running on VPS: cron */5 * * * *, logging to /opt/anny/logs/uptime.log
+- All Phase 1 and Phase 2 backlog items complete — only Phase 3 features remain
+- OPS checklist: 37/47 (79%), up from 31/47 (66%)
+- All compliance docs current (REQUIREMENTS, TRACEABILITY-MATRIX, SECURITY, OPS checklist)
+- Holding pattern — no active Bolt
+
+## Work Completed
+- **Structured JSON logging** (`core/logging.py`): python-json-logger formatter,
+  request-ID via contextvars, in-memory ring buffer (1000 entries)
+- **Request-ID middleware**: UUID per request, X-Request-ID response header
+- **Request logging middleware**: method, path, status, duration_ms, client_ip;
+  skips /health to reduce noise. INFO for 2xx/3xx, WARNING for 4xx, ERROR for 5xx
+- **Sentry integration**: sentry-sdk[fastapi], init only when SENTRY_DSN is set
+- **Admin logs endpoint** (`GET /api/logs`): ring buffer query with limit/level
+  params, auth-protected via verify_api_key
+- **Uptime monitor** (`scripts/uptime_monitor.sh`): curl-based health check,
+  state file tracking, webhook alerting on UP/DOWN transitions, flood suppression
+- **Post-deploy smoke test**: deploy.sh calls smoke_test.sh after health check passes
+- **26 new tests**: test_logging.py (13), test_logs_routes.py (5),
+  test_request_middleware.py (4), test_sentry_init.py (4)
+- **v0.6.0 deployed**: container rebuilt, health check passing, X-Request-ID confirmed
+- **Uptime cron configured**: script uploaded to /opt/anny/scripts/, crontab set
+- **Mother Hen compliance fixes** (6 items):
+  - OPS checklist re-scored: 31→37 (6 items now passing)
+  - SECURITY.md: removed stale known limitations (M-001 through M-006 were fixed)
+  - TRACEABILITY-MATRIX.md: test count 145→182, added FR-009 observability rows
+  - REQUIREMENTS.md: version 0.4.0→0.6.0, added FR-009 (observability)
+  - RELEASE_RUNBOOK.md: added v0.5.0 and v0.6.0 to version history
+  - CLAUDE.md: fixed unit test count 134→171 in project structure tree
+
+## Decisions Made
+- Ring buffer (deque maxlen=1000) for /api/logs rather than log file tailing —
+  simpler, no filesystem dependency, no log rotation concerns, fast filtering
+- Request ID as 12-char hex (uuid4.hex[:12]) — short enough for headers/logs,
+  collision probability negligible at Anny's scale
+- Sentry opt-in via env var (SENTRY_DSN) — zero-cost when disabled, no config
+  needed for dev environments
+- Uptime monitor uses if/elif instead of case/arrow patterns — bash case with
+  `->` in patterns caused syntax errors on the VPS (dash as /bin/sh, and even
+  bash 5.2 choked on the mangled emoji bytes from scp transfer)
+- Replaced emojis in uptime script with plain text `[DOWN]`/`[UP]` prefixes —
+  avoids encoding issues during SSH/scp transfer to VPS
+- setup_logging() replaces logging.basicConfig at module level — ensures JSON
+  formatter and ring buffer handler are installed before any log messages fire
+- /health excluded from request logging middleware — reduces noise, health check
+  is polled frequently by uptime monitor
+
+## Issues Encountered
+- **Ring buffer test failure**: RequestIdFilter on root logger doesn't apply to
+  handlers attached directly to child loggers. The test's custom RingBufferHandler
+  fired before the filter had a chance to set request_id. Fixed by adding
+  RequestIdFilter directly to the test handler.
+- **Auth test failure**: test_logs_endpoint_requires_auth created an unauthenticated
+  TestClient but ANNY_API_KEY was set in the test environment, causing 401. Fixed
+  by patching dependencies.settings.anny_api_key.
+- **Uptime script syntax error on VPS**: case pattern `UP->DOWN)` failed with
+  "syntax error near unexpected token `>'". Root cause: emoji characters in
+  send_alert strings were mangled during scp transfer (UTF-8 → corrupted bytes),
+  which confused bash's parser. Fixed by removing emojis AND rewriting case
+  to if/elif for portability.
+- **Black reformatted logging.py**: line-length violation on a ternary in
+  RingBufferHandler.emit(). Pre-commit hook caught it, re-staged and committed.
+
+## Commits Made
+- 3be37c1: Add structured logging, Sentry integration, and uptime monitoring (Bolt 7)
+- 8dbbe41: Close Bolt 7, archive to sprint log, update PM docs
+- 2eaa323: Fix uptime monitor: replace case/arrow patterns with if/elif for portability
+- 527a825: Update PM docs: v0.6.0 deployed, uptime cron configured, deploy count 5
+- cae6d21: Fix compliance drift: re-score OPS checklist, update stale docs (Mother Hen)
+
+## Mistakes & Lessons
+- Emoji characters in shell scripts are fragile across SSH/scp transfers. Always
+  use plain ASCII in scripts destined for remote servers. This cost a debug cycle
+  that could have been avoided.
+- contextvars filters work at the logger level, not the handler level. When
+  testing a handler in isolation (attached to a child logger), the root logger's
+  filter won't run on records handled by the child. Add filters to the specific
+  handler being tested.
+- Documentation drift accumulates fast — 6 docs were stale after just 2 bolts.
+  Mother Hen should run after every release, not just when remembered.
+- Previous log's "Next Steps" (#18 monitoring, M-006 logging, CI pipeline, Docker
+  volume) were all addressed in this session or the prior one. The captain's log
+  successfully guided priorities.
+
+## Next Steps
+- Deploy v0.6.0 to production — DONE
+- Configure uptime cron on VPS — DONE
+- Next Bolt should be Phase 3 features:
+  - #25: Query cache for MemoryStore (Must Have, M)
+  - #19: GA4 realtime report tool (Could Have, M)
+  - #20: Search Console sitemap tools (Could Have, S)
+  - #23: Data export CSV/JSON (Could Have, S)
+- OPS checklist needs 5 more items for 90%: incident runbook, backup/DR docs,
+  CD pipeline, automated rollback
+- Run Mother Hen after every release going forward
+
+================================================================================
+END OF LOG
+================================================================================
