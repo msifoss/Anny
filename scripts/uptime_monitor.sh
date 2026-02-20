@@ -3,7 +3,7 @@
 # Anny — Uptime Monitor
 # Cron-based health check with state tracking and webhook alerting.
 #
-# Usage:  */5 * * * * /path/to/uptime_monitor.sh
+# Usage:  */5 * * * * /opt/anny/scripts/uptime_monitor.sh
 #
 # Environment variables (optional):
 #   ANNY_HEALTH_URL    — Override health endpoint (default: https://anny.membies.com/health)
@@ -46,19 +46,15 @@ send_alert() {
     fi
 }
 
-case "${PREVIOUS}->${CURRENT}" in
-    UP->DOWN|UNKNOWN->DOWN)
-        echo "[$(ts)] ALERT: Anny is DOWN (HTTP $HTTP_CODE)"
-        send_alert "🔴 Anny is DOWN — health check returned HTTP $HTTP_CODE"
-        ;;
-    DOWN->UP)
-        echo "[$(ts)] RECOVERY: Anny is back UP"
-        send_alert "🟢 Anny is back UP — health check recovered"
-        ;;
-    DOWN->DOWN)
-        echo "[$(ts)] STILL DOWN (HTTP $HTTP_CODE) — suppressing repeat alert"
-        ;;
-    *)
-        # UP->UP or UNKNOWN->UP — no action needed
-        ;;
-esac
+TRANSITION="${PREVIOUS}_${CURRENT}"
+
+if [[ "$TRANSITION" == "UP_DOWN" || "$TRANSITION" == "UNKNOWN_DOWN" ]]; then
+    echo "[$(ts)] ALERT: Anny is DOWN (HTTP $HTTP_CODE)"
+    send_alert "[DOWN] Anny is DOWN - health check returned HTTP $HTTP_CODE"
+elif [[ "$TRANSITION" == "DOWN_UP" ]]; then
+    echo "[$(ts)] RECOVERY: Anny is back UP"
+    send_alert "[UP] Anny is back UP - health check recovered"
+elif [[ "$TRANSITION" == "DOWN_DOWN" ]]; then
+    echo "[$(ts)] STILL DOWN (HTTP $HTTP_CODE) - suppressing repeat alert"
+fi
+# UP_UP and UNKNOWN_UP: no action needed
