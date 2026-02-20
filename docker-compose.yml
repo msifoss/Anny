@@ -6,6 +6,7 @@ services:
       - "127.0.0.1:8000:8000"
     volumes:
       - ./secrets/service-account.json:/secrets/service-account.json:ro
+      - anny-memory:/home/anny/.anny
     environment:
       - GOOGLE_SERVICE_ACCOUNT_KEY_PATH=/secrets/service-account.json
       - GA4_PROPERTY_ID=${GA4_PROPERTY_ID}
@@ -16,3 +17,6 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+
+volumes:
+  anny-memory:

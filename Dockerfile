@@ -16,7 +16,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl \
     && rm -rf /var/lib/apt/lists/*
 
 RUN groupadd --gid 1000 anny \
-    && useradd --uid 1000 --gid anny --create-home anny
+    && useradd --uid 1000 --gid anny --create-home anny \
+    && mkdir -p /home/anny/.anny && chown anny:anny /home/anny/.anny
 
 WORKDIR /app
 
