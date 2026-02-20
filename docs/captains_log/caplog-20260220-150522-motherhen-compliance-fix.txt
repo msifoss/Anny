@@ -1,0 +1,101 @@
+================================================================================
+CAPTAIN'S LOG: motherhen-compliance-fix
+Date: 2026-02-20 15:05:22
+Previous Log: caplog-20260220-140245-bolt8-phase3-features-v070.txt
+================================================================================
+
+## Summary
+Ran bolt-review and Mother Hen compliance checks after Bolt 8 deploy. Found and
+fixed 3 export security findings (H-1 CSV injection, M-1 limit bounds, M-2
+filename quoting) plus widespread documentation drift (7 files stale). Brought
+compliance from 3/7 to 6/7 checks passing. Tagged v0.7.0.
+
+## Current State
+- v0.7.0 tagged and deployed to anny.membies.com, deploy count 7
+- 249 tests collected, 230 passing, 19 e2e skipped. Pylint 10/10, 85% coverage.
+- 26 MCP tools, 25 REST endpoints
+- All security findings from bolt-review resolved (H-1, M-1, M-2)
+- Mother Hen: 6/7 compliance checks passing (was 3/7)
+- Only remaining FAIL: OPS Readiness at 37/47 (79%, target 90%)
+- No active Bolt. Bolt 8 closed.
+
+## Work Completed
+- **Bolt review** (`/bolt-review`): Comprehensive end-of-sprint review covering
+  sprint metrics, security scan, documentation audit, budget impact, retrospective
+- **Security fixes** (be5efce):
+  - CSV injection protection in `export_service.py` — formula-triggering chars
+    (`=`, `+`, `-`, `@`, `\t`, `\r`) prefixed with tab via `_sanitize_cell()`
+  - Export route limit clamping — `MAX_LIMIT=100`, `MAX_ROW_LIMIT=1000` on all
+    6 export endpoints in `export_routes.py`
+  - Content-Disposition filename quoting per RFC 6266
+  - 7 new tests: 5 CSV injection tests, 1 filename quoting, 1 limit clamping
+- **Deployed security fixes** to production (deploy count 7)
+- **Mother Hen compliance scan** (`/motherhen`):
+  - Initial score: 3/7 checks passing (2 PASS, 3 WARN, 2 FAIL)
+  - Fixed all WARN and FAIL items except OPS Readiness (needs infra work)
+- **Documentation fixes** (1c61ea7):
+  - CLAUDE.md: test counts 223→230, unit tests 212→219
+  - README.md: major overhaul — endpoints 14→25, tools 12→26, tests 88→230,
+    added memory/cache/export/realtime/sitemaps to all sections, updated
+    architecture tree with new files
+  - REQUIREMENTS.md: added FR-010 (cache), FR-011 (export), FR-012 (realtime),
+    FR-013 (sitemaps), bumped version 0.6.0→0.7.0
+  - TRACEABILITY-MATRIX.md: test count 182→230, added 4 new FR rows
+  - CHANGELOG.md: added security fixes to v0.7.0 section, updated test count
+  - SECURITY.md: added round 3 audit entry, CSV injection control
+  - OPS-READINESS-CHECKLIST.md: unit test count 171→219
+- **Tagged v0.7.0** — git tag now matches pyproject.toml version
+
+## Decisions Made
+- CSV injection fix uses tab prefix (not single-quote) — tab is invisible in
+  spreadsheets and doesn't alter the displayed value, while single-quote would
+  show as a visible character in some apps
+- Security fixes appended to existing [0.7.0] CHANGELOG section rather than
+  [Unreleased] — they shipped same day, same version, just a follow-up commit
+- REQUIREMENTS.md numbered FR-010 through FR-013 (continuing from FR-009) —
+  keeps sequential numbering, each maps to one Bolt 8 feature
+- Didn't attempt to fix OPS Readiness (37/47) — the 10 failing items are
+  infrastructure work (CD pipeline, rollback, DR plan, incident runbook, load
+  testing) that need a dedicated Bolt, not a doc fix
+
+## Issues Encountered
+- CSV injection test for `=CMD()` initially failed — the assertion
+  `"=CMD()" not in text` was too broad since `\t=CMD()` contains `=CMD()` as
+  substring. Fixed by checking `lines[1].startswith("\t=CMD()")` instead.
+- Mother Hen found README.md was significantly stale (showing Bolt 1 era
+  counts: 14 endpoints, 12 tools, 88 tests). The gap grew across 7 Bolts
+  because README updates weren't in the doc sync matrix for each release.
+
+## Commits Made
+- be5efce: Fix export security findings: CSV injection, limit bounds, filename quoting
+- 1c61ea7: Fix compliance drift: update docs to match v0.7.0 state (Mother Hen)
+- v0.7.0 tag created on 1c61ea7
+
+## Mistakes & Lessons
+- README.md drifted for 7 Bolts without anyone noticing. Mother Hen caught it.
+  Lesson: README should be in the doc sync matrix checked at every release, not
+  just when someone remembers.
+- The bolt-review security scan found CSV injection in code that was deployed to
+  production. The fix was fast (S-sized), but the gap existed for ~1 hour in
+  production. Lesson: export features that generate downloadable files should
+  have injection protection considered during implementation, not just review.
+- Test count drift is a recurring compliance issue — it happens every time new
+  tests are added. Consider whether documenting exact test counts in 4 places
+  is worth the maintenance burden, or whether "230+" would be more sustainable.
+
+## Next Steps
+- Remaining Phase 3 backlog items (if desired):
+  - #22: Multi-property GA4 support (M) — highest-impact analytics feature
+  - #21: GTM workspace management (L) — requires write scopes
+  - #27: CRO audit tooling (M) — analysis item
+  - #28: Social channel strategy (S) — strategy item
+- OPS Readiness needs 5 more items to reach 90% (42/47):
+  - Incident runbook (7.4) — S
+  - Backup strategy (8.1) — S
+  - RTO/RPO definitions (8.2, 8.3) — S
+  - CD pipeline (1.7) or automated rollback (6.6) — M each
+- Consider adding README.md to the release runbook doc sync matrix
+
+================================================================================
+END OF LOG
+================================================================================
