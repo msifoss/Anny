@@ -1,0 +1,132 @@
+================================================================================
+CAPTAIN'S LOG: bolt8-phase3-features-v070
+Date: 2026-02-20 14:02:45
+Previous Log: caplog-20260220-105828-bolt7-observability-v060.txt
+================================================================================
+
+## Summary
+Implemented Bolt 8 — Phase 3 Feature Expansion. Added in-memory query cache
+with TTL and LRU eviction, GA4 realtime reports, Search Console sitemap tools,
+and CSV/JSON data export. All 4 backlog items (#25, #19, #20, #23) delivered
+in a single session with 41 new tests (223 total). Version bumped to v0.7.0,
+deployed to production. Zero new pip dependencies — all stdlib.
+
+## Current State
+- v0.7.0 deployed to anny.membies.com, health check healthy, cache endpoint confirmed
+- 223 tests passing (was 182), pylint 10/10, 85% coverage
+- 26 MCP tools (was 21), 25 REST endpoints (was 16)
+- Deploy count: 6
+- All Phase 1, Phase 2, and 6 of 10 Phase 3 backlog items complete
+- Bolt 8 closed, no active Bolt
+- Remaining Phase 3: #21 (GTM workspaces, L, needs write scopes), #22 (multi-property, M),
+  #26 (key events, M, blocked), #27 (CRO audit, M), #28 (social strategy, S)
+
+## Work Completed
+- **Query cache** (`core/cache.py`): SHA-256 keyed, thread-safe via threading.Lock,
+  TTL expiry (default 3600s), LRU eviction (default 500 entries), configurable via
+  ANNY_CACHE_TTL and ANNY_CACHE_MAX_ENTRIES env vars
+- **Cache service** (`services/cache_service.py`): get_cache_status(), clear_cache()
+- **Cache routes** (`api/cache_routes.py`): GET /api/cache/status, DELETE /api/cache
+- **Cache wiring**: Optional `cache: QueryCache | None = None` param added to all
+  GA4 and SC service functions. Routes pass via Depends(get_query_cache), MCP tools
+  pass via get_query_cache(). Cache check before API call, store after.
+- **Cache MCP tools**: cache_status, clear_cache
+- **GA4 realtime** (`clients/ga4.py`): run_realtime_report() using
+  RunRealtimeReportRequest with MinuteRange, reuses _flatten_response()
+- **GA4 realtime service** (`services/ga4_service.py`): get_realtime_report() — no
+  cache (realtime data is ephemeral)
+- **GA4 realtime route**: GET /api/ga4/realtime
+- **GA4 realtime MCP tool**: ga4_realtime
+- **SC sitemaps** (`clients/search_console.py`): list_sitemaps() and get_sitemap() —
+  readonly, no submit/delete since we use readonly scopes
+- **SC sitemap service**: get_sitemaps(), get_sitemap_details()
+- **SC sitemap routes**: GET /api/search-console/sitemaps,
+  GET /api/search-console/sitemaps/{feedpath:path}
+- **SC sitemap MCP tools**: search_console_sitemaps, search_console_sitemap_details
+- **SC sitemap models**: SitemapListResponse, SitemapDetailResponse in api/models.py
+- **Export service** (`services/export_service.py`): to_csv() with UTF-8 BOM for
+  Excel compatibility, to_json() with pretty-print
+- **Export routes** (`api/export_routes.py`): 6 endpoints under /api/export/ —
+  ga4/report, ga4/top-pages, ga4/traffic-summary, search-console/query,
+  search-console/top-queries, search-console/top-pages. Each mirrors existing
+  endpoint params + format=csv|json, returns StreamingResponse with
+  Content-Disposition: attachment
+- **41 new tests**: cache (9), cache routes (2), export service (5), export
+  routes (4), GA4 realtime (8 across client/service/route/tool), SC sitemaps
+  (12 across client/service/route/tool), error handler fix (1)
+- **App wiring**: cache_router and export_router mounted in main.py
+- **Docs updated**: CHANGELOG.md, CLAUDE.md, CURRENT-SPRINT.md, BACKLOG.md,
+  pyproject.toml — all bumped to v0.7.0 with new tool/endpoint counts
+- **Deployed v0.7.0**: container rebuilt on VPS, health check passing,
+  /api/cache/status confirmed responsive
+
+## Decisions Made
+- Cache is ephemeral in-memory, NOT in memory.json — cache is system data (throwaway
+  query results), not user-curated data (insights, watchlist, segments). Different
+  lifecycle, different storage.
+- Cache param is optional (`None` default) — existing code/tests continue to work
+  without modification. Cache is additive, not mandatory.
+- GA4 realtime has no cache — realtime data is inherently ephemeral, caching
+  defeats the purpose
+- SC sitemaps are readonly only — we use readonly scopes, so no submit/delete
+  operations. Consistent with Anny's read-only design principle.
+- Export uses `export_format` as Python param with `Query(alias="format")` — avoids
+  shadowing Python's built-in `format()` function
+- CSV uses UTF-8 BOM prefix (\xef\xbb\xbf) — ensures Excel opens CSV files with
+  correct encoding instead of defaulting to ANSI/Latin-1
+- Used `from __future__ import annotations` in ga4_service.py and
+  search_console_service.py for `QueryCache | None` syntax without runtime import
+- Error handler tests needed fresh QueryCache override — the lru_cache singleton
+  meant cached GA4 results from prior tests leaked into error handler tests,
+  masking the expected exceptions
+
+## Issues Encountered
+- **Error handler test failure**: After wiring cache into GA4 routes, the
+  test_error_handlers.py tests returned 200 instead of 401/502. Root cause:
+  the shared QueryCache singleton (via lru_cache) retained cached results from
+  earlier test runs, so the service returned cached data instead of calling
+  the mocked client (which would have raised the error). Fixed by overriding
+  get_query_cache with a fresh QueryCache() in those tests.
+- **CSV test failure**: test_to_csv_basic split on "\n" but Python's csv module
+  uses "\r\n" line endings. Fixed by using splitlines() instead of split("\n").
+- **Black reformatted 2 files on commit**: search_console.py and
+  search_console_service.py had long lines from cache key construction.
+  Pre-commit caught it, re-staged and committed successfully.
+- **Pylint import order**: test_cache_routes.py had third-party import after
+  first-party. Fixed by moving fastapi.testclient import above anny imports.
+- **Pylint unnecessary lambda**: test_error_handlers.py had
+  `lambda: QueryCache()` — changed to just `QueryCache` (callable class).
+
+## Commits Made
+- 39a6911: Open Bolt 8: Phase 3 feature expansion (#25, #19, #20, #23)
+- 9741848: Bolt 8: Phase 3 feature expansion — cache, realtime, sitemaps, export
+- 6b2b70c: Close Bolt 8, archive to sprint log, update PM docs
+- 2947632: Update PM docs: v0.7.0 deployed, deploy count 6
+
+## Mistakes & Lessons
+- Shared singleton state (lru_cache) in tests can cause subtle cross-test
+  pollution. When adding caching to existing services, check that error-path
+  tests still exercise the error path (not the cache). Override the dependency
+  with a fresh instance in tests that need isolation.
+- Python's csv module uses \r\n line endings (per RFC 4180). Use splitlines()
+  instead of split("\n") when testing CSV output.
+- The plan specified the implementation order correctly — export first (standalone,
+  no deps), then cache (standalone), then realtime/sitemaps, then wiring. This
+  minimized merge conflicts and kept each step testable.
+- Previous log's "Next Steps" (#25, #19, #20, #23) were exactly what got
+  implemented. Captain's log continues to guide priorities effectively.
+
+## Next Steps
+- Remaining Phase 3 backlog items (if desired):
+  - #22: Multi-property GA4 support (M) — highest-impact analytics feature
+  - #21: GTM workspace management (L) — requires write scopes, scope change needed
+  - #27: CRO audit tooling (M) — analysis item, not pure code
+  - #28: Social channel strategy (S) — strategy item
+- #26 (GA4 key events) remains blocked on analytics.edit scope
+- OPS checklist still needs 5 items for 90%: incident runbook, backup/DR docs,
+  CD pipeline, automated rollback
+- Run Mother Hen after this deploy to catch any doc drift
+
+================================================================================
+END OF LOG
+================================================================================
