@@ -1,7 +1,7 @@
 # Anny — Traceability Matrix
 
 **Last updated:** 2026-02-20
-**Test count:** 182 unit+integration, 19 e2e (201 total)
+**Test count:** 230 unit+integration, 19 e2e (249 total)
 
 ---
 
@@ -36,6 +36,10 @@
 | FR-009.3 | Admin logs endpoint | `api/logs_routes.py`, `core/logging.py` | `test_logs_routes.py` | 5 |
 | FR-009.4 | Sentry error tracking | `main.py`, `core/config.py` | `test_sentry_init.py` | 4 |
 | FR-009.5 | Request logging middleware | `main.py` | `test_request_middleware.py` | 2 |
+| FR-010 | Query cache (TTL+LRU) | `core/cache.py`, `services/cache_service.py`, `api/cache_routes.py`, `mcp_server.py` | `test_cache.py`, `test_cache_routes.py` | 11 |
+| FR-011 | Data export (CSV/JSON) | `services/export_service.py`, `api/export_routes.py` | `test_export_service.py`, `test_export_routes.py` | 16 |
+| FR-012 | GA4 realtime reports | `clients/ga4.py`, `services/ga4_service.py`, `api/ga4_routes.py`, `mcp_server.py` | `test_ga4_client.py`, `test_ga4_service.py`, `test_ga4_routes.py`, `test_ga4_tools.py` | 8 |
+| FR-013 | SC sitemap tools | `clients/search_console.py`, `services/search_console_service.py`, `api/search_console_routes.py`, `mcp_server.py` | `test_search_console_client.py`, `test_search_console_service.py`, `test_search_console_routes.py`, `test_search_console_tools.py` | 12 |
 
 ## Cross-Cutting Concerns
 
@@ -55,7 +59,7 @@
 | NFR-002 | Lazy singleton clients | `core/dependencies.py` — `@functools.lru_cache` on all 5 factory functions |
 | NFR-003 | Error handling | `core/exceptions.py`, `api/error_handlers.py`, `test_error_handlers.py` — specific exception types (GoogleAPICallError, HttpError) |
 | NFR-004 | Code quality (Black + pylint) | `.pre-commit-config.yaml` (format + lint), `.github/workflows/ci.yml`, `pyproject.toml` |
-| NFR-005 | Test coverage >= 80% | 182 tests, 85% coverage |
+| NFR-005 | Test coverage >= 80% | 230 tests, 85% coverage |
 | NFR-006 | Docker containerization | `Dockerfile` (multi-stage, non-root), `docker-compose.yml` |
 | NFR-007 | CI pipeline | `.github/workflows/ci.yml` (format, lint, test, audit, coverage gate 80%, pylint gate 9.5) |
 | NFR-008 | MCP text table output | `core/formatting.py`, `test_formatting.py` |

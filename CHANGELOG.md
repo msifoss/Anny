@@ -19,7 +19,12 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - GA4 realtime reports: `run_realtime_report()` client method, `get_realtime_report()` service, `GET /api/ga4/realtime` endpoint, `ga4_realtime` MCP tool (#19)
 - Search Console sitemap tools: `list_sitemaps()` and `get_sitemap()` client methods, service layer, `GET /api/search-console/sitemaps` and `GET /api/search-console/sitemaps/{feedpath}` endpoints, `search_console_sitemaps` and `search_console_sitemap_details` MCP tools (#20)
 - Data export: `to_csv()` and `to_json()` in `export_service.py`, 6 export endpoints under `/api/export/` with `Content-Disposition: attachment` headers and `?format=csv|json` param (#23)
-- 41 new tests (223 total): cache (9), cache routes (2), export service (5), export routes (4), GA4 realtime (8 across client/service/route/tool), SC sitemaps (12 across client/service/route/tool), error handler fix (1)
+- 48 new tests (230 total): cache (9), cache routes (2), export service (10), export routes (6), GA4 realtime (8 across client/service/route/tool), SC sitemaps (12 across client/service/route/tool), error handler fix (1)
+
+### Security
+- CSV injection protection in export: formula-triggering characters (`=`, `+`, `-`, `@`, `\t`, `\r`) prefixed with tab
+- Export route limit clamping: `MAX_LIMIT=100`, `MAX_ROW_LIMIT=1000` on all 6 export endpoints
+- Content-Disposition filename quoted per RFC 6266
 
 ### Changed
 - Version bumped to 0.7.0

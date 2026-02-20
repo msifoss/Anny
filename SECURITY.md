@@ -13,6 +13,7 @@ Do not test against production systems without authorization.
 
 | Round | Date | Findings | Status |
 |-------|------|----------|--------|
+| 3 | 2026-02-20 | 1 High, 3 Medium, 5 Low | All resolved (Bolt 8 review) |
 | 2 | 2026-02-20 | 1 High, 6 Medium, 4 Low | All resolved (Bolt 6 + Bolt 7) |
 | 1 | 2026-02-17 | 1 High, 4 Medium, 5 Low | All resolved (Bolt 5 + Bolt 6) |
 
@@ -42,6 +43,8 @@ See `docs/security/20260220-143000-security-audit.txt` for latest details.
 - CSV fields validated in service layer (reject empty metrics/dimensions)
 - Date ranges validated (ISO format, start <= end)
 - MCP tool input bounds clamped (MAX_LIMIT=100, MAX_ROW_LIMIT=1000)
+- CSV export injection protection (formula-triggering characters prefixed with tab)
+- Export route limit clamping (same bounds as MCP tools)
 
 ### Network Security
 - UFW firewall: ports 22, 80, 443 only

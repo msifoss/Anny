@@ -1,6 +1,6 @@
 # Anny — Requirements
 
-**Version:** 0.6.0
+**Version:** 0.7.0
 **Last updated:** 2026-02-20
 
 ---
@@ -64,6 +64,36 @@ The system shall accept named date ranges (last_7_days, last_28_days, etc.) and 
 
 ### FR-008: Shared Service Layer
 REST and MCP interfaces shall share a single service layer with zero duplication of Google API logic.
+
+### FR-010: Query Cache
+The system shall provide an in-memory query cache with TTL expiry and LRU eviction to reduce redundant Google API calls.
+
+- **FR-010.1:** Cache keyed by SHA-256 hash of API name and query parameters
+- **FR-010.2:** Configurable TTL (default 3600s) and max entries (default 500) via environment variables
+- **FR-010.3:** Thread-safe cache operations via threading.Lock
+- **FR-010.4:** Cache status and clear operations exposed as REST endpoints and MCP tools
+
+### FR-011: Data Export
+The system shall export GA4 and Search Console query results as downloadable CSV or JSON files.
+
+- **FR-011.1:** Six export endpoints mirroring existing GA4 and SC query endpoints
+- **FR-011.2:** CSV output with UTF-8 BOM for Excel compatibility
+- **FR-011.3:** CSV injection protection (formula-triggering characters prefixed with tab)
+- **FR-011.4:** Export row limits clamped to MAX_LIMIT (100) and MAX_ROW_LIMIT (1000)
+
+### FR-012: GA4 Realtime Reports
+The system shall query GA4 realtime data for active users and metrics.
+
+- **FR-012.1:** Realtime report via RunRealtimeReportRequest with configurable minute ranges
+- **FR-012.2:** Optional dimension breakdown (e.g., by country, device)
+- **FR-012.3:** Realtime data excluded from query cache (ephemeral by nature)
+
+### FR-013: Search Console Sitemap Tools
+The system shall query Search Console sitemap data in readonly mode.
+
+- **FR-013.1:** List all submitted sitemaps for the configured site
+- **FR-013.2:** Get details for a specific sitemap including contents breakdown
+- **FR-013.3:** Readonly only — no submit or delete operations (consistent with readonly scopes)
 
 ### FR-009: Observability
 The system shall provide structured logging, error tracking, and operational monitoring.

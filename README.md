@@ -36,21 +36,27 @@ Anny gives LLMs and programmatic clients unified access to your Google analytics
 
 | Service | What you can do |
 |---------|----------------|
-| **Google Analytics 4** | Custom reports, top pages, traffic by source |
-| **Google Search Console** | Search queries, page performance, CTR and position data |
+| **Google Analytics 4** | Custom reports, top pages, traffic by source, realtime active users |
+| **Google Search Console** | Search queries, page performance, CTR and position data, sitemaps |
 | **Google Tag Manager** | List accounts, containers, tags, triggers, variables |
 
 **Access modes:**
 
-- **REST API** -- 14 endpoints with Swagger docs, suitable for dashboards, scripts, and integrations
-- **MCP Server** -- 12 tools with sensible defaults, designed for natural-language interaction with LLMs
+- **REST API** -- 25 endpoints with Swagger docs, suitable for dashboards, scripts, and integrations
+- **MCP Server** -- 26 tools with sensible defaults, designed for natural-language interaction with LLMs
+
+**Additional capabilities:**
+
+- **Query cache** -- In-memory TTL+LRU cache reduces redundant Google API calls
+- **Data export** -- Download any report as CSV or JSON with one parameter
+- **Memory layer** -- Persist insights, watchlist items, and filter segments across sessions
 
 **Developer experience:**
 
 - Single service account for all three APIs (readonly)
 - Named date ranges (`last_7_days`, `last_28_days`) -- no date math required
 - Lazy credential loading -- the health check works without any Google credentials
-- 145 tests, pylint 10/10, 83% coverage
+- 230 tests, pylint 10/10, 85% coverage
 - Pre-commit hooks enforce formatting and linting
 
 ---
@@ -260,6 +266,7 @@ You can also pass explicit dates: `2024-01-01,2024-01-31`
 | `POST` | `/api/ga4/report` | Custom report with any metrics/dimensions |
 | `GET` | `/api/ga4/top-pages` | Top pages by page views |
 | `GET` | `/api/ga4/traffic-summary` | Traffic breakdown by source |
+| `GET` | `/api/ga4/realtime` | Realtime active users and metrics |
 
 **POST `/api/ga4/report`** -- Custom report:
 
@@ -295,6 +302,8 @@ Response:
 | `GET` | `/api/search-console/top-queries` | Top search queries by clicks |
 | `GET` | `/api/search-console/top-pages` | Top pages by clicks |
 | `GET` | `/api/search-console/summary` | Overall performance summary |
+| `GET` | `/api/search-console/sitemaps` | List submitted sitemaps |
+| `GET` | `/api/search-console/sitemaps/{feedpath}` | Sitemap details |
 
 **POST `/api/search-console/query`** -- Custom query:
 
@@ -332,6 +341,27 @@ Available dimensions: `query`, `page`, `date`, `country`, `device`
 
 Container paths follow the format: `accounts/{accountId}/containers/{containerId}`
 
+### Cache & Export
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/cache/status` | Query cache status (entries, hit rate) |
+| `DELETE` | `/api/cache` | Clear all cached query results |
+| `GET` | `/api/export/ga4/report?format=csv` | Export GA4 report as CSV or JSON |
+| `GET` | `/api/export/ga4/top-pages?format=csv` | Export top pages as CSV or JSON |
+| `GET` | `/api/export/ga4/traffic-summary?format=json` | Export traffic summary |
+| `GET` | `/api/export/search-console/query?format=csv` | Export SC query |
+| `GET` | `/api/export/search-console/top-queries?format=csv` | Export top queries |
+| `GET` | `/api/export/search-console/top-pages?format=csv` | Export top pages |
+
+Export endpoints accept the same parameters as their non-export counterparts plus `format=csv|json`. CSV files include a UTF-8 BOM for Excel compatibility.
+
+### Admin
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/logs` | Recent log entries (auth required) |
+
 ---
 
 ## MCP Tools Reference
@@ -344,14 +374,28 @@ All tools use sensible defaults. Call them with no arguments for quick results, 
 | `ga4_report` | `metrics`, `dimensions`, `date_range`, `limit` | Sessions + users by date, last 28 days |
 | `ga4_top_pages` | `date_range`, `limit` | Top 10 pages by views, last 28 days |
 | `ga4_traffic_summary` | `date_range` | Traffic by source, last 28 days |
+| `ga4_realtime` | `metrics`, `dimensions`, `minute_ranges` | Active users right now |
 | `search_console_query` | `dimensions`, `date_range`, `row_limit` | Top queries, last 28 days |
 | `search_console_top_queries` | `date_range`, `limit` | Top 10 queries by clicks |
 | `search_console_top_pages` | `date_range`, `limit` | Top 10 pages by clicks |
 | `search_console_summary` | `date_range` | Overall clicks/impressions/CTR/position |
+| `search_console_sitemaps` | (none) | List all submitted sitemaps |
+| `search_console_sitemap_details` | `feedpath` | Details for a specific sitemap |
+| `cache_status` | (none) | Cache entries, hit rate, TTL |
+| `clear_cache` | (none) | Clear all cached query results |
 | `gtm_list_accounts` | (none) | All accessible accounts |
 | `gtm_list_containers` | `account_id` | Containers for one account |
 | `gtm_container_setup` | `container_path` | Tags + triggers + variables summary |
 | `gtm_list_tags` | `container_path` | All tags in a container |
+| `save_insight` | `text`, `source`, `tags` | Save an analytics finding |
+| `list_insights` | (none) | List all saved insights |
+| `delete_insight` | `insight_id` | Remove an insight |
+| `add_to_watchlist` | `page_path`, `label`, `baseline` | Track a page |
+| `list_watchlist` | (none) | List watched pages |
+| `remove_from_watchlist` | `item_id` | Stop tracking a page |
+| `save_segment` | `name`, `description`, `filter_type`, `patterns` | Save a filter segment |
+| `list_segments` | (none) | List saved segments |
+| `get_context` | (none) | Load all memory for session start |
 
 MCP tools return formatted text tables optimized for LLM consumption.
 
@@ -362,28 +406,37 @@ MCP tools return formatted text tables optimized for LLM consumption.
 ```
 src/anny/
 ├── main.py                     # FastAPI app, mounts routers + MCP
-├── mcp_server.py               # FastMCP instance + 12 tool definitions
+├── mcp_server.py               # FastMCP instance + 26 tool definitions
 ├── api/
 │   ├── models.py               # Pydantic request/response models
 │   ├── error_handlers.py       # AnnyError → HTTP 401/502/500
-│   ├── ga4_routes.py           # 3 GA4 endpoints
-│   ├── search_console_routes.py # 4 Search Console endpoints
-│   └── tag_manager_routes.py   # 6 Tag Manager endpoints
+│   ├── cache_routes.py         # Cache admin endpoints
+│   ├── export_routes.py        # CSV/JSON data export endpoints
+│   ├── ga4_routes.py           # GA4 endpoints (report, top-pages, traffic, realtime)
+│   ├── logs_routes.py          # Admin logs endpoint
+│   ├── search_console_routes.py # SC endpoints (query, top-queries, top-pages, summary, sitemaps)
+│   └── tag_manager_routes.py   # GTM endpoints (accounts, containers, tags, triggers, variables)
 ├── clients/
 │   ├── ga4.py                  # GA4Client — wraps BetaAnalyticsDataClient
+│   ├── memory.py               # MemoryStore — JSON file-backed persistence
 │   ├── search_console.py       # SearchConsoleClient — wraps searchanalytics API
 │   └── tag_manager.py          # TagManagerClient — wraps GTM API v2
 ├── cli/
 │   └── mcp_stdio.py            # Standalone stdio entry point
 └── core/
     ├── auth.py                 # Service account credential loading
+    ├── cache.py                # QueryCache — in-memory TTL+LRU cache
     ├── config.py               # Pydantic Settings from env vars
     ├── date_utils.py           # Named date range → (start, end) parsing
     ├── dependencies.py         # Lazy singleton client factories (lru_cache)
     ├── exceptions.py           # AnnyError → AuthError, APIError
     ├── formatting.py           # Text table formatter for MCP output
+    ├── logging.py              # JSON logging, request-ID, ring buffer
     └── services/
+        ├── cache_service.py
+        ├── export_service.py
         ├── ga4_service.py
+        ├── memory_service.py
         ├── search_console_service.py
         └── tag_manager_service.py
 ```
@@ -444,11 +497,12 @@ make integration
 
 | Category | Count | What's tested |
 |----------|-------|---------------|
-| Unit | 77 | Clients, services, routes, config, auth, date parsing, formatting, exceptions, error handlers |
+| Unit | 219 | Clients, services, routes, MCP tools, config, auth, cache, export, logging, middleware, memory |
 | Integration | 11 | Full HTTP request flow through FastAPI with mocked Google API responses |
-| **Total** | **88** | **86% code coverage** |
+| E2e | 19 | Real Google API calls (gated behind `ANNY_E2E=1`) |
+| **Total** | **249 collected, 230 passing** | **85% code coverage** |
 
-All tests use mocked Google API responses -- no real credentials needed to run the test suite.
+All unit and integration tests use mocked Google API responses -- no real credentials needed to run the test suite.
 
 ---
 
