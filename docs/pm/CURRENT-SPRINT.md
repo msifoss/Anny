@@ -1,18 +1,18 @@
-# Holding Pattern (2026-02-18)
+# Holding Pattern (2026-02-20)
 
-No active Bolt. Bolt 5 completed 2026-02-18. v0.4.0 released and deployed.
+No active Bolt. Bolt 6 completed 2026-02-20. v0.5.0 released and deployed.
 
-**Last completed:** Bolt 5 — Production Hardening & Code Quality (all 12 items done)
+**Last completed:** Bolt 6 — Security Audit Round 2 (11 findings fixed, v0.5.0 released)
 
 ## Metrics (Current)
 
 | Metric | Value |
 |--------|-------|
-| Version | v0.4.0 |
-| Tests | 164 collected / 145 unit+int passing / 19 e2e |
-| Coverage | 83% |
+| Version | v0.5.0 |
+| Tests | 175 collected / 156 unit+int passing / 19 e2e |
+| Coverage | 84% |
 | Pylint | 10/10 |
-| Deploys | 2 (v0.3.0 + v0.4.0 to anny.membies.com) |
+| Deploys | 3 (v0.3.0 + v0.4.0 + v0.5.0 to anny.membies.com) |
 | MCP Tools | 21 |
 
 ## Top Backlog Items (Ready to Work)
@@ -21,8 +21,8 @@ No active Bolt. Bolt 5 completed 2026-02-18. v0.4.0 released and deployed.
 |---|------|------|-------|
 | 16 | CI pipeline update for new deps | S | Deployment |
 | 18 | Monitoring / alerting setup | M | Deployment |
+| 40 | Docker volume for memory.json persistence | S | Deployment |
 | 25 | Query cache for MemoryStore | M | Feature |
-| 19 | GA4 realtime report tool | M | Feature |
 
 ## Blockers
 

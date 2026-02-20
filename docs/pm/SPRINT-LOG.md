@@ -4,6 +4,53 @@ Archive of completed Bolts.
 
 ---
 
+## Bolt 6 — Security Audit Round 2 (2026-02-20 → 2026-02-20)
+
+**Goal:** Fix all findings from security audit round 2 (1 High, 6 Medium, 4 Low)
+
+**Outcome:** ACHIEVED — 10 of 11 findings fixed in code, 1 deferred (M-006 centralized logging — requires infra decisions). MCP Bearer token auth added. v0.5.0 released and deployed.
+
+### Items Completed
+
+| Item | Size | Notes |
+|------|------|-------|
+| H-001: Service account key chmod 600 | S | Was 644 in deploy.sh |
+| M-001: Rate limit /mcp paths | S | Extended existing middleware |
+| M-002: CORS middleware | S | Restrictive defaults, no open origins |
+| M-003: Sanitize client error messages | M | GA4, SC, GTM — log detail, raise generic |
+| M-004: Memory file permissions 0600 | S | Owner-only read/write |
+| M-005: Pin dependency versions | S | All 8 deps pinned to exact versions |
+| L-001: GTM path validation | S | Regex on account IDs and container paths |
+| L-002: Scrub key path from logs | S | basename() only |
+| L-004: Gitleaks pre-commit hook | S | Secret scanning on every commit |
+| MCP HTTP Bearer token auth | M | DebugTokenVerifier + verify_mcp_bearer_token() |
+| 11 new tests | S | Rate limit /mcp, file perms, path validation |
+
+### Items Not Completed (Returned to Backlog)
+
+| Item | Size | Notes |
+|------|------|-------|
+| M-006: Centralized logging | M | Deferred — needs infra decisions (log shipping, alerting) |
+
+### Metrics
+
+| Metric | Value |
+|--------|-------|
+| Commits | 3 (7169e11, 38484f6, 3e105cd) |
+| Tests | 175 collected / 156 unit+int passing / 19 e2e |
+| Coverage | 84% |
+| Pylint | 10/10 |
+| Deploys | 1 (v0.5.0 to anny.membies.com) |
+| MCP Tools | 21 |
+
+### Retro
+
+- **Went well:** Clean single-pass fix of all 11 findings. Autouse fixture pattern for rate limit store cleanup was a good catch. Gitleaks hook passed on first commit.
+- **Improve:** Work happened outside a Bolt — should have opened Bolt 6 before starting. Rate limit cross-test pollution was caught by CI but could have been anticipated.
+- **Action:** Open a Bolt before starting any coherent block of work, even if it's reactive (like fixing audit findings).
+
+---
+
 ## Bolt 5 — Production Hardening & Code Quality (2026-02-17 → 2026-02-18)
 
 **Goal:** Fix security vulnerabilities, add operational visibility, and harden error handling across the codebase

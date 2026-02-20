@@ -4,7 +4,7 @@
 > Size: S (< 1hr), M (< half day), L (~ 1 day), XL (multi-day).
 > Status: executable | blocked | done
 
-Last groomed: 2026-02-18
+Last groomed: 2026-02-20
 
 ---
 
@@ -60,6 +60,10 @@ Last groomed: 2026-02-18
 | 36 | Validate CSV fields in service layer | S | done | Bolt 5 — reject empty metrics/dimensions |
 | 37 | Validate custom date ranges in date_utils | S | done | Bolt 5 — format + order validation |
 | 38 | Move pytest out of pre-commit | S | done | Bolt 5 — black + pylint only |
+| 39 | MCP HTTP Bearer token auth | M | done | Bolt 6 — DebugTokenVerifier + verify_mcp_bearer_token() |
+| 41 | Security audit round 2 fixes (10 items) | M | done | Bolt 6 — H-001, M-001–M-005, L-001–L-002, L-004 |
+| 42 | Gitleaks pre-commit secret scanning | S | done | Bolt 6 — v8.24.0, language: golang |
+| 43 | Pin all dependency versions | S | done | Bolt 6 — 8 deps pinned to exact versions |
 
 ### Should Have
 
@@ -67,6 +71,8 @@ Last groomed: 2026-02-18
 |---|------|------|--------|-------|
 | 17 | Health check with dependency status | S | done | Superseded by #31 |
 | 18 | Monitoring / alerting setup | M | executable | |
+| 40 | Docker volume for memory.json persistence | S | executable | Prevents data loss on container rebuild |
+| 44 | Centralized logging (M-006) | M | executable | Log shipping + alerting — deferred from Bolt 6 |
 
 ---
 
