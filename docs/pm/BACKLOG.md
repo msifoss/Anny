@@ -4,7 +4,7 @@
 > Size: S (< 1hr), M (< half day), L (~ 1 day), XL (multi-day).
 > Status: executable | blocked | done
 
-Last groomed: 2026-02-20
+Last groomed: 2026-02-20 (Bolt 9)
 
 ---
 
@@ -73,6 +73,9 @@ Last groomed: 2026-02-20
 | 18 | Monitoring / alerting setup | M | done | Bolt 7 — JSON logging, uptime monitor, Sentry |
 | 40 | Docker volume for memory.json persistence | S | done | Named volume + Dockerfile mkdir, deployed |
 | 44 | Centralized logging (M-006) | M | done | Bolt 7 — JSON logging, ring buffer, /api/logs endpoint |
+| 45 | Incident response runbook (OPS 7.4) | S | done | Bolt 9 — `docs/manuals/INCIDENT-RESPONSE.md` |
+| 46 | DR plan — backup, RTO, RPO (OPS 8.1–8.3) | S | done | Bolt 9 — `docs/manuals/DR-PLAN.md` + `scripts/backup.sh` |
+| 47 | Automated rollback on failed deploy (OPS 6.6) | M | done | Bolt 9 — deploy.sh image tagging + restore |
 
 ---
 

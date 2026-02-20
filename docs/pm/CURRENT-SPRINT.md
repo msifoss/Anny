@@ -1,6 +1,6 @@
 # No Active Bolt
 
-Bolt 8 closed 2026-02-20. All items delivered, v0.7.0 deployed (deploy count: 6).
+Bolt 9 closed 2026-02-20. All items delivered, v0.8.0 tagged. OPS readiness 42/47 (89%).
 
 ## Next Bolt Candidates
 
@@ -13,5 +13,6 @@ Bolt 8 closed 2026-02-20. All items delivered, v0.7.0 deployed (deploy count: 6)
 
 ## Pending Actions
 
-- ~~Deploy v0.7.0 to anny.membies.com~~ done
-- ~~Smoke test new endpoints (cache status confirmed)~~ done
+- Deploy v0.8.0 to anny.membies.com
+- Run `scripts/backup.sh` on VPS and configure daily cron
+- Verify rollback image tagging works on next deploy

@@ -81,7 +81,5 @@ All production dependencies pinned to exact versions in `requirements.txt`.
 Last scan: 2026-02-20 — 1 vulnerability found (diskcache CVE-2025-69872, transitive)
 
 ## Known Limitations
-- No automated rollback on failed deploy
 - No load/performance testing
-- No disaster recovery plan (backup strategy, RTO/RPO)
 - Gitleaks secret scanning only in pre-commit (not in CI)

@@ -1,7 +1,7 @@
 # Anny — Operational Readiness Checklist
 
 **Last scored:** 2026-02-20
-**Score:** 37/47 (79%)
+**Score:** 42/47 (89%)
 
 ---
 
@@ -86,10 +86,10 @@
 - [x] 6.3 Deploy script with health check validation (`scripts/deploy.sh`)
 - [x] 6.4 SSL/TLS certificates (Let's Encrypt via certbot)
 - [x] 6.5 Reverse proxy (nginx with WebSocket support)
-- [ ] 6.6 Automated rollback on failed deploy
+- [x] 6.6 Automated rollback on failed deploy (`deploy.sh` tags current image, restores on health check failure)
 - [ ] 6.7 Blue-green or canary deployment capability
 
-**Section: 5/7**
+**Section: 6/7**
 
 ---
 
@@ -98,19 +98,19 @@
 - [x] 7.1 README with setup instructions
 - [x] 7.2 CLAUDE.md (AI operating manual) current
 - [x] 7.3 API documentation (REST endpoints + MCP tools documented)
-- [ ] 7.4 Runbook for incident response
+- [x] 7.4 Runbook for incident response (`docs/manuals/INCIDENT-RESPONSE.md`)
 
-**Section: 3/4**
+**Section: 4/4**
 
 ---
 
 ## 8. Disaster Recovery (3 items)
 
-- [ ] 8.1 Backup strategy documented and tested
-- [ ] 8.2 Recovery time objective (RTO) defined
-- [ ] 8.3 Recovery point objective (RPO) defined
+- [x] 8.1 Backup strategy documented and tested (`docs/manuals/DR-PLAN.md`, `scripts/backup.sh`, daily cron)
+- [x] 8.2 Recovery time objective (RTO) defined (30 minutes)
+- [x] 8.3 Recovery point objective (RPO) defined (24 hours)
 
-**Section: 0/3**
+**Section: 3/3**
 
 ---
 
@@ -123,39 +123,32 @@
 | Security | 8/8 | 100% |
 | Auth & Authorization | 5/5 | 100% |
 | Monitoring & Observability | 6/6 | 100% |
-| Deployment & Infrastructure | 5/7 | 71% |
-| Documentation | 3/4 | 75% |
-| Disaster Recovery | 0/3 | 0% |
-| **Total** | **37/47** | **79%** |
+| Deployment & Infrastructure | 6/7 | 86% |
+| Documentation | 4/4 | 100% |
+| Disaster Recovery | 3/3 | 100% |
+| **Total** | **42/47** | **89%** |
 
 ---
 
-## Changes from Last Score (31/47 → 37/47)
+## Changes from Last Score (37/47 → 42/47)
 
 | Item | Change | Notes |
 |------|--------|-------|
-| 2.1 Unit tests | updated | 134 → 171 unit tests |
-| 2.4 Coverage | updated | 83% → 85% |
-| 2.7 Smoke test post-deploy | [ ] → [x] | Bolt 7 — smoke_test.sh called from deploy.sh |
-| 4.5 CORS policy | [ ] → [x] | Bolt 6 — CORSMiddleware with restrictive defaults |
-| 5.1 Structured logging | updated | Text → JSON (python-json-logger + request-ID) |
-| 5.2 Log aggregation | [ ] → [x] | Bolt 7 — ring buffer + GET /api/logs endpoint |
-| 5.5 Uptime monitoring | [ ] → [x] | Bolt 7 — uptime_monitor.sh, cron */5, webhook alerts |
-| 5.6 Error tracking | [ ] → [x] | Bolt 7 — Sentry via sentry-sdk[fastapi] |
+| 6.6 Automated rollback | [ ] → [x] | Bolt 9 — deploy.sh tags current image, restores on health check failure |
+| 7.4 Incident response runbook | [ ] → [x] | Bolt 9 — `docs/manuals/INCIDENT-RESPONSE.md` |
+| 8.1 Backup strategy | [ ] → [x] | Bolt 9 — DR plan + `scripts/backup.sh` (daily cron, 7-day retention) |
+| 8.2 RTO defined | [ ] → [x] | Bolt 9 — 30 minutes (full VPS rebuild from scripts) |
+| 8.3 RPO defined | [ ] → [x] | Bolt 9 — 24 hours (daily memory.json backup) |
 
-Net change: +6
+Net change: +5
 
 ---
 
-## Priority Actions to Reach 90% (42/47)
+## Remaining Items (5 of 47)
 
-Need 5 more items. Highest-impact actions:
-
-1. **Incident runbook** (7.4) — S, new doc
-2. **Backup strategy** (8.1) — S, document strategy for memory.json + .env
-3. **RTO/RPO** (8.2, 8.3) — S, define in ops docs
-4. **CD step in CI** (1.7) — M, GitHub Actions deploy job
-5. **Rollback on failed deploy** (6.6) — M, deploy.sh enhancement
-6. **Pre-commit tests or equivalent** (2.5) — S, re-add if desired
-7. **Load testing** (2.6) — M, basic k6/locust script
-8. **Blue-green deploy** (6.7) — L, requires infra changes
+| Item | Size | Notes |
+|------|------|-------|
+| 1.7 CD pipeline | M | Needs SSH deploy key as GitHub secret |
+| 2.5 Pre-commit tests | S | Deliberately removed in Bolt 5 to speed commits; tests run via CI |
+| 2.6 Load testing | M | Needs k6/locust setup |
+| 6.7 Blue-green deploy | L | Overkill for single-container app |

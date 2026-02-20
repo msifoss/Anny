@@ -4,6 +4,45 @@ Archive of completed Bolts.
 
 ---
 
+## Bolt 9 — OPS Readiness Push (2026-02-20 → 2026-02-20)
+
+**Goal:** Close the OPS readiness gap from 37/47 (79%) to 42/47 (89%) with 5 targeted items — incident response runbook, disaster recovery plan, backup script, and automated rollback.
+
+**Outcome:** ACHIEVED — All 5 OPS items delivered. Incident response runbook covers detection, severity levels, response steps, escalation, and post-incident process. DR plan documents backup strategy (daily memory.json), RTO (30 min), RPO (24 hours). Deploy script enhanced with automated rollback on health check failure. OPS score now 42/47 (89%).
+
+### Items Completed
+
+| Item | Size | Notes |
+|------|------|-------|
+| Incident response runbook (OPS 7.4) | S | `docs/manuals/INCIDENT-RESPONSE.md` — P1/P2/P3 severity levels |
+| DR plan (OPS 8.1, 8.2, 8.3) | S | `docs/manuals/DR-PLAN.md` — backup strategy, RTO 30m, RPO 24h |
+| Backup script | S | `scripts/backup.sh` — Docker volume copy, 7-day retention |
+| Automated rollback (OPS 6.6) | M | `deploy.sh` — image tagging + restore on health check failure |
+| OPS checklist re-score | S | 37/47 → 42/47 (89%) |
+
+### Items Not Completed (Returned to Backlog)
+
+(none — all items completed)
+
+### Metrics
+
+| Metric | Value |
+|--------|-------|
+| Commits | 1 |
+| Tests | 249 collected / 230 unit+int passing / 19 e2e |
+| Coverage | 85% |
+| Pylint | 10/10 |
+| Deploys | 0 (no app code changes) |
+| OPS Readiness | 42/47 (89%) |
+
+### Retro
+
+- **Went well:** Clean documentation + script delivery. No app code changes means zero regression risk. Deploy rollback logic follows existing script patterns (helpers, SSH remote calls).
+- **Improve:** Should validate backup script and rollback logic against real VPS in next deploy.
+- **Action:** Run backup.sh on VPS and configure daily cron. Next deploy will exercise the rollback tagging.
+
+---
+
 ## Bolt 8 — Phase 3 Feature Expansion (2026-02-20 → 2026-02-20)
 
 **Goal:** Add query caching, GA4 realtime reports, Search Console sitemap tools, and data export to expand Anny's analytics capabilities.

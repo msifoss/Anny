@@ -81,7 +81,14 @@ After every release, verify these are current:
 
 ## Rollback Procedure
 
-If a deploy causes issues:
+### Automated (v0.8.0+)
+
+`deploy.sh` now handles rollback automatically:
+- Before building, it tags the current running image as `anny:rollback`
+- If the health check fails after deploy, it stops the new container, restores the previous image, and starts it
+- If rollback also fails, it exits with instructions to SSH and investigate
+
+### Manual (if automated rollback is unavailable)
 
 ```bash
 # SSH to server
@@ -92,6 +99,10 @@ cd /opt/anny && docker compose logs --tail 100
 
 # Rollback to previous image (if available)
 docker compose down
+docker tag anny:rollback anny-anny:latest
+docker compose up -d
+
+# If no rollback image, rebuild from git
 git checkout HEAD~1 -- Dockerfile src/ requirements.txt pyproject.toml
 docker compose build && docker compose up -d
 ```
@@ -106,3 +117,5 @@ docker compose build && docker compose up -d
 | 0.4.0 | 2026-02-18 | v0.4.0 | Security hardening + production auth |
 | 0.5.0 | 2026-02-20 | v0.5.0 | Security audit round 2 (11 findings fixed) |
 | 0.6.0 | 2026-02-20 | v0.6.0 | Monitoring, alerting & centralized logging |
+| 0.7.0 | 2026-02-20 | v0.7.0 | Phase 3 feature expansion (cache, realtime, export) |
+| 0.8.0 | 2026-02-20 | v0.8.0 | OPS readiness push (incident response, DR, rollback) |

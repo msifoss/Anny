@@ -75,39 +75,85 @@ scp $SSH_OPTS -i "$SSH_KEY" \
 remote "chmod 600 ${REMOTE_DIR}/secrets/service-account.json"
 ok "Service account key uploaded"
 
+# --- Save current image for rollback ---
+info "Saving current image for rollback..."
+ROLLBACK_AVAILABLE=false
+if remote "docker compose -f ${REMOTE_DIR}/docker-compose.yml images -q 2>/dev/null" >/dev/null 2>&1; then
+    CURRENT_IMAGE=$(remote "docker compose -f ${REMOTE_DIR}/docker-compose.yml images -q 2>/dev/null | head -1")
+    if [[ -n "$CURRENT_IMAGE" ]]; then
+        remote "docker tag ${CURRENT_IMAGE} anny:rollback"
+        ROLLBACK_AVAILABLE=true
+        ok "Current image tagged as anny:rollback (${CURRENT_IMAGE:0:12})"
+    else
+        info "No running image found (first deploy?) — rollback not available"
+    fi
+else
+    info "No running container found (first deploy?) — rollback not available"
+fi
+
 # --- Build and start ---
 info "Building and starting container..."
 remote "cd ${REMOTE_DIR} && docker compose build && docker compose up -d"
 ok "Container started"
 
 # --- Health check ---
-info "Waiting for health check..."
-ELAPSED=0
-TIMEOUT=60
-while [[ $ELAPSED -lt $TIMEOUT ]]; do
-    if remote "curl -sf http://localhost:8000/health" >/dev/null 2>&1; then
-        ok "Health check passed"
-
-        # --- Post-deploy smoke test ---
-        if [[ -x "${SCRIPT_DIR}/smoke_test.sh" ]]; then
-            info "Running post-deploy smoke test..."
-            if ANNY_BASE_URL="https://${DOMAIN}" "${SCRIPT_DIR}/smoke_test.sh"; then
-                ok "Smoke test passed"
-            else
-                echo "  (smoke test failed — deploy succeeded but some endpoints may be unhealthy)"
-            fi
+health_check() {
+    local elapsed=0
+    local timeout=60
+    while [[ $elapsed -lt $timeout ]]; do
+        if remote "curl -sf http://localhost:8000/health" >/dev/null 2>&1; then
+            return 0
         fi
+        sleep 5
+        elapsed=$((elapsed + 5))
+        printf "  waiting... (%ds/%ds)\n" "$elapsed" "$timeout"
+    done
+    return 1
+}
 
-        echo ""
-        echo "============================================"
-        echo "  Deploy Successful"
-        echo "  https://${DOMAIN}/health"
-        echo "============================================"
-        exit 0
+info "Waiting for health check..."
+if health_check; then
+    ok "Health check passed"
+
+    # --- Post-deploy smoke test ---
+    if [[ -x "${SCRIPT_DIR}/smoke_test.sh" ]]; then
+        info "Running post-deploy smoke test..."
+        if ANNY_BASE_URL="https://${DOMAIN}" "${SCRIPT_DIR}/smoke_test.sh"; then
+            ok "Smoke test passed"
+        else
+            echo "  (smoke test failed — deploy succeeded but some endpoints may be unhealthy)"
+        fi
     fi
-    sleep 5
-    ELAPSED=$((ELAPSED + 5))
-    printf "  waiting... (%ds/%ds)\n" "$ELAPSED" "$TIMEOUT"
-done
 
-fail "Health check failed after ${TIMEOUT}s. Check: ssh deploy@${SERVER_IP} 'cd ${REMOTE_DIR} && docker compose logs'"
+    echo ""
+    echo "============================================"
+    echo "  Deploy Successful"
+    echo "  https://${DOMAIN}/health"
+    echo "============================================"
+    exit 0
+fi
+
+# --- Health check failed — attempt rollback ---
+echo ""
+if [[ "$ROLLBACK_AVAILABLE" != "true" ]]; then
+    fail "Health check failed after 60s (no rollback image available). Check: ssh deploy@${SERVER_IP} 'cd ${REMOTE_DIR} && docker compose logs'"
+fi
+
+info "Health check failed — rolling back to previous image..."
+remote "cd ${REMOTE_DIR} && docker compose down"
+remote "docker tag anny:rollback anny-anny:latest"
+remote "cd ${REMOTE_DIR} && docker compose up -d"
+
+info "Waiting for rollback health check..."
+if health_check; then
+    ok "Rollback health check passed"
+    echo ""
+    echo "============================================"
+    echo "  Deploy FAILED — Rolled Back Successfully"
+    echo "  Previous version restored."
+    echo "  https://${DOMAIN}/health"
+    echo "============================================"
+    exit 1
+fi
+
+fail "Rollback also failed. Manual intervention required: ssh deploy@${SERVER_IP} 'cd ${REMOTE_DIR} && docker compose logs'"

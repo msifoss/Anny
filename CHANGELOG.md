@@ -8,6 +8,21 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-02-20 (OPS Readiness Push — Bolt 9)
+
+### Added
+- Incident response runbook (`docs/manuals/INCIDENT-RESPONSE.md`) — severity levels, response steps, escalation, post-incident process (OPS 7.4)
+- Disaster recovery plan (`docs/manuals/DR-PLAN.md`) — backup strategy, RTO (30 min), RPO (24 hours) (OPS 8.1, 8.2, 8.3)
+- Backup script (`scripts/backup.sh`) — copies memory.json from Docker volume, 7-day retention, cron-ready
+
+### Changed
+- Deploy script (`scripts/deploy.sh`) — automated rollback on health check failure: tags current image before build, restores on failure (OPS 6.6)
+- OPS readiness score: 37/47 (79%) → 42/47 (89%)
+- Version bumped to 0.8.0
+
+### Security
+- Automated rollback prevents broken deploys from staying live — reduces mean time to recovery
+
 ## [0.7.0] - 2026-02-20 (Phase 3 Feature Expansion — Bolt 8)
 
 ### Added

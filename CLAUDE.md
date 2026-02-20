@@ -217,6 +217,7 @@ Anny/
 - **Security:** API key auth (REST X-API-Key + MCP Bearer token), timing-safe comparison, credential scrubbing, rate limiting (60 req/min).
 - **MCP:** 26 tools, HTTP at /mcp (Bearer auth) + stdio entry point.
 - **Memory:** JSON file store at `~/.anny/memory.json` — insights, watchlist, segments. File-locked for concurrency.
+- **OPS Readiness:** 42/47 (89%). Incident response runbook, DR plan (backup + RTO/RPO), automated rollback on failed deploy.
 - **Pipeline:** GitHub Actions CI configured.
-- **Deployment:** Live at https://anny.membies.com (Vultr VPS, Docker, nginx, TLS).
+- **Deployment:** Live at https://anny.membies.com (Vultr VPS, Docker, nginx, TLS). Automated rollback on failed deploy.
 - **Git:** GitHub repo, branch `main`
