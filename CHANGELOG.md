@@ -8,6 +8,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-02-20 (Monitoring, Alerting & Centralized Logging — Bolt 7)
+
 ### Added
 - Structured JSON logging via `python-json-logger` with request-ID tracking (`core/logging.py`)
 - Request-ID middleware: UUID per request, `X-Request-ID` response header on all responses

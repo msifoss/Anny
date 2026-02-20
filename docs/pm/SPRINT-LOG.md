@@ -4,6 +4,48 @@ Archive of completed Bolts.
 
 ---
 
+## Bolt 7 — Monitoring, Alerting & Centralized Logging (2026-02-20 → 2026-02-20)
+
+**Goal:** Add structured JSON logging, Sentry error tracking, admin logs endpoint, and uptime monitoring
+
+**Outcome:** ACHIEVED — All 8 deliverables completed. Structured JSON logging with request-ID tracking, Sentry integration (opt-in), admin logs endpoint, uptime monitor script, post-deploy smoke test. #18 and #44 closed. v0.6.0 tagged.
+
+### Items Completed
+
+| Item | Size | Notes |
+|------|------|-------|
+| Structured JSON logging (`core/logging.py`) | M | python-json-logger, request-ID via contextvars, ring buffer handler |
+| Request-ID middleware | S | UUID per request, X-Request-ID response header |
+| Request logging middleware | S | Method, path, status, duration_ms, client_ip; skips /health |
+| Sentry integration | S | sentry-sdk[fastapi], init only when SENTRY_DSN set |
+| Admin logs endpoint (`GET /api/logs`) | S | Ring buffer query, limit/level params, auth-protected |
+| Uptime monitor script | S | Cron-based, state tracking, webhook alerting |
+| Deploy script smoke test | S | Post-deploy smoke_test.sh integration |
+| 26 new tests | M | test_logging, test_logs_routes, test_request_middleware, test_sentry_init |
+
+### Items Not Completed (Returned to Backlog)
+
+(none — all items completed)
+
+### Metrics
+
+| Metric | Value |
+|--------|-------|
+| Commits | 1 (3be37c1) |
+| Tests | 201 collected / 182 unit+int passing / 19 e2e |
+| Coverage | 85% |
+| Pylint | 10/10 |
+| Deploys | 0 (v0.6.0 tagged, deploy pending) |
+| MCP Tools | 21 |
+
+### Retro
+
+- **Went well:** Clean single-commit delivery. All 26 new tests passed on first run after 2 quick lint fixes. Phase 2 (Deployment & Operations) is now fully complete.
+- **Improve:** Should deploy v0.6.0 to validate JSON logging and Sentry in production. Uptime monitor cron not yet configured on VPS.
+- **Action:** Deploy v0.6.0 and configure uptime_monitor.sh cron on VPS in next session.
+
+---
+
 ## Bolt 6 — Security Audit Round 2 (2026-02-20 → 2026-02-20)
 
 **Goal:** Fix all findings from security audit round 2 (1 High, 6 Medium, 4 Low)

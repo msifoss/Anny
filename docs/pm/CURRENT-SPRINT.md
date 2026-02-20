@@ -1,31 +1,35 @@
-# Bolt 7 — Monitoring, Alerting & Centralized Logging (2026-02-20)
+# Holding Pattern (2026-02-20)
 
-**Goal:** Add structured JSON logging, Sentry error tracking, admin logs endpoint, and uptime monitoring.
+No active Bolt. Bolt 7 completed 2026-02-20. v0.6.0 tagged.
 
-**Tickets:** #18 (Monitoring/alerting setup), #44 (Centralized logging)
+**Last completed:** Bolt 7 — Monitoring, Alerting & Centralized Logging (8 items, 26 new tests, v0.6.0)
 
-## Deliverables
+## Metrics (Current)
 
-| Item | Size | Status | Notes |
-|------|------|--------|-------|
-| Structured JSON logging (`core/logging.py`) | M | done | python-json-logger, request-ID via contextvars, ring buffer handler |
-| Request-ID middleware | S | done | UUID per request, X-Request-ID response header |
-| Request logging middleware | S | done | Method, path, status, duration_ms, client_ip; skips /health |
-| Sentry integration | S | done | sentry-sdk[fastapi], init only when SENTRY_DSN set |
-| Admin logs endpoint (`GET /api/logs`) | S | done | Ring buffer query, limit/level params, auth-protected |
-| Uptime monitor script | S | done | Cron-based, state tracking, webhook alerting |
-| Deploy script smoke test | S | done | Post-deploy smoke_test.sh integration |
-| Tests (26 new) | M | done | test_logging, test_logs_routes, test_request_middleware, test_sentry_init |
+| Metric | Value |
+|--------|-------|
+| Version | v0.6.0 |
+| Tests | 201 collected / 182 unit+int passing / 19 e2e |
+| Coverage | 85% (CI gate: 80%) |
+| Pylint | 10/10 (CI gate: 9.5) |
+| Deploys | 4 (v0.3.0 + v0.4.0 + v0.5.0 + memory fix to anny.membies.com) |
+| MCP Tools | 21 |
 
-## Metrics
+## Outstanding Actions
 
-| Metric | Before | After |
+| Action | Source | Notes |
 |--------|--------|-------|
-| Version | v0.5.0 | v0.6.0 |
-| Tests | 156 unit+int | 182 unit+int |
-| Coverage | 84% | 85% |
-| Pylint | 10/10 | 10/10 |
-| MCP Tools | 21 | 21 |
+| Deploy v0.6.0 to anny.membies.com | Bolt 7 retro | Validate JSON logging + Sentry in production |
+| Configure uptime_monitor.sh cron on VPS | Bolt 7 retro | `*/5 * * * *` entry |
+
+## Top Backlog Items (Ready to Work)
+
+| # | Item | Size | Phase |
+|---|------|------|-------|
+| 25 | Query cache for MemoryStore | M | Feature |
+| 19 | GA4 realtime report tool | M | Feature |
+| 20 | Search Console sitemap tools | S | Feature |
+| 23 | Data export (CSV/JSON download) | S | Feature |
 
 ## Blockers
 
