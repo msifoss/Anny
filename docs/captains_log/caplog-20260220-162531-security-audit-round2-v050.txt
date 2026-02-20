@@ -1,0 +1,90 @@
+================================================================================
+CAPTAIN'S LOG: security-audit-round2-v050
+Date: 2026-02-20 16:25:31
+Previous Log: caplog-20260218-225607-bolt5-hardening-and-v040.txt
+================================================================================
+
+## Summary
+Ran security audit round 2, found 11 findings (1 High, 6 Medium, 4 Low), fixed
+all 11 in a single pass, added MCP Bearer token auth, bumped to v0.5.0, and
+deployed to production. Also added gitleaks secret scanning to pre-commit.
+
+## Current State
+- v0.5.0 released, deployed to anny.membies.com, health check passing
+- 156 tests passing (was 145), pylint 10/10, 84% coverage (was 83%)
+- All 11 security audit findings resolved (10 fixed, 1 deferred with justification)
+- MCP HTTP endpoint now authenticated with Bearer token (added in prior commit)
+- Gitleaks pre-commit hook active and passing
+- All dependencies pinned to exact versions
+
+## Work Completed
+- **H-001 (High):** Service account key chmod 600 (was 644) in deploy.sh
+- **M-001:** Rate limiting extended to `/mcp` paths (was only `/api/*`)
+- **M-002:** CORS middleware added with restrictive defaults (no open origins)
+- **M-003:** Client error messages sanitized across GA4, Search Console, Tag Manager
+  — log full detail server-side, raise generic message to callers
+- **M-004:** Memory store file created with 0600 permissions (owner-only)
+- **M-005:** All 8 production dependencies pinned to exact installed versions
+- **M-006 (Deferred):** Centralized logging — needs infra decisions (log shipping,
+  alerting service), tracked as known limitation
+- **L-001:** Regex validation on GTM account IDs and container paths before passing
+  to Google API — prevents path traversal/injection
+- **L-002:** Service account key file path scrubbed from logs (basename only)
+- **L-004:** Gitleaks secret scanning added to .pre-commit-config.yaml
+- MCP HTTP Bearer token authentication (prior commit, included in this release)
+- Version bumped 0.4.0 -> 0.5.0 in pyproject.toml, main.py
+- 11 new tests added (rate limit on /mcp, file permissions, 4 path validation,
+  plus conftest autouse fixture to clear rate limit store between tests)
+- CHANGELOG.md updated with all security entries
+- CLAUDE.md updated with new test count and date
+
+## Decisions Made
+- Sanitize error messages at the client layer (not service/route) — this is the
+  boundary between our code and Google APIs, so it's the right place to scrub
+- CORS allow_origins=[] (empty list) — Anny is API-only (no browser frontend),
+  so no origins need to be allowed. If a frontend is added later, specific origins
+  can be added to the list.
+- Gitleaks with `language: golang` in pre-commit — auto-installs the Go binary,
+  no system dependency needed. First run takes ~30s to install, subsequent runs
+  are fast.
+- M-006 (centralized logging) deferred — requires infrastructure decisions about
+  where to ship logs and what alerting service to use. Not a code-only fix.
+- Rate limit store cleared via autouse pytest fixture rather than per-test setup —
+  prevents cross-test pollution globally without touching every test file.
+- Path validation uses re.fullmatch() not re.match() — ensures the entire string
+  matches the pattern, not just a prefix.
+
+## Issues Encountered
+- Rate limit store cross-test pollution: after extending rate limiting to /mcp,
+  the module-level defaultdict accumulated entries across tests, causing 15 route
+  tests to get 429 responses. Fixed by adding an autouse fixture in conftest.py
+  that clears _rate_limit_store before each test.
+- Pylint flagged import-outside-toplevel in the new rate limit test class —
+  refactored from a class with setup_method to a standalone function with a
+  pylint disable comment on the necessary local import.
+
+## Commits Made
+- 7169e11: Add MCP HTTP Bearer token authentication and remote setup
+- 38484f6: Release v0.5.0 — Fix all 11 security audit findings
+
+## Mistakes & Lessons
+- Module-level mutable state (like _rate_limit_store) needs cleanup in test
+  fixtures. This is the second time shared state between tests caused failures
+  (first was dependency_overrides.clear() in v0.4.0). Pattern: any module-level
+  dict/list used as a cache or store needs an autouse fixture to reset it.
+- When extending middleware coverage (e.g., rate limiting from /api/ to /mcp),
+  always check that existing tests still pass — middleware runs on every request,
+  so adding paths can break tests that don't expect it.
+
+## Next Steps
+- Add Docker volume for ~/.anny/memory.json persistence (from previous log)
+- M-006: Centralized logging — evaluate options (CloudWatch, Loki, simple rsyslog)
+- CI pipeline update (#16) — GitHub Actions with pinned deps
+- Monitoring/alerting (#18) — uptime monitoring for anny.membies.com
+- OPS checklist push toward 90%: incident runbook, backup strategy, smoke test
+  post-deploy, CD pipeline
+- When ready for feature work: query cache (#25), GA4 realtime (#19)
+
+================================================================================
+END OF LOG
+================================================================================
