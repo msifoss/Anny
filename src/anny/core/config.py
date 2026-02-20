@@ -32,7 +32,7 @@ def validate_config(s: Settings) -> list[str]:
     if not s.search_console_site_url:
         warnings.append("SEARCH_CONSOLE_SITE_URL is not set")
     if not s.anny_api_key:
-        warnings.append("ANNY_API_KEY is not set — REST API auth is disabled")
+        warnings.append("ANNY_API_KEY is not set — REST API and MCP HTTP auth disabled")
     return warnings
 
 

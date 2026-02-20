@@ -2,6 +2,8 @@
 
 How to connect Anny as an MCP server to Claude Desktop, Claude Code, or any MCP-compatible client using the stdio transport.
 
+> **Remote connection?** If Anny is deployed to a server, see [MCP Remote Setup](MCP-REMOTE-SETUP.md) instead — no local install needed.
+
 ## Prerequisites
 
 - Anny installed locally (`make install`) or via Docker

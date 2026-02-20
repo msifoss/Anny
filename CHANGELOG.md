@@ -8,6 +8,18 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- MCP HTTP Bearer token authentication via FastMCP `DebugTokenVerifier`
+- `verify_mcp_bearer_token()` in `dependencies.py` — validates `Authorization: Bearer` header against `ANNY_API_KEY`
+- MCP remote setup guide (`docs/manuals/MCP-REMOTE-SETUP.md`) — Claude Desktop + Claude Code configs
+- 5 new unit tests for MCP auth (`tests/unit/test_mcp_auth.py`)
+
+### Changed
+- MCP HTTP path from `/mcp/mcp` to `/mcp` (cleaner URL)
+- Config warning updated to mention both REST and MCP auth
+- `.env.example` comment updated for MCP Bearer auth
+- `SECURITY.md` updated: MCP endpoint now authenticated
+
 ## [0.4.0] - 2026-02-18 (Security Hardening + Production Auth)
 
 ### Added

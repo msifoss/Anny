@@ -151,11 +151,13 @@ Anny/
 | `list_segments` | List saved segments |
 | `get_context` | Load all memory at session start |
 
-## REST API Authentication
-- All `/api/*` endpoints require `X-API-Key` header when `ANNY_API_KEY` is set
+## Authentication
+- All `/api/*` REST endpoints require `X-API-Key` header when `ANNY_API_KEY` is set
+- MCP HTTP (`/mcp`) requires `Authorization: Bearer <ANNY_API_KEY>` when key is set
+- Both REST and MCP validate against the same `ANNY_API_KEY` env var
 - `GET /health` is unauthenticated (monitoring)
-- MCP endpoints (`/mcp/*`) are unauthenticated (auth at transport layer)
-- Set `ANNY_API_KEY=` (empty) to disable auth in development
+- MCP stdio transport has no auth (runs locally)
+- Set `ANNY_API_KEY=` (empty) to disable all auth in development
 
 ## REST API Endpoints
 - `GET /health` — Health check (no auth)
@@ -185,8 +187,8 @@ Anny/
 ## Current Status (2026-02-18)
 - **Code:** Full implementation. 145 tests, pylint 10/10, 83% coverage.
 - **Services:** GA4, Search Console, Tag Manager, Memory — all implemented.
-- **Security:** API key auth (X-API-Key header), timing-safe comparison, credential scrubbing, rate limiting (60 req/min).
-- **MCP:** 21 tools, HTTP at /mcp + stdio entry point.
+- **Security:** API key auth (REST X-API-Key + MCP Bearer token), timing-safe comparison, credential scrubbing, rate limiting (60 req/min).
+- **MCP:** 21 tools, HTTP at /mcp (Bearer auth) + stdio entry point.
 - **Memory:** JSON file store at `~/.anny/memory.json` — insights, watchlist, segments. File-locked for concurrency.
 - **Pipeline:** GitHub Actions CI configured.
 - **Deployment:** Live at https://anny.membies.com (Vultr VPS, Docker, nginx, TLS).

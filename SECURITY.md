@@ -22,7 +22,7 @@ See `docs/security/security-audit-2026-02-17.md` for full details.
 ### Authentication
 - Google APIs: Service account with readonly scopes (GA4, SC, GTM)
 - REST API: API key auth via `X-API-Key` header (`ANNY_API_KEY` env var)
-- MCP: No authentication (inherits from transport layer)
+- MCP HTTP: Bearer token auth via `Authorization: Bearer <ANNY_API_KEY>` (FastMCP DebugTokenVerifier)
 - Health endpoint (`/health`) excluded from auth for monitoring
 
 ### Authorization

@@ -30,6 +30,18 @@ async def verify_api_key(api_key: str = Security(api_key_header)):
     return api_key
 
 
+def verify_mcp_bearer_token(token: str) -> bool:
+    """Validate a Bearer token for MCP HTTP auth.
+
+    Returns True when auth is disabled (ANNY_API_KEY empty).
+    """
+    if not settings.anny_api_key:
+        return True
+    if not token:
+        return False
+    return hmac.compare_digest(token, settings.anny_api_key)
+
+
 @functools.lru_cache
 def get_credentials():
     return get_google_credentials(settings.google_service_account_key_path)

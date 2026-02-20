@@ -11,6 +11,7 @@ from anny.api.ga4_routes import router as ga4_router
 from anny.api.search_console_routes import router as sc_router
 from anny.api.tag_manager_routes import router as gtm_router
 from anny.core.config import settings
+from anny.core.dependencies import verify_mcp_bearer_token
 from anny.core.exceptions import AnnyError
 from anny.mcp_server import mcp
 
@@ -20,7 +21,13 @@ logging.basicConfig(
 )
 logger = logging.getLogger("anny")
 
-mcp_app = mcp.http_app(path="/mcp")
+if settings.anny_api_key:
+    from fastmcp.server.auth.providers.debug import DebugTokenVerifier
+
+    mcp.auth = DebugTokenVerifier(validate=verify_mcp_bearer_token)
+    logger.info("MCP HTTP auth enabled (Bearer token)")
+
+mcp_app = mcp.http_app(path="/")
 app = FastAPI(title="Anny", version="0.4.0", lifespan=mcp_app.lifespan)
 logger.info("Anny v0.4.0 starting")
 
