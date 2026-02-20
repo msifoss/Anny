@@ -4,6 +4,45 @@ Archive of completed Bolts.
 
 ---
 
+## Bolt 8 — Phase 3 Feature Expansion (2026-02-20 → 2026-02-20)
+
+**Goal:** Add query caching, GA4 realtime reports, Search Console sitemap tools, and data export to expand Anny's analytics capabilities.
+
+**Outcome:** ACHIEVED — All 4 items delivered in a single session. In-memory query cache with TTL+LRU, GA4 realtime reports, SC sitemap tools, and CSV/JSON data export. 5 new MCP tools, 9 new REST endpoints, 41 new tests. v0.7.0 tagged.
+
+### Items Completed
+
+| Item | Size | Notes |
+|------|------|-------|
+| Query cache (in-memory, TTL+LRU) | M | SHA-256 keys, thread-safe, configurable TTL/max via env vars |
+| GA4 realtime report tool | M | Client, service, REST, MCP — activeUsers, dimensions optional |
+| Search Console sitemap tools | S | list_sitemaps + get_sitemap — readonly (no submit/delete) |
+| Data export (CSV/JSON download) | S | 6 endpoints under /api/export/, BOM-prefixed CSV for Excel |
+
+### Items Not Completed (Returned to Backlog)
+
+(none — all items completed)
+
+### Metrics
+
+| Metric | Value |
+|--------|-------|
+| Commits | 2 (39a6911, 9741848) |
+| Tests | 242 collected / 223 unit+int passing / 19 e2e |
+| Coverage | 85% |
+| Pylint | 10/10 |
+| Deploys | 0 (v0.7.0 tagged, deploy pending) |
+| MCP Tools | 26 |
+| REST Endpoints | 25 |
+
+### Retro
+
+- **Went well:** Clean single-session delivery of all 4 features. Zero new dependencies — all stdlib. Cache wiring was transparent (optional param, no breaking changes to existing tests). Pre-commit hooks caught 2 Black reformats on commit.
+- **Improve:** Should deploy v0.7.0 to validate cache behavior and realtime reports in production. Export endpoints not yet smoke-tested against real data.
+- **Action:** Deploy v0.7.0 to anny.membies.com and run smoke tests against new endpoints.
+
+---
+
 ## Bolt 7 — Monitoring, Alerting & Centralized Logging (2026-02-20 → 2026-02-20)
 
 **Goal:** Add structured JSON logging, Sentry error tracking, admin logs endpoint, and uptime monitoring

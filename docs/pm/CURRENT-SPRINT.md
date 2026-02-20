@@ -1,30 +1,17 @@
-# Bolt 8 — Phase 3 Feature Expansion (2026-02-20)
+# No Active Bolt
 
-**Goal:** Add query caching, GA4 realtime reports, Search Console sitemap tools, and data export to expand Anny's analytics capabilities.
+Bolt 8 closed 2026-02-20. All items delivered, v0.7.0 tagged.
 
-## Items
+## Next Bolt Candidates
 
-| # | Item | Size | Status | Notes |
-|---|------|------|--------|-------|
-| 25 | Query cache (in-memory, TTL+LRU) | M | done | Ephemeral cache, not in memory.json |
-| 19 | GA4 realtime report tool | M | done | activeUsers, screenPageViews, country dims |
-| 20 | Search Console sitemap tools | S | done | List + details (readonly, no submit/delete) |
-| 23 | Data export (CSV/JSON download) | S | done | 6 endpoints, BOM-prefixed CSV for Excel |
+| # | Item | Size | Notes |
+|---|------|------|-------|
+| 22 | Multi-property support | M | Query across multiple GA4 properties |
+| 21 | GTM workspace management (create/publish) | L | Requires write scopes |
+| 27 | Conversion optimization audit tooling | M | Only 9/40+ content pages have CTAs |
+| 28 | Social channel reactivation strategy | S | Organic social dropped 92% Q3→Q4 |
 
-## Metrics
+## Pending Actions
 
-| Metric | Start | Current |
-|--------|-------|---------|
-| Version | v0.6.0 | v0.7.0 |
-| Tests | 182 | 223 |
-| Coverage | 85% | 85% |
-| Pylint | 10/10 | 10/10 |
-| Deploys | 5 | 5 |
-| MCP Tools | 21 | 26 |
-| REST Endpoints | 16 | 25 |
-
-## Blockers
-
-| Blocker | Days Open | Notes |
-|---------|-----------|-------|
-| (none) | | |
+- Deploy v0.7.0 to anny.membies.com
+- Smoke test new endpoints (realtime, sitemaps, cache, export)
