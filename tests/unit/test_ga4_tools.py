@@ -44,6 +44,16 @@ def test_ga4_traffic_summary_tool_flow():
     assert "300" in result
 
 
+def test_ga4_realtime_tool_flow():
+    mock_client = MagicMock()
+    mock_client.run_realtime_report.return_value = [{"activeUsers": "42"}]
+    rows = ga4_service.get_realtime_report(mock_client, metrics="activeUsers")
+    result = format_table(rows)
+
+    assert "activeUsers" in result
+    assert "42" in result
+
+
 def test_ga4_report_no_data():
     mock_client = MagicMock()
     with patch(

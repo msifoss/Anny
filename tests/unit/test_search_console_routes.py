@@ -93,3 +93,41 @@ def test_summary_endpoint():
 
     assert response.status_code == 200
     assert response.json()["row_count"] == 1
+
+
+def test_sitemaps_endpoint():
+    mock_client = _mock_sc_client()
+    _setup_overrides(mock_client)
+
+    mock_client.list_sitemaps.return_value = [
+        {"path": "https://example.com/sitemap.xml", "type": "sitemap"}
+    ]
+    tc = TestClient(app)
+    response = tc.get("/api/search-console/sitemaps")
+
+    _teardown_overrides()
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["count"] == 1
+    assert data["sitemaps"][0]["path"] == "https://example.com/sitemap.xml"
+
+
+def test_sitemap_details_endpoint():
+    mock_client = _mock_sc_client()
+    _setup_overrides(mock_client)
+
+    mock_client.get_sitemap.return_value = {
+        "path": "https://example.com/sitemap.xml",
+        "type": "sitemap",
+        "contents": [{"type": "web", "submitted": 50, "indexed": 45}],
+    }
+    tc = TestClient(app)
+    response = tc.get("/api/search-console/sitemaps/https://example.com/sitemap.xml")
+
+    _teardown_overrides()
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["path"] == "https://example.com/sitemap.xml"
+    assert len(data["contents"]) == 1

@@ -49,6 +49,59 @@ class SearchConsoleClient:
         logger.info("Search Console query returned %d rows", len(response.get("rows", [])))
         return self._flatten_response(response, dimensions or [])
 
+    def list_sitemaps(self) -> list[dict]:
+        """List all sitemaps for the site."""
+        try:
+            response = self._service.sitemaps().list(siteUrl=self._site_url).execute()
+        except HttpError as exc:
+            logger.warning("Sitemap list failed: %s %s", exc.status_code, exc.reason)
+            raise APIError("Sitemap list failed", service="search_console") from exc
+
+        sitemaps = response.get("sitemap", [])
+        logger.info("Listed %d sitemaps", len(sitemaps))
+        return [
+            {
+                "path": s.get("path", ""),
+                "type": s.get("type", ""),
+                "lastSubmitted": s.get("lastSubmitted", ""),
+                "isPending": s.get("isPending", False),
+                "isSitemapsIndex": s.get("isSitemapsIndex", False),
+                "warnings": s.get("warnings", 0),
+                "errors": s.get("errors", 0),
+            }
+            for s in sitemaps
+        ]
+
+    def get_sitemap(self, feedpath: str) -> dict:
+        """Get details for a specific sitemap."""
+        try:
+            response = (
+                self._service.sitemaps().get(siteUrl=self._site_url, feedpath=feedpath).execute()
+            )
+        except HttpError as exc:
+            logger.warning("Sitemap get failed: %s %s", exc.status_code, exc.reason)
+            raise APIError("Sitemap get failed", service="search_console") from exc
+
+        logger.info("Got sitemap details for %s", feedpath)
+        contents = [
+            {
+                "type": c.get("type", ""),
+                "submitted": c.get("submitted", 0),
+                "indexed": c.get("indexed", 0),
+            }
+            for c in response.get("contents", [])
+        ]
+        return {
+            "path": response.get("path", ""),
+            "type": response.get("type", ""),
+            "lastSubmitted": response.get("lastSubmitted", ""),
+            "isPending": response.get("isPending", False),
+            "isSitemapsIndex": response.get("isSitemapsIndex", False),
+            "warnings": response.get("warnings", 0),
+            "errors": response.get("errors", 0),
+            "contents": contents,
+        }
+
     @staticmethod
     def _flatten_response(response: dict, dimensions: list[str]) -> list[dict]:
         """Convert Search Console API response to flat dicts."""

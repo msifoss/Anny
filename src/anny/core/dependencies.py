@@ -12,6 +12,7 @@ from anny.clients.memory import MemoryStore
 from anny.clients.search_console import SearchConsoleClient
 from anny.clients.tag_manager import TagManagerClient
 from anny.core.auth import get_google_credentials
+from anny.core.cache import QueryCache
 from anny.core.config import settings
 from anny.core.exceptions import AuthError
 
@@ -75,3 +76,11 @@ def get_tag_manager_client() -> TagManagerClient:
 def get_memory_store() -> MemoryStore:
     logger.info("Created memory store at %s", settings.memory_store_path)
     return MemoryStore(settings.memory_store_path)
+
+
+@functools.lru_cache
+def get_query_cache() -> QueryCache:
+    logger.info(
+        "Created query cache (TTL=%ds, max=%d)", settings.cache_ttl, settings.cache_max_entries
+    )
+    return QueryCache(ttl=settings.cache_ttl, max_entries=settings.cache_max_entries)

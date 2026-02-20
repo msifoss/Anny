@@ -3,7 +3,8 @@ from unittest.mock import MagicMock
 from fastapi.testclient import TestClient
 
 from anny.clients.ga4 import GA4Client
-from anny.core.dependencies import get_ga4_client, verify_api_key
+from anny.core.cache import QueryCache
+from anny.core.dependencies import get_ga4_client, get_query_cache, verify_api_key
 from anny.core.exceptions import APIError, AuthError
 from anny.main import app
 
@@ -11,11 +12,13 @@ from anny.main import app
 def _setup_overrides(mock_client):
     app.dependency_overrides[get_ga4_client] = lambda: mock_client
     app.dependency_overrides[verify_api_key] = lambda: None
+    app.dependency_overrides[get_query_cache] = QueryCache
 
 
 def _teardown_overrides():
     app.dependency_overrides.pop(get_ga4_client, None)
     app.dependency_overrides.pop(verify_api_key, None)
+    app.dependency_overrides.pop(get_query_cache, None)
 
 
 def test_auth_error_returns_401():

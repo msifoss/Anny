@@ -43,3 +43,19 @@ class GTMContainerSetupResponse(BaseModel):
     trigger_count: int
     variables: list[dict]
     variable_count: int
+
+
+class SitemapListResponse(BaseModel):
+    sitemaps: list[dict]
+    count: int
+
+
+class SitemapDetailResponse(BaseModel):
+    path: str
+    type: str
+    lastSubmitted: str = ""
+    isPending: bool = False
+    isSitemapsIndex: bool = False
+    warnings: int = 0
+    errors: int = 0
+    contents: list[dict] = []

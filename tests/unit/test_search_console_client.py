@@ -76,6 +76,85 @@ def test_query_api_failure():
         client.query("2024-01-01", "2024-01-28")
 
 
+def test_list_sitemaps():
+    service = MagicMock()
+    service.sitemaps().list().execute.return_value = {
+        "sitemap": [
+            {
+                "path": "https://example.com/sitemap.xml",
+                "type": "sitemap",
+                "lastSubmitted": "2024-01-01",
+                "isPending": False,
+                "isSitemapsIndex": False,
+                "warnings": 0,
+                "errors": 0,
+            }
+        ]
+    }
+    client = SearchConsoleClient(service, "https://example.com")
+    result = client.list_sitemaps()
+    assert len(result) == 1
+    assert result[0]["path"] == "https://example.com/sitemap.xml"
+
+
+def test_list_sitemaps_empty():
+    service = MagicMock()
+    service.sitemaps().list().execute.return_value = {}
+    client = SearchConsoleClient(service, "https://example.com")
+    result = client.list_sitemaps()
+    assert result == []
+
+
+def test_list_sitemaps_failure():
+    service = MagicMock()
+    service.sitemaps().list().execute.side_effect = HttpError(
+        Response({"status": "403"}), b"forbidden"
+    )
+    client = SearchConsoleClient(service, "https://example.com")
+    with pytest.raises(APIError, match="Sitemap list failed"):
+        client.list_sitemaps()
+
+
+def test_get_sitemap():
+    service = MagicMock()
+    service.sitemaps().get().execute.return_value = {
+        "path": "https://example.com/sitemap.xml",
+        "type": "sitemap",
+        "lastSubmitted": "2024-01-01",
+        "contents": [{"type": "web", "submitted": 100, "indexed": 95}],
+    }
+    client = SearchConsoleClient(service, "https://example.com")
+    result = client.get_sitemap("https://example.com/sitemap.xml")
+    assert result["path"] == "https://example.com/sitemap.xml"
+    assert len(result["contents"]) == 1
+    assert result["contents"][0]["submitted"] == 100
+
+
+def test_get_sitemap_contents():
+    service = MagicMock()
+    service.sitemaps().get().execute.return_value = {
+        "path": "https://example.com/sitemap.xml",
+        "type": "sitemap",
+        "contents": [
+            {"type": "web", "submitted": 50, "indexed": 45},
+            {"type": "image", "submitted": 20, "indexed": 18},
+        ],
+    }
+    client = SearchConsoleClient(service, "https://example.com")
+    result = client.get_sitemap("https://example.com/sitemap.xml")
+    assert len(result["contents"]) == 2
+
+
+def test_get_sitemap_failure():
+    service = MagicMock()
+    service.sitemaps().get().execute.side_effect = HttpError(
+        Response({"status": "404"}), b"not found"
+    )
+    client = SearchConsoleClient(service, "https://example.com")
+    with pytest.raises(APIError, match="Sitemap get failed"):
+        client.get_sitemap("https://example.com/sitemap.xml")
+
+
 def test_site_url_property():
     service = MagicMock()
     client = SearchConsoleClient(service, "https://example.com")

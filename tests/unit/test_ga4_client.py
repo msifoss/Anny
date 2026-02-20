@@ -74,6 +74,67 @@ def test_run_report_api_failure():
         )
 
 
+def test_run_realtime_report():
+    mock_api = MagicMock()
+    mock_response = _make_mock_response(
+        [
+            (["US"], ["42"]),
+            (["UK"], ["15"]),
+        ]
+    )
+    mock_api.run_realtime_report.return_value = mock_response
+
+    client = GA4Client(mock_api, "123456")
+    rows = client.run_realtime_report(
+        metrics=["activeUsers"],
+        dimensions=["country"],
+    )
+
+    assert len(rows) == 2
+    assert rows[0] == {"country": "US", "activeUsers": "42"}
+
+
+def test_run_realtime_report_no_dimensions():
+    mock_api = MagicMock()
+    mock_response = _make_mock_response(
+        [
+            ([], ["42"]),
+        ]
+    )
+    mock_api.run_realtime_report.return_value = mock_response
+
+    client = GA4Client(mock_api, "123456")
+    rows = client.run_realtime_report(metrics=["activeUsers"])
+
+    assert len(rows) == 1
+    assert rows[0] == {"activeUsers": "42"}
+
+
+def test_run_realtime_report_api_failure():
+    mock_api = MagicMock()
+    mock_api.run_realtime_report.side_effect = GoogleAPICallError("connection failed")
+
+    client = GA4Client(mock_api, "123456")
+    with pytest.raises(APIError, match="GA4 realtime report failed"):
+        client.run_realtime_report(metrics=["activeUsers"])
+
+
+def test_run_realtime_report_minute_ranges():
+    mock_api = MagicMock()
+    mock_api.run_realtime_report.return_value = MagicMock(rows=[])
+
+    client = GA4Client(mock_api, "123456")
+    client.run_realtime_report(
+        metrics=["activeUsers"],
+        minute_ranges_start=0,
+        minute_ranges_end=10,
+    )
+
+    call_args = mock_api.run_realtime_report.call_args[0][0]
+    assert call_args.minute_ranges[0].start_minutes_ago == 10
+    assert call_args.minute_ranges[0].end_minutes_ago == 0
+
+
 def test_property_id_strips_prefix():
     mock_api = MagicMock()
     mock_api.run_report.return_value = MagicMock(rows=[])

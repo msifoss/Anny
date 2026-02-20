@@ -15,6 +15,8 @@ class Settings(BaseSettings):
     memory_store_path: str = "~/.anny/memory.json"
     anny_api_key: str = ""
     sentry_dsn: str = ""
+    cache_ttl: int = 3600
+    cache_max_entries: int = 500
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 

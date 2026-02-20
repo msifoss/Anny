@@ -76,3 +76,19 @@ def test_traffic_summary_endpoint():
     assert response.status_code == 200
     data = response.json()
     assert data["row_count"] == 1
+
+
+def test_realtime_endpoint():
+    mock_client = _mock_ga4_client()
+    _setup_overrides(mock_client)
+
+    mock_client.run_realtime_report.return_value = [{"activeUsers": "42"}]
+    tc = TestClient(app)
+    response = tc.get("/api/ga4/realtime")
+
+    _teardown_overrides()
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["row_count"] == 1
+    assert data["rows"][0]["activeUsers"] == "42"

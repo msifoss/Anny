@@ -83,6 +83,30 @@ def test_get_performance_summary():
     assert len(rows) == 1
 
 
+def test_get_sitemaps():
+    mock_client = MagicMock()
+    mock_client.list_sitemaps.return_value = [
+        {"path": "https://example.com/sitemap.xml", "type": "sitemap"}
+    ]
+    rows = search_console_service.get_sitemaps(mock_client)
+    mock_client.list_sitemaps.assert_called_once()
+    assert len(rows) == 1
+
+
+def test_get_sitemap_details():
+    mock_client = MagicMock()
+    mock_client.get_sitemap.return_value = {
+        "path": "https://example.com/sitemap.xml",
+        "type": "sitemap",
+        "contents": [{"type": "web", "submitted": 50}],
+    }
+    result = search_console_service.get_sitemap_details(
+        mock_client, "https://example.com/sitemap.xml"
+    )
+    mock_client.get_sitemap.assert_called_once_with("https://example.com/sitemap.xml")
+    assert result["path"] == "https://example.com/sitemap.xml"
+
+
 def test_get_search_analytics_rejects_empty_dimensions():
     mock_client = MagicMock()
     with pytest.raises(ValueError, match="dimension"):

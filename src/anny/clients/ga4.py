@@ -5,6 +5,9 @@ from google.analytics.data_v1beta.types import (
     DateRange,
     Dimension,
     Metric,
+    MinuteRange,
+    RunRealtimeReportRequest,
+    RunRealtimeReportResponse,
     RunReportRequest,
     RunReportResponse,
 )
@@ -51,6 +54,36 @@ class GA4Client:
 
         logger.info("GA4 report returned %d rows", len(response.rows))
         return self._flatten_response(response, metrics, dimensions)
+
+    def run_realtime_report(
+        self,
+        metrics: list[str],
+        dimensions: list[str] | None = None,
+        minute_ranges_start: int = 0,
+        minute_ranges_end: int = 29,
+    ) -> list[dict]:
+        """Run a GA4 realtime report and return rows as flat dicts."""
+        request = RunRealtimeReportRequest(
+            property=f"properties/{self._property_id.removeprefix('properties/')}",
+            metrics=[Metric(name=m) for m in metrics],
+            minute_ranges=[
+                MinuteRange(
+                    start_minutes_ago=minute_ranges_end,
+                    end_minutes_ago=minute_ranges_start,
+                )
+            ],
+        )
+        if dimensions:
+            request.dimensions = [Dimension(name=d) for d in dimensions]
+
+        try:
+            response: RunRealtimeReportResponse = self._client.run_realtime_report(request)
+        except GoogleAPICallError as exc:
+            logger.warning("GA4 realtime report failed: %s", exc.message)
+            raise APIError("GA4 realtime report failed", service="ga4") from exc
+
+        logger.info("GA4 realtime report returned %d rows", len(response.rows))
+        return self._flatten_response(response, metrics, dimensions or [])
 
     @staticmethod
     def _flatten_response(

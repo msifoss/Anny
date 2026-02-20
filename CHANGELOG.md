@@ -8,8 +8,24 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-02-20 (Phase 3 Feature Expansion — Bolt 8)
+
 ### Added
-- (Bolt 8 — Phase 3 Feature Expansion in progress)
+- In-memory query cache with TTL (3600s default) and LRU eviction (500 entries default) (`core/cache.py`)
+- Cache config: `ANNY_CACHE_TTL` and `ANNY_CACHE_MAX_ENTRIES` env vars
+- Cache wired into GA4 and Search Console service layer (transparent, optional)
+- `GET /api/cache/status` and `DELETE /api/cache` REST endpoints
+- `cache_status` and `clear_cache` MCP tools
+- GA4 realtime reports: `run_realtime_report()` client method, `get_realtime_report()` service, `GET /api/ga4/realtime` endpoint, `ga4_realtime` MCP tool (#19)
+- Search Console sitemap tools: `list_sitemaps()` and `get_sitemap()` client methods, service layer, `GET /api/search-console/sitemaps` and `GET /api/search-console/sitemaps/{feedpath}` endpoints, `search_console_sitemaps` and `search_console_sitemap_details` MCP tools (#20)
+- Data export: `to_csv()` and `to_json()` in `export_service.py`, 6 export endpoints under `/api/export/` with `Content-Disposition: attachment` headers and `?format=csv|json` param (#23)
+- 41 new tests (223 total): cache (9), cache routes (2), export service (5), export routes (4), GA4 realtime (8 across client/service/route/tool), SC sitemaps (12 across client/service/route/tool), error handler fix (1)
+
+### Changed
+- Version bumped to 0.7.0
+- MCP tools: 21 → 26 (added ga4_realtime, search_console_sitemaps, search_console_sitemap_details, cache_status, clear_cache)
+- REST endpoints: 16 → 25 (added 1 realtime + 2 sitemaps + 2 cache + 6 export)
+- `.env.example`: added `ANNY_CACHE_TTL` and `ANNY_CACHE_MAX_ENTRIES`
 
 ## [0.6.0] - 2026-02-20 (Monitoring, Alerting & Centralized Logging — Bolt 7)
 

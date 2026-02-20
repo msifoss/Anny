@@ -70,6 +70,38 @@ def test_get_traffic_summary():
     assert len(rows) == 1
 
 
+def test_get_realtime_report():
+    mock_client = MagicMock()
+    mock_client.run_realtime_report.return_value = [{"country": "US", "activeUsers": "42"}]
+
+    rows = ga4_service.get_realtime_report(mock_client, metrics="activeUsers", dimensions="country")
+
+    mock_client.run_realtime_report.assert_called_once_with(
+        metrics=["activeUsers"],
+        dimensions=["country"],
+    )
+    assert len(rows) == 1
+
+
+def test_get_realtime_report_empty_metrics():
+    mock_client = MagicMock()
+    with pytest.raises(ValueError, match="metric"):
+        ga4_service.get_realtime_report(mock_client, metrics="")
+
+
+def test_get_realtime_report_no_dimensions():
+    mock_client = MagicMock()
+    mock_client.run_realtime_report.return_value = [{"activeUsers": "42"}]
+
+    rows = ga4_service.get_realtime_report(mock_client, metrics="activeUsers")
+
+    mock_client.run_realtime_report.assert_called_once_with(
+        metrics=["activeUsers"],
+        dimensions=None,
+    )
+    assert len(rows) == 1
+
+
 def test_get_report_rejects_empty_metrics():
     mock_client = MagicMock()
     with pytest.raises(ValueError, match="metric"):

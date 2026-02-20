@@ -83,17 +83,17 @@ Last groomed: 2026-02-20
 | # | Item | Size | Status | Notes |
 |---|------|------|--------|-------|
 | 24 | Memory layer (MemoryStore + service + 9 MCP tools) | L | done | Bolt 4 — insights, watchlist, segments |
-| 25 | Query cache for MemoryStore | M | executable | Bolt 4 — cache API responses to avoid re-querying |
+| 25 | Query cache (in-memory, TTL+LRU) | M | done | Bolt 8 — ephemeral cache, TTL 3600s, max 500 entries |
 
 ### Could Have
 
 | # | Item | Size | Status | Notes |
 |---|------|------|--------|-------|
-| 19 | GA4 realtime report tool | M | executable | |
-| 20 | Search Console sitemap tools | S | executable | |
+| 19 | GA4 realtime report tool | M | done | Bolt 8 — client, service, REST, MCP |
+| 20 | Search Console sitemap tools | S | done | Bolt 8 — list + details (readonly) |
 | 21 | GTM workspace management (create/publish) | L | executable | Requires write scopes |
 | 22 | Multi-property support | M | executable | Query across multiple GA4 properties |
-| 23 | Data export (CSV/JSON download) | S | executable | |
+| 23 | Data export (CSV/JSON download) | S | done | Bolt 8 — 6 endpoints, CSV+JSON, BOM for Excel |
 | 26 | GA4 key event creation via Admin API | M | blocked | Needs analytics.edit scope + Admin API |
 | 27 | Conversion optimization audit tooling | M | executable | Only 9/40+ content pages have CTAs |
 | 28 | Social channel reactivation strategy | S | executable | Organic social dropped 92% Q3→Q4 |

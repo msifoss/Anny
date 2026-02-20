@@ -3,11 +3,13 @@ from fastmcp import FastMCP
 from anny.core.dependencies import (
     get_ga4_client,
     get_memory_store,
+    get_query_cache,
     get_search_console_client,
     get_tag_manager_client,
 )
 from anny.core.formatting import format_table
 from anny.core.services import (
+    cache_service,
     ga4_service,
     memory_service,
     search_console_service,
@@ -43,7 +45,8 @@ def ga4_report(
     """
     limit = max(1, min(limit, MAX_LIMIT))
     client = get_ga4_client()
-    rows = ga4_service.get_report(client, metrics, dimensions, date_range, limit)
+    cache = get_query_cache()
+    rows = ga4_service.get_report(client, metrics, dimensions, date_range, limit, cache=cache)
     return format_table(rows)
 
 
@@ -57,7 +60,8 @@ def ga4_top_pages(date_range: str = "last_28_days", limit: int = 10) -> str:
     """
     limit = max(1, min(limit, MAX_LIMIT))
     client = get_ga4_client()
-    rows = ga4_service.get_top_pages(client, date_range, limit)
+    cache = get_query_cache()
+    rows = ga4_service.get_top_pages(client, date_range, limit, cache=cache)
     return format_table(rows)
 
 
@@ -69,7 +73,24 @@ def ga4_traffic_summary(date_range: str = "last_28_days") -> str:
         date_range: Named range (last_7_days, last_28_days, last_90_days) or YYYY-MM-DD,YYYY-MM-DD
     """
     client = get_ga4_client()
-    rows = ga4_service.get_traffic_summary(client, date_range)
+    cache = get_query_cache()
+    rows = ga4_service.get_traffic_summary(client, date_range, cache=cache)
+    return format_table(rows)
+
+
+@mcp.tool()
+def ga4_realtime(
+    metrics: str = "activeUsers",
+    dimensions: str = "",
+) -> str:
+    """Get realtime data from Google Analytics 4.
+
+    Args:
+        metrics: Comma-separated GA4 realtime metrics (e.g. activeUsers,screenPageViews)
+        dimensions: Comma-separated dimensions (e.g. unifiedScreenName,country) — optional
+    """
+    client = get_ga4_client()
+    rows = ga4_service.get_realtime_report(client, metrics, dimensions)
     return format_table(rows)
 
 
@@ -91,7 +112,10 @@ def search_console_query(
     """
     row_limit = max(1, min(row_limit, MAX_ROW_LIMIT))
     client = get_search_console_client()
-    rows = search_console_service.get_search_analytics(client, dimensions, date_range, row_limit)
+    cache = get_query_cache()
+    rows = search_console_service.get_search_analytics(
+        client, dimensions, date_range, row_limit, cache=cache
+    )
     return format_table(rows)
 
 
@@ -105,7 +129,8 @@ def search_console_top_queries(date_range: str = "last_28_days", limit: int = 10
     """
     limit = max(1, min(limit, MAX_LIMIT))
     client = get_search_console_client()
-    rows = search_console_service.get_top_queries(client, date_range, limit)
+    cache = get_query_cache()
+    rows = search_console_service.get_top_queries(client, date_range, limit, cache=cache)
     return format_table(rows)
 
 
@@ -119,7 +144,8 @@ def search_console_top_pages(date_range: str = "last_28_days", limit: int = 10) 
     """
     limit = max(1, min(limit, MAX_LIMIT))
     client = get_search_console_client()
-    rows = search_console_service.get_top_pages(client, date_range, limit)
+    cache = get_query_cache()
+    rows = search_console_service.get_top_pages(client, date_range, limit, cache=cache)
     return format_table(rows)
 
 
@@ -131,8 +157,62 @@ def search_console_summary(date_range: str = "last_28_days") -> str:
         date_range: Named range (last_7_days, last_28_days, last_90_days) or YYYY-MM-DD,YYYY-MM-DD
     """
     client = get_search_console_client()
-    rows = search_console_service.get_performance_summary(client, date_range)
+    cache = get_query_cache()
+    rows = search_console_service.get_performance_summary(client, date_range, cache=cache)
     return format_table(rows)
+
+
+@mcp.tool()
+def search_console_sitemaps() -> str:
+    """List all sitemaps submitted to Google Search Console."""
+    client = get_search_console_client()
+    rows = search_console_service.get_sitemaps(client)
+    return format_table(rows)
+
+
+@mcp.tool()
+def search_console_sitemap_details(feedpath: str) -> str:
+    """Get details for a specific sitemap from Google Search Console.
+
+    Args:
+        feedpath: The sitemap URL (e.g. "https://example.com/sitemap.xml")
+    """
+    client = get_search_console_client()
+    details = search_console_service.get_sitemap_details(client, feedpath)
+    parts = [
+        f"Path: {details['path']}",
+        f"Type: {details['type']}",
+        f"Last submitted: {details.get('lastSubmitted', 'N/A')}",
+        f"Pending: {details.get('isPending', False)}",
+        f"Index: {details.get('isSitemapsIndex', False)}",
+        f"Warnings: {details.get('warnings', 0)}",
+        f"Errors: {details.get('errors', 0)}",
+    ]
+    if details.get("contents"):
+        parts.append(f"\nContents:\n{format_table(details['contents'])}")
+    return "\n".join(parts)
+
+
+# --- Cache Tools ---
+
+
+@mcp.tool()
+def cache_status() -> str:
+    """Get the status of the query cache (entries, TTL, capacity)."""
+    cache = get_query_cache()
+    status = cache_service.get_cache_status(cache)
+    return (
+        f"Cache: {status['active_entries']}/{status['max_entries']} active entries, "
+        f"TTL {status['ttl_seconds']}s"
+    )
+
+
+@mcp.tool()
+def clear_cache() -> str:
+    """Clear all cached query results."""
+    cache = get_query_cache()
+    result = cache_service.clear_cache(cache)
+    return f"Cleared {result['cleared']} cached entries."
 
 
 # --- Tag Manager Tools ---

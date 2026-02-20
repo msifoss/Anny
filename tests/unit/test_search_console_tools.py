@@ -52,6 +52,31 @@ def test_search_console_top_pages_tool_flow():
     assert "/docs" in result
 
 
+def test_search_console_sitemaps_tool_flow():
+    mock_client = MagicMock()
+    mock_client.list_sitemaps.return_value = [
+        {"path": "https://example.com/sitemap.xml", "type": "sitemap"}
+    ]
+    rows = search_console_service.get_sitemaps(mock_client)
+    result = format_table(rows)
+
+    assert "sitemap.xml" in result
+
+
+def test_search_console_sitemap_details_tool_flow():
+    mock_client = MagicMock()
+    mock_client.get_sitemap.return_value = {
+        "path": "https://example.com/sitemap.xml",
+        "type": "sitemap",
+        "contents": [{"type": "web", "submitted": 50, "indexed": 45}],
+    }
+    details = search_console_service.get_sitemap_details(
+        mock_client, "https://example.com/sitemap.xml"
+    )
+    assert details["path"] == "https://example.com/sitemap.xml"
+    assert len(details["contents"]) == 1
+
+
 def test_search_console_summary_tool_flow():
     mock_client = MagicMock()
     with patch(

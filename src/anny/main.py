@@ -8,7 +8,9 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from anny.api.cache_routes import router as cache_router
 from anny.api.error_handlers import anny_error_handler
+from anny.api.export_routes import router as export_router
 from anny.api.ga4_routes import router as ga4_router
 from anny.api.logs_routes import router as logs_router
 from anny.api.search_console_routes import router as sc_router
@@ -34,8 +36,8 @@ if settings.anny_api_key:
     logger.info("MCP HTTP auth enabled (Bearer token)")
 
 mcp_app = mcp.http_app(path="/")
-app = FastAPI(title="Anny", version="0.6.0", lifespan=mcp_app.lifespan)
-logger.info("Anny v0.6.0 starting")
+app = FastAPI(title="Anny", version="0.7.0", lifespan=mcp_app.lifespan)
+logger.info("Anny v0.7.0 starting")
 
 # --- CORS middleware (restrictive defaults) ---
 app.add_middleware(
@@ -52,6 +54,8 @@ app.include_router(ga4_router)
 app.include_router(sc_router)
 app.include_router(gtm_router)
 app.include_router(logs_router)
+app.include_router(cache_router)
+app.include_router(export_router)
 
 app.mount("/mcp", mcp_app)
 
