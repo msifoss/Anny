@@ -71,7 +71,7 @@ Last groomed: 2026-02-20
 |---|------|------|--------|-------|
 | 17 | Health check with dependency status | S | done | Superseded by #31 |
 | 18 | Monitoring / alerting setup | M | executable | |
-| 40 | Docker volume for memory.json persistence | S | executable | Prevents data loss on container rebuild |
+| 40 | Docker volume for memory.json persistence | S | done | Named volume + Dockerfile mkdir, deployed |
 | 44 | Centralized logging (M-006) | M | executable | Log shipping + alerting — deferred from Bolt 6 |
 
 ---
