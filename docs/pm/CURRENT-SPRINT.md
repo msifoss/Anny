@@ -1,6 +1,6 @@
 # No Active Bolt
 
-Bolt 8 closed 2026-02-20. All items delivered, v0.7.0 tagged.
+Bolt 8 closed 2026-02-20. All items delivered, v0.7.0 deployed (deploy count: 6).
 
 ## Next Bolt Candidates
 
@@ -13,5 +13,5 @@ Bolt 8 closed 2026-02-20. All items delivered, v0.7.0 tagged.
 
 ## Pending Actions
 
-- Deploy v0.7.0 to anny.membies.com
-- Smoke test new endpoints (realtime, sitemaps, cache, export)
+- ~~Deploy v0.7.0 to anny.membies.com~~ done
+- ~~Smoke test new endpoints (cache status confirmed)~~ done
