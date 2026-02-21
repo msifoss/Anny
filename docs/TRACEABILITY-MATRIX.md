@@ -1,7 +1,7 @@
 # Anny — Traceability Matrix
 
 **Last updated:** 2026-02-20
-**Test count:** 230 unit+integration, 19 e2e (249 total)
+**Test count:** 251 unit+integration, 19 e2e (270 total)
 
 ---
 
@@ -59,7 +59,7 @@
 | NFR-002 | Lazy singleton clients | `core/dependencies.py` — `@functools.lru_cache` on all 5 factory functions |
 | NFR-003 | Error handling | `core/exceptions.py`, `api/error_handlers.py`, `test_error_handlers.py` — specific exception types (GoogleAPICallError, HttpError) |
 | NFR-004 | Code quality (Black + pylint) | `.pre-commit-config.yaml` (format + lint), `.github/workflows/ci.yml`, `pyproject.toml` |
-| NFR-005 | Test coverage >= 80% | 230 tests, 85% coverage |
+| NFR-005 | Test coverage >= 80% | 270 tests, 85% coverage |
 | NFR-006 | Docker containerization | `Dockerfile` (multi-stage, non-root), `docker-compose.yml` |
 | NFR-007 | CI pipeline | `.github/workflows/ci.yml` (format, lint, test, audit, coverage gate 80%, pylint gate 9.5) |
 | NFR-008 | MCP text table output | `core/formatting.py`, `test_formatting.py` |

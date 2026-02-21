@@ -60,7 +60,7 @@ Anny/
 ├── requirements-dev.txt         # Dev/test dependencies
 ├── .github/
 │   └── workflows/
-│       └── ci.yml               # GitHub Actions CI pipeline
+│       └── ci.yml               # GitHub Actions CI/CD pipeline
 ├── .vscode/
 │   └── settings.json            # Editor config (format-on-save)
 ├── src/
@@ -108,8 +108,9 @@ Anny/
 ├── tests/
 │   ├── __init__.py
 │   ├── conftest.py
-│   ├── unit/                    # 219 unit tests
+│   ├── unit/                    # 240 unit tests
 │   ├── integration/             # 11 integration tests
+│   ├── e2e/                     # 19 e2e tests
 │   └── mocks/
 ├── scripts/
 ├── architecture/
@@ -209,7 +210,7 @@ Anny/
 
 ## Conventions
 - Python: formatted with Black (line-length=100), linted with pylint
-- Tests: pytest with pytest-cov (251 tests, 85% coverage)
+- Tests: pytest with pytest-cov (270 tests, 85% coverage)
 - Task runner: `make help` for all targets
 - FastAPI app in `src/anny/main.py`
 - Pre-commit hooks enforce format + lint on every commit (tests via `make test` + CI)
@@ -217,7 +218,7 @@ Anny/
 - Lazy credentials — clients created on first use, not at startup
 
 ## Current Status (2026-02-20)
-- **Code:** Full implementation. 251 tests, pylint 10/10, 85% coverage.
+- **Code:** Full implementation. 270 tests (240 unit, 11 integration, 19 e2e), pylint 10/10, 85% coverage.
 - **Services:** GA4 (incl. realtime), Search Console (incl. sitemaps), Tag Manager, Memory, Cache, Export — all implemented.
 - **Cache:** In-memory query cache with TTL (3600s) and LRU eviction (500 entries). Wired into GA4 and SC services.
 - **Export:** CSV and JSON download for GA4 and SC reports (6 endpoints with Content-Disposition headers, CSV injection protection, limit clamping).
@@ -225,7 +226,7 @@ Anny/
 - **Security:** API key auth (REST X-API-Key + MCP Bearer token), timing-safe comparison, credential scrubbing, rate limiting (60 req/min).
 - **MCP:** 26 tools, HTTP at /mcp (Bearer auth) + stdio entry point.
 - **Memory:** JSON file store at `~/.anny/memory.json` — insights, watchlist, segments. File-locked for concurrency.
-- **OPS Readiness:** 42/47 (89%). Incident response runbook, DR plan (backup + RTO/RPO), automated rollback on failed deploy.
-- **Pipeline:** GitHub Actions CI configured.
+- **OPS Readiness:** 43/47 (91%). Incident response runbook, DR plan (backup + RTO/RPO), automated rollback on failed deploy, CD pipeline.
+- **Pipeline:** GitHub Actions CI + CD configured (auto-deploy on push to main).
 - **Deployment:** Live at https://anny.membies.com (Vultr VPS, Docker, nginx, TLS). Automated rollback on failed deploy.
 - **Git:** GitHub repo, branch `main`

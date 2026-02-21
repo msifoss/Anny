@@ -35,7 +35,7 @@ class TestConfigYamlFile:
     def test_config_yaml_app_version(self):
         with open(CONFIG_PATH, encoding="utf-8") as f:
             data = yaml.safe_load(f)
-        assert data["app"]["version"] == "0.8.0"
+        assert data["app"]["version"] == "0.9.0"
 
 
 class TestFlattenYaml:
@@ -73,7 +73,7 @@ class TestLoadYamlConfig:
 
     def test_values_match_config_file(self):
         result = _load_yaml_config()
-        assert result["app_version"] == "0.8.0"
+        assert result["app_version"] == "0.9.0"
         assert result["deploy_domain"] == "anny.membies.com"
         assert result["backup_retention_days"] == 7
 
@@ -88,7 +88,7 @@ class TestSettingsYamlIntegration:
             anny_api_key="",
             sentry_dsn="",
         )
-        assert s.app_version == "0.8.0"
+        assert s.app_version == "0.9.0"
         assert s.deploy_domain == "anny.membies.com"
         assert s.backup_retention_days == 7
 
@@ -122,7 +122,7 @@ class TestSettingsYamlIntegration:
             anny_api_key="",
             sentry_dsn="",
         )
-        assert s.app_version == "0.8.0"  # code default matches yaml, but this proves no crash
+        assert s.app_version == "0.9.0"  # code default matches yaml, but this proves no crash
 
     def test_deploy_fields_loaded(self):
         s = Settings(
@@ -170,7 +170,7 @@ class TestConfigGetScript:
             check=False,
         )
         assert result.returncode == 0
-        assert result.stdout.strip() == "0.8.0"
+        assert result.stdout.strip() == "0.9.0"
 
     def test_invalid_key_exits_nonzero(self):
         result = subprocess.run(

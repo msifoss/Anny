@@ -11,7 +11,7 @@
 # If you change deploy.domain, regenerate the nginx configs too.
 
 app:
-  version: "0.8.0"
+  version: "0.9.0"
   port: 8000
 
 # These are top-level because their Settings field names have no prefix

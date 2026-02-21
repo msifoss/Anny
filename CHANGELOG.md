@@ -8,12 +8,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-02-20 (Config Centralization & Compliance)
+
 ### Added
 - Centralized `config.yaml` for all non-secret configuration (app, deploy, infra, backup, monitoring)
 - `scripts/config-get` CLI helper for bash scripts to read config values via dot notation
 - YAML config loading in `core/config.py` with flattening (nested YAML keys → flat Settings fields)
-- 21 new tests for config.yaml loading, flattening, precedence, and config-get script (251 total)
 - New Settings fields: `app_version`, `app_port`, `rate_limit_requests`, `rate_limit_window`, deploy/infra/backup/monitoring fields
+- GitHub Actions CD pipeline: deploy job on push to main, after tests pass (OPS 1.7)
+- Expanded Infrastructure Playbook with full architecture, deployment flow, security, and DR details
 
 ### Changed
 - Configuration precedence: env var > `.env` > `config.yaml` > code default
@@ -24,10 +27,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `docker-compose.yml`: bind-mounts `config.yaml`, uses `APP_PORT` variable for port
 - `.env.example`: slimmed to secrets-only with pointer to `config.yaml` for non-secret settings
 - Dependencies: added `PyYAML==6.0.2`
+- OPS readiness score: 42/47 (89%) → 43/47 (91%)
+- Test count: 270 (240 unit, 11 integration, 19 e2e)
 
 ### Fixed
 - FastAPI version string in `main.py` hardcoded at 0.7.0 — updated to 0.8.0
 - Service account key permissions in `deploy.sh`: chmod 600 → 644 for Docker container readability (anny UID 1000 couldn't read file owned by deploy user)
+- Stale test counts in CLAUDE.md, TRACEABILITY-MATRIX.md, and OPS-READINESS-CHECKLIST.md
+- Cross-test contamination: `get_query_cache` lru_cache leaked MagicMock between tests causing 17 spurious failures in full suite runs
 
 ## [0.8.0] - 2026-02-20 (OPS Readiness Push — Bolt 9)
 

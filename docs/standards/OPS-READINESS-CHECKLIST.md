@@ -1,7 +1,7 @@
 # Anny — Operational Readiness Checklist
 
 **Last scored:** 2026-02-20
-**Score:** 42/47 (89%)
+**Score:** 43/47 (91%)
 
 ---
 
@@ -19,15 +19,15 @@
 - [x] 1.4 CI includes format check (Black)
 - [x] 1.5 CI includes linting (pylint 10/10)
 - [x] 1.6 CI includes automated tests (unit + integration)
-- [ ] 1.7 CI includes deployment step (CD not implemented — manual deploy via `make deploy`)
+- [x] 1.7 CI includes deployment step (GitHub Actions: deploy job on push to main, after tests pass)
 
-**Section: 6/7**
+**Section: 7/7**
 
 ---
 
 ## 2. Testing (7 items)
 
-- [x] 2.1 Unit tests exist (219 unit tests)
+- [x] 2.1 Unit tests exist (240 unit tests)
 - [x] 2.2 Integration tests exist (11 integration tests)
 - [x] 2.3 E2e tests exist (19 e2e tests, gated behind ANNY_E2E=1)
 - [x] 2.4 Test coverage >= 80% (85%)
@@ -118,7 +118,7 @@
 
 | Category | Score | Pct |
 |----------|-------|-----|
-| Source Control & CI/CD | 6/7 | 86% |
+| Source Control & CI/CD | 7/7 | 100% |
 | Testing | 5/7 | 71% |
 | Security | 8/8 | 100% |
 | Auth & Authorization | 5/5 | 100% |
@@ -126,11 +126,21 @@
 | Deployment & Infrastructure | 6/7 | 86% |
 | Documentation | 4/4 | 100% |
 | Disaster Recovery | 3/3 | 100% |
-| **Total** | **42/47** | **89%** |
+| **Total** | **43/47** | **91%** |
 
 ---
 
-## Changes from Last Score (37/47 → 42/47)
+## Changes from Last Score (42/47 → 43/47)
+
+| Item | Change | Notes |
+|------|--------|-------|
+| 1.7 CD pipeline | [ ] → [x] | GitHub Actions deploy job on push to main, after tests pass |
+
+Net change: +1
+
+---
+
+## Changes from Previous Score (37/47 → 42/47)
 
 | Item | Change | Notes |
 |------|--------|-------|
@@ -144,11 +154,10 @@ Net change: +5
 
 ---
 
-## Remaining Items (5 of 47)
+## Remaining Items (4 of 47)
 
 | Item | Size | Notes |
 |------|------|-------|
-| 1.7 CD pipeline | M | Needs SSH deploy key as GitHub secret |
 | 2.5 Pre-commit tests | S | Deliberately removed in Bolt 5 to speed commits; tests run via CI |
 | 2.6 Load testing | M | Needs k6/locust setup |
 | 6.7 Blue-green deploy | L | Overkill for single-container app |

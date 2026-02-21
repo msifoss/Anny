@@ -37,3 +37,43 @@ jobs:
 
       - name: Dependency audit
         run: pip-audit
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to production
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+          # Rsync project files
+          rsync -azP --delete \
+            --include='Dockerfile' \
+            --include='docker-compose.yml' \
+            --include='requirements.txt' \
+            --include='pyproject.toml' \
+            --include='config.yaml' \
+            --include='src/***' \
+            --include='scripts/***' \
+            --exclude='*' \
+            -e "ssh -i ~/.ssh/deploy_key" \
+            ./ deploy@"$DEPLOY_HOST":/opt/anny/
+
+          # Build and restart container, then health check
+          ssh -i ~/.ssh/deploy_key deploy@"$DEPLOY_HOST" "
+            cd /opt/anny &&
+            docker compose build &&
+            docker compose up -d &&
+            sleep 5 &&
+            curl -sf http://localhost:8000/health
+          "

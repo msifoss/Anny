@@ -1,7 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from anny.core.dependencies import verify_api_key
+from anny.core.dependencies import get_query_cache, verify_api_key
 from anny.core.logging import set_request_id
 from anny.main import _rate_limit_store, app
 
@@ -10,6 +10,14 @@ from anny.main import _rate_limit_store, app
 def _clear_rate_limit_store():
     """Clear the rate limit store before each test to prevent cross-test pollution."""
     _rate_limit_store.clear()
+
+
+@pytest.fixture(autouse=True)
+def _clear_query_cache():
+    """Clear cached QueryCache singleton between tests to prevent MagicMock leaks."""
+    get_query_cache.cache_clear()
+    yield
+    get_query_cache.cache_clear()
 
 
 @pytest.fixture(autouse=True)

@@ -5,7 +5,8 @@ from unittest.mock import MagicMock, patch
 from fastapi.testclient import TestClient
 
 from anny.clients.ga4 import GA4Client
-from anny.core.dependencies import get_ga4_client, verify_api_key
+from anny.core.cache import QueryCache
+from anny.core.dependencies import get_ga4_client, get_query_cache, verify_api_key
 from anny.main import app
 
 TEST_API_KEY = "test-secret-key-12345"
@@ -18,6 +19,7 @@ class TestAPIKeyAuth:  # pylint: disable=attribute-defined-outside-init
         self.mock_client = MagicMock(spec=GA4Client)
         self.mock_client.run_report.return_value = [{"pagePath": "/", "screenPageViews": "100"}]
         app.dependency_overrides[get_ga4_client] = lambda: self.mock_client
+        app.dependency_overrides[get_query_cache] = lambda: QueryCache(ttl=60, max_entries=10)
         self.tc = TestClient(app)
 
     def teardown_method(self):
