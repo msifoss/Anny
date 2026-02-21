@@ -29,7 +29,7 @@ Archive of completed Bolts.
 | Metric | Value |
 |--------|-------|
 | Commits | 1 |
-| Tests | 249 collected / 230 unit+int passing / 19 e2e |
+| Tests | 270 collected / 251 unit+int passing / 19 e2e |
 | Coverage | 85% |
 | Pylint | 10/10 |
 | Deploys | 1 (v0.8.0 to anny.membies.com, deploy count 8) |

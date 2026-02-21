@@ -4,7 +4,7 @@
 > Size: S (< 1hr), M (< half day), L (~ 1 day), XL (multi-day).
 > Status: executable | blocked | done
 
-Last groomed: 2026-02-20 (Bolt 9)
+Last groomed: 2026-02-20 (post-v0.9.0)
 
 ---
 
@@ -76,6 +76,11 @@ Last groomed: 2026-02-20 (Bolt 9)
 | 45 | Incident response runbook (OPS 7.4) | S | done | Bolt 9 — `docs/manuals/INCIDENT-RESPONSE.md` |
 | 46 | DR plan — backup, RTO, RPO (OPS 8.1–8.3) | S | done | Bolt 9 — `docs/manuals/DR-PLAN.md` + `scripts/backup.sh` |
 | 47 | Automated rollback on failed deploy (OPS 6.6) | M | done | Bolt 9 — deploy.sh image tagging + restore |
+| 48 | Centralize config into config.yaml | M | done | v0.9.0 — YAML loading, config-get, 6 scripts updated |
+| 49 | CD pipeline (OPS 1.7) | S | done | v0.9.0 — GitHub Actions deploy job on push to main |
+| 50 | Infrastructure Playbook expansion | S | done | v0.9.0 — full architecture, deployment, security, DR details |
+| 51 | Fix cross-test cache contamination | S | done | v0.9.0 — get_query_cache lru_cache clear in conftest |
+| 52 | Repo cleanup: stale versions, dead code, duplicated constants | S | done | Post-v0.9.0 — config default, REQUIREMENTS.md, README counts, _EMPTY_STORE, constants.py |
 
 ---
 

@@ -8,6 +8,17 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed
+- Stale `app_version` default in `config.py`: 0.8.0 → 0.9.0
+- Stale version in `docs/REQUIREMENTS.md`: 0.8.0 → 0.9.0
+- Stale test counts in `README.md`: 230 → 270, 249 → 270
+
+### Removed
+- Unused `_EMPTY_STORE` constant in `clients/memory.py` (defined but never referenced)
+
+### Changed
+- Deduplicated `MAX_LIMIT` / `MAX_ROW_LIMIT` constants into `core/constants.py` (imported by `mcp_server.py` and `export_routes.py`)
+
 ## [0.9.0] - 2026-02-20 (Config Centralization & Compliance)
 
 ### Added
