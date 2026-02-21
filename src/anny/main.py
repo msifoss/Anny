@@ -36,8 +36,8 @@ if settings.anny_api_key:
     logger.info("MCP HTTP auth enabled (Bearer token)")
 
 mcp_app = mcp.http_app(path="/")
-app = FastAPI(title="Anny", version="0.7.0", lifespan=mcp_app.lifespan)
-logger.info("Anny v0.7.0 starting")
+app = FastAPI(title="Anny", version="0.8.0", lifespan=mcp_app.lifespan)
+logger.info("Anny v0.8.0 starting")
 
 # --- CORS middleware (restrictive defaults) ---
 app.add_middleware(
