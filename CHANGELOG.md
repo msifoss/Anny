@@ -8,6 +8,23 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- Centralized `config.yaml` for all non-secret configuration (app, deploy, infra, backup, monitoring)
+- `scripts/config-get` CLI helper for bash scripts to read config values via dot notation
+- YAML config loading in `core/config.py` with flattening (nested YAML keys → flat Settings fields)
+- 21 new tests for config.yaml loading, flattening, precedence, and config-get script (251 total)
+- New Settings fields: `app_version`, `app_port`, `rate_limit_requests`, `rate_limit_window`, deploy/infra/backup/monitoring fields
+
+### Changed
+- Configuration precedence: env var > `.env` > `config.yaml` > code default
+- `main.py`: version and rate limit constants now read from Settings instead of hardcoded values
+- All 6 bash scripts (deploy, server-provision, server-setup, ssl-setup, backup, uptime_monitor) read from `config.yaml` via `config-get`
+- `deploy.sh`: syncs `config.yaml` to VPS; health check timeout configurable
+- `Dockerfile`: copies `config.yaml` into image
+- `docker-compose.yml`: bind-mounts `config.yaml`, uses `APP_PORT` variable for port
+- `.env.example`: slimmed to secrets-only with pointer to `config.yaml` for non-secret settings
+- Dependencies: added `PyYAML==6.0.2`
+
 ### Fixed
 - FastAPI version string in `main.py` hardcoded at 0.7.0 — updated to 0.8.0
 - Service account key permissions in `deploy.sh`: chmod 600 → 644 for Docker container readability (anny UID 1000 couldn't read file owned by deploy user)

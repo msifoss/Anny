@@ -9,13 +9,14 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 
 # --- Config ---
-PLAN="vc2-1c-1gb"
-REGION="ewr"
-OS_ID="2284"  # Ubuntu 24.04 LTS
-LABEL="anny"
-DOMAIN="membies.com"
-SUBDOMAIN="anny"
-SSH_KEY_NAME="webengine-deploy"
+CONFIG_GET="${SCRIPT_DIR}/config-get"
+PLAN=$(python3 "$CONFIG_GET" infra.vultr_plan)
+REGION=$(python3 "$CONFIG_GET" infra.vultr_region)
+OS_ID=$(python3 "$CONFIG_GET" infra.vultr_os_id)
+LABEL=$(python3 "$CONFIG_GET" infra.vultr_label)
+DOMAIN=$(python3 "$CONFIG_GET" infra.parent_domain)
+SUBDOMAIN=$(python3 "$CONFIG_GET" infra.subdomain)
+SSH_KEY_NAME=$(python3 "$CONFIG_GET" infra.ssh_key_name)
 VULTR_API="https://api.vultr.com/v2"
 POLL_INTERVAL=10
 TIMEOUT=300

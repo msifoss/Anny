@@ -3,7 +3,7 @@ FROM python:3.12-slim AS builder
 
 WORKDIR /app
 
-COPY requirements.txt pyproject.toml ./
+COPY requirements.txt pyproject.toml config.yaml ./
 COPY src/ src/
 
 RUN pip install --no-cache-dir -r requirements.txt \
@@ -24,6 +24,7 @@ WORKDIR /app
 COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
 COPY --from=builder /usr/local/bin/uvicorn /usr/local/bin/uvicorn
 COPY --from=builder /app/src src
+COPY --from=builder /app/config.yaml .
 
 USER anny
 

@@ -11,7 +11,16 @@
 # ============================================================================
 set -euo pipefail
 
-HEALTH_URL="${ANNY_HEALTH_URL:-https://anny.membies.com/health}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+
+# Read config from config.yaml if available, otherwise use default
+if [[ -f "${PROJECT_DIR}/config.yaml" ]] && command -v python3 >/dev/null 2>&1; then
+    DEFAULT_URL=$(python3 "${SCRIPT_DIR}/config-get" monitoring.health_url 2>/dev/null || echo "https://anny.membies.com/health")
+else
+    DEFAULT_URL="https://anny.membies.com/health"
+fi
+HEALTH_URL="${ANNY_HEALTH_URL:-$DEFAULT_URL}"
 STATE_FILE="/tmp/anny-uptime-state"
 TIMEOUT=10
 

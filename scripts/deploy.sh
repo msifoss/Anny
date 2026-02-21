@@ -8,9 +8,11 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 
-SSH_KEY="${HOME}/.ssh/webengine_deploy"
-DOMAIN="anny.membies.com"
-REMOTE_DIR="/opt/anny"
+CONFIG_GET="${SCRIPT_DIR}/config-get"
+SSH_KEY=$(python3 "$CONFIG_GET" deploy.ssh_key | sed "s|~|$HOME|")
+DOMAIN=$(python3 "$CONFIG_GET" deploy.domain)
+REMOTE_DIR=$(python3 "$CONFIG_GET" deploy.remote_dir)
+HEALTH_TIMEOUT=$(python3 "$CONFIG_GET" deploy.health_check_timeout)
 
 # --- Helpers ---
 info()  { printf "\033[34m→\033[0m %s\n" "$*"; }
@@ -55,6 +57,7 @@ rsync -az --delete \
     --include='docker-compose.yml' \
     --include='requirements.txt' \
     --include='pyproject.toml' \
+    --include='config.yaml' \
     --include='src/***' \
     --exclude='*' \
     "${PROJECT_DIR}/" "deploy@${SERVER_IP}:${REMOTE_DIR}/"
@@ -99,7 +102,7 @@ ok "Container started"
 # --- Health check ---
 health_check() {
     local elapsed=0
-    local timeout=60
+    local timeout="${HEALTH_TIMEOUT}"
     while [[ $elapsed -lt $timeout ]]; do
         if remote "curl -sf http://localhost:8000/health" >/dev/null 2>&1; then
             return 0

@@ -36,8 +36,8 @@ if settings.anny_api_key:
     logger.info("MCP HTTP auth enabled (Bearer token)")
 
 mcp_app = mcp.http_app(path="/")
-app = FastAPI(title="Anny", version="0.8.0", lifespan=mcp_app.lifespan)
-logger.info("Anny v0.8.0 starting")
+app = FastAPI(title="Anny", version=settings.app_version, lifespan=mcp_app.lifespan)
+logger.info("Anny v%s starting", settings.app_version)
 
 # --- CORS middleware (restrictive defaults) ---
 app.add_middleware(
@@ -104,8 +104,6 @@ async def request_logging_middleware(request: Request, call_next):
 
 
 # --- Rate limiting for /api/* endpoints ---
-RATE_LIMIT_REQUESTS = 60
-RATE_LIMIT_WINDOW = 60  # seconds
 _rate_limit_store: dict[str, list[float]] = defaultdict(list)
 
 
@@ -116,14 +114,14 @@ async def rate_limit_middleware(request: Request, call_next):
 
     client_ip = request.client.host if request.client else "unknown"
     now = time.time()
-    window_start = now - RATE_LIMIT_WINDOW
+    window_start = now - settings.rate_limit_window
 
     # Prune expired entries and add current request
     timestamps = _rate_limit_store[client_ip]
     _rate_limit_store[client_ip] = [t for t in timestamps if t > window_start]
     _rate_limit_store[client_ip].append(now)
 
-    if len(_rate_limit_store[client_ip]) > RATE_LIMIT_REQUESTS:
+    if len(_rate_limit_store[client_ip]) > settings.rate_limit_requests:
         logger.warning("Rate limit exceeded for %s", client_ip)
         return JSONResponse(
             status_code=429,

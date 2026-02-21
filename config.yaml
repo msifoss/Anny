@@ -1,0 +1,48 @@
+# Anny Configuration
+# Non-secret settings — safe to commit to git
+# Secrets (API keys, DSNs) stay in .env
+#
+# Precedence: env var > .env > config.yaml > code default
+#
+# YAML keys flatten to Settings field names with underscore separators.
+# E.g. deploy.domain -> DEPLOY_DOMAIN env var -> settings.deploy_domain
+#
+# Note: nginx configs (deploy/nginx-*.conf) contain the domain name directly.
+# If you change deploy.domain, regenerate the nginx configs too.
+
+app:
+  version: "0.8.0"
+  port: 8000
+
+# These are top-level because their Settings field names have no prefix
+rate_limit_requests: 60
+rate_limit_window: 60             # seconds
+cache_ttl: 3600
+cache_max_entries: 500
+memory_store_path: "~/.anny/memory.json"
+ga4_property_id: ""
+search_console_site_url: ""
+
+deploy:
+  domain: "anny.membies.com"
+  remote_dir: "/opt/anny"
+  ssh_key: "~/.ssh/webengine_deploy"
+  health_check_timeout: 60        # seconds
+
+infra:
+  vultr_plan: "vc2-1c-1gb"
+  vultr_region: "ewr"
+  vultr_os_id: "2284"
+  vultr_label: "anny"
+  parent_domain: "membies.com"
+  subdomain: "anny"
+  ssh_key_name: "webengine-deploy"
+
+backup:
+  dir: "/opt/anny/backups"
+  container_name: "anny-anny-1"
+  memory_path: "/home/anny/.anny/memory.json"
+  retention_days: 7
+
+monitoring:
+  health_url: "https://anny.membies.com/health"

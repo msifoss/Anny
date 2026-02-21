@@ -8,8 +8,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 
-SSH_KEY="${HOME}/.ssh/webengine_deploy"
-DOMAIN="anny.membies.com"
+CONFIG_GET="${SCRIPT_DIR}/config-get"
+SSH_KEY=$(python3 "$CONFIG_GET" deploy.ssh_key | sed "s|~|$HOME|")
+DOMAIN=$(python3 "$CONFIG_GET" deploy.domain)
 
 # --- Helpers ---
 info()  { printf "\033[34m→\033[0m %s\n" "$*"; }

@@ -9,10 +9,23 @@
 # ============================================================================
 set -euo pipefail
 
-BACKUP_DIR="/opt/anny/backups"
-CONTAINER_NAME="anny-anny-1"
-MEMORY_PATH="/home/anny/.anny/memory.json"
-RETENTION_DAYS=7
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+
+# Read config from config.yaml if available, otherwise use defaults
+CONFIG_GET="${SCRIPT_DIR}/config-get"
+if [[ -f "${PROJECT_DIR}/config.yaml" ]] && command -v python3 >/dev/null 2>&1; then
+    BACKUP_DIR=$(python3 "$CONFIG_GET" backup.dir)
+    CONTAINER_NAME=$(python3 "$CONFIG_GET" backup.container_name)
+    MEMORY_PATH=$(python3 "$CONFIG_GET" backup.memory_path)
+    RETENTION_DAYS=$(python3 "$CONFIG_GET" backup.retention_days)
+else
+    # Fallback defaults (VPS standalone or no Python)
+    BACKUP_DIR="/opt/anny/backups"
+    CONTAINER_NAME="anny-anny-1"
+    MEMORY_PATH="/home/anny/.anny/memory.json"
+    RETENTION_DAYS=7
+fi
 
 ts() { date "+%Y-%m-%d %H:%M:%S"; }
 info()  { printf "[%s] → %s\n" "$(ts)" "$*"; }

@@ -3,9 +3,10 @@ services:
     build: .
     restart: unless-stopped
     ports:
-      - "127.0.0.1:8000:8000"
+      - "127.0.0.1:${APP_PORT:-8000}:${APP_PORT:-8000}"
     volumes:
       - ./secrets/service-account.json:/secrets/service-account.json:ro
+      - ./config.yaml:/app/config.yaml:ro
       - anny-memory:/home/anny/.anny
     environment:
       - GOOGLE_SERVICE_ACCOUNT_KEY_PATH=/secrets/service-account.json

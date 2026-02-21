@@ -37,7 +37,7 @@ Anny is a conversational analytics tool that gives LLMs (via MCP) and programmat
                      ▼
          ┌───────────────────────┐
          │  Config (pydantic-    │
-         │  settings + .env)     │
+         │  settings + YAML)    │
          └───────────────────────┘
 ```
 
@@ -53,7 +53,8 @@ Anny/
 ├── Makefile                     # Standard targets (test, lint, format, audit, mcp)
 ├── .pre-commit-config.yaml      # Format + lint on every commit
 ├── .gitignore                   # Python ignores
-├── .env.example                 # Environment config template
+├── config.yaml                  # Non-secret configuration (safe to commit)
+├── .env.example                 # Secrets-only template
 ├── pyproject.toml               # Python project config (pytest, black, pylint)
 ├── requirements.txt             # Production dependencies
 ├── requirements-dev.txt         # Dev/test dependencies
@@ -199,9 +200,16 @@ Anny/
 - `GET /api/export/search-console/top-queries` — Export top queries (CSV/JSON)
 - `GET /api/export/search-console/top-pages` — Export SC top pages (CSV/JSON)
 
+## Configuration
+- **`config.yaml`** — all non-secret settings (app, deploy, infra, backup, monitoring). Safe to commit.
+- **`.env`** — secrets only (API keys, service account path, Sentry DSN). Never committed.
+- **Precedence:** env var > `.env` > `config.yaml` > code default
+- Bash scripts read config via `scripts/config-get <dot.key>` (e.g. `scripts/config-get deploy.domain`)
+- YAML keys flatten to Settings field names: `deploy.domain` → `settings.deploy_domain`
+
 ## Conventions
 - Python: formatted with Black (line-length=100), linted with pylint
-- Tests: pytest with pytest-cov (230 tests, 85% coverage)
+- Tests: pytest with pytest-cov (251 tests, 85% coverage)
 - Task runner: `make help` for all targets
 - FastAPI app in `src/anny/main.py`
 - Pre-commit hooks enforce format + lint on every commit (tests via `make test` + CI)
@@ -209,7 +217,7 @@ Anny/
 - Lazy credentials — clients created on first use, not at startup
 
 ## Current Status (2026-02-20)
-- **Code:** Full implementation. 230 tests, pylint 10/10, 85% coverage.
+- **Code:** Full implementation. 251 tests, pylint 10/10, 85% coverage.
 - **Services:** GA4 (incl. realtime), Search Console (incl. sitemaps), Tag Manager, Memory, Cache, Export — all implemented.
 - **Cache:** In-memory query cache with TTL (3600s) and LRU eviction (500 entries). Wired into GA4 and SC services.
 - **Export:** CSV and JSON download for GA4 and SC reports (6 endpoints with Content-Disposition headers, CSV injection protection, limit clamping).
