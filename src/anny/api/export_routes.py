@@ -3,13 +3,11 @@ from fastapi.responses import StreamingResponse
 
 from anny.clients.ga4 import GA4Client
 from anny.clients.search_console import SearchConsoleClient
+from anny.core.constants import MAX_LIMIT, MAX_ROW_LIMIT
 from anny.core.dependencies import get_ga4_client, get_search_console_client, verify_api_key
 from anny.core.services import export_service, ga4_service, search_console_service
 
 router = APIRouter(prefix="/api/export", tags=["Export"])
-
-MAX_LIMIT = 100
-MAX_ROW_LIMIT = 1000
 
 
 def _stream(data: bytes, filename: str, export_format: str) -> StreamingResponse:

@@ -47,7 +47,7 @@ class Settings(BaseSettings):
     """
 
     # App
-    app_version: str = "0.8.0"
+    app_version: str = "0.9.0"
     app_port: int = 8000
     rate_limit_requests: int = 60
     rate_limit_window: int = 60

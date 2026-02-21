@@ -7,6 +7,7 @@ from anny.core.dependencies import (
     get_search_console_client,
     get_tag_manager_client,
 )
+from anny.core.constants import MAX_LIMIT, MAX_ROW_LIMIT
 from anny.core.formatting import format_table
 from anny.core.services import (
     cache_service,
@@ -15,9 +16,6 @@ from anny.core.services import (
     search_console_service,
     tag_manager_service,
 )
-
-MAX_LIMIT = 100
-MAX_ROW_LIMIT = 1000
 
 mcp = FastMCP("Anny")
 

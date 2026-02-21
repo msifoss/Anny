@@ -12,9 +12,6 @@ def _generate_id(prefix: str) -> str:
     return f"{prefix}_{now.strftime('%Y%m%d')}_{now.strftime('%H%M%S')}_{hex_part}"
 
 
-_EMPTY_STORE = {"insights": [], "watchlist": [], "segments": []}
-
-
 class MemoryStore:
     """JSON file-backed memory store for insights, watchlist, and segments."""
 
