@@ -15,5 +15,6 @@ Bolt 9 closed 2026-02-20. All items delivered, v0.8.0 deployed (deploy count: 8)
 
 - ~~Deploy v0.8.0 to anny.membies.com~~ done
 - ~~Verify rollback image tagging works on next deploy~~ done (89e8874073a1)
-- Run `scripts/backup.sh` on VPS and configure daily cron
+- ~~Run `scripts/backup.sh` on VPS and configure daily cron~~ done (daily 02:00 UTC)
 - Fixed UFW: changed port 22 from LIMIT to ALLOW (fail2ban handles brute-force)
+- Whitelisted deploy IP (142.59.68.61) in fail2ban
