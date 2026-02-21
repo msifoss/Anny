@@ -1,0 +1,185 @@
+================================================================================
+SECURITY AUDIT: Anny v0.8.0
+Date: 2026-02-20 18:00
+Scope: Full codebase
+Auditor: Claude (AI-assisted)
+Previous: 20260220-143000-security-audit.txt (Round 3)
+================================================================================
+
+## Summary
+
+| Category | Findings | Critical | High | Medium | Low |
+|----------|----------|----------|------|--------|-----|
+| Authentication | 0 | 0 | 0 | 0 | 0 |
+| Input Validation | 0 | 0 | 0 | 0 | 0 |
+| Secrets | 0 | 0 | 0 | 0 | 0 |
+| Encryption | 0 | 0 | 0 | 0 | 0 |
+| Network | 0 | 0 | 0 | 0 | 0 |
+| Infrastructure | 1 | 0 | 0 | 0 | 1 |
+| Dependencies | 1 | 0 | 0 | 0 | 1 |
+| Monitoring | 0 | 0 | 0 | 0 | 0 |
+| Operational | 1 | 0 | 0 | 1 | 0 |
+| **Total** | **3** | **0** | **0** | **1** | **2** |
+
+## Findings
+
+### Critical
+
+(none)
+
+### High
+
+(none)
+
+### Medium
+
+[M-001] FastAPI version string hardcoded at 0.7.0
+File: src/anny/main.py:39-40
+Category: Operational
+Description: FastAPI app version and startup log message are hardcoded to
+"0.7.0" but pyproject.toml is at 0.8.0. The /docs OpenAPI page and startup
+log show the wrong version, which could cause confusion during incident
+response ("which version is running?").
+Risk: Misleading version info in API docs and logs during incident triage.
+Fix: Read version from pyproject.toml metadata or use a VERSION constant
+shared with pyproject.toml. Quick fix: update the hardcoded strings to 0.8.0.
+
+### Low
+
+[L-001] Rate limit store unbounded memory growth
+File: src/anny/main.py:109
+Category: Infrastructure
+Description: The rate limit store (_rate_limit_store) is a defaultdict that
+grows with each unique client IP. Timestamps are pruned within each IP bucket,
+but IP keys are never removed. Under sustained traffic from many distinct IPs
+(e.g., a distributed scan), the dictionary could grow unbounded.
+Risk: Theoretical memory leak under sustained distributed traffic. Very low
+risk for a single-user deployment behind nginx with rate limiting.
+Fix: Add periodic cleanup of IP keys with empty timestamp lists, or cap the
+dictionary size. Not urgent given the deployment profile.
+
+[L-002] Transitive dependency vulnerability (diskcache)
+File: requirements.txt (transitive via fastmcp)
+Category: Dependencies
+Description: pip-audit reports CVE-2025-69872 in diskcache 5.6.3, a
+transitive dependency pulled in by fastmcp. Anny does not use diskcache
+directly. The vulnerability's impact depends on diskcache's usage within
+fastmcp.
+Risk: Low — Anny doesn't use diskcache directly. Exploitability depends on
+fastmcp's usage patterns.
+Fix: Monitor for fastmcp update that bumps diskcache. No direct action
+available since it's a transitive dependency.
+
+## Passed Checks
+
+### Authentication & Authorization
+- [x] All /api/* endpoints require X-API-Key (verified via Security(verify_api_key))
+- [x] MCP HTTP requires Bearer token when ANNY_API_KEY is set
+- [x] API key comparison uses hmac.compare_digest() (timing-safe)
+- [x] Health endpoint correctly excluded from auth (monitoring use case)
+- [x] Service account uses readonly scopes only (analytics.readonly, webmasters.readonly, tagmanager.readonly)
+- [x] Auth can be disabled in dev (empty ANNY_API_KEY) — acceptable for dev, documented
+
+### Input Validation
+- [x] Pydantic models validate all request bodies (GA4ReportRequest, SCQueryRequest)
+- [x] Integer params have ge/le constraints (limit 1-100, row_limit 1-1000)
+- [x] Export format validated with regex pattern (^(csv|json)$)
+- [x] Log level validated with regex pattern (^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$)
+- [x] GTM account IDs validated with regex (numeric only)
+- [x] GTM container paths validated with regex (accounts/\d+/containers/\d+ pattern)
+- [x] Date ranges validated (ISO format, start <= end)
+- [x] CSV fields validated in service layer (reject empty metrics/dimensions)
+- [x] MCP tool inputs clamped to MAX_LIMIT=100, MAX_ROW_LIMIT=1000
+- [x] Export route limits clamped (same bounds as MCP)
+- [x] CSV injection protection (formula-triggering chars prefixed with tab)
+
+### Secrets Management
+- [x] No secrets in source code (grep confirmed)
+- [x] No secrets in CI pipeline (tests use mocks)
+- [x] .env in .gitignore
+- [x] Service account key patterns in .gitignore (*service-account*.json, credentials*.json)
+- [x] Gitleaks pre-commit hook for secret scanning
+- [x] Error messages don't leak internal details (generic "invalid key file format")
+- [x] Service account key path logged as basename only (not full path)
+- [x] Memory store file created with 0600 permissions
+
+### Encryption
+- [x] HTTPS enforced in production (nginx TLS 1.2+, HSTS)
+- [x] HTTP → HTTPS redirect configured in nginx
+- [x] Service account key file chmod 600 on VPS
+
+### Network Security
+- [x] Docker port bound to localhost only (127.0.0.1:8000)
+- [x] UFW firewall (22/80/443 only)
+- [x] fail2ban for SSH brute-force protection
+- [x] nginx reverse proxy with security headers
+- [x] CORS middleware with empty allow_origins (restrictive)
+- [x] Rate limiting on /api/* and /mcp paths (60 req/min per IP)
+
+### Infrastructure
+- [x] Docker multi-stage build (builder + runtime)
+- [x] Non-root container user (anny, UID 1000)
+- [x] Read-only secrets mount in docker-compose
+- [x] Log rotation configured (10MB, 3 files)
+- [x] Restart policy: unless-stopped
+- [x] Docker HEALTHCHECK configured (30s interval)
+- [x] Backup strategy documented (daily memory.json)
+- [x] Automated rollback on failed deploy
+
+### Dependencies
+- [x] All production deps pinned to exact versions
+- [x] All dev deps pinned to exact versions
+- [x] pip-audit runs in CI
+- [x] No unnecessary runtime deps
+
+### Monitoring & Incident Response
+- [x] Structured JSON logging with request-ID tracking
+- [x] Admin logs endpoint (GET /api/logs, auth-protected)
+- [x] Sentry error tracking (opt-in via SENTRY_DSN)
+- [x] Uptime monitor with webhook alerting (cron every 5 min)
+- [x] Docker health check (30s interval)
+- [x] Incident response runbook documented
+- [x] RTO (30 min) and RPO (24 hours) defined
+- [x] Post-deploy smoke test
+
+### Operational Security
+- [x] Deploy script handles secrets securely (scp, chmod 600)
+- [x] Rollback procedure documented and automated
+- [x] Pre-commit hooks (black + pylint + gitleaks)
+- [x] CI includes security scanning (pip-audit)
+
+## Recommendations
+
+1. **Fix M-001** — Update hardcoded version in main.py from 0.7.0 to 0.8.0 (S)
+2. **Accept L-001** — Rate limit memory growth is theoretical; monitor if traffic
+   patterns change. Could add IP key cleanup in a future Bolt if needed.
+3. **Accept L-002** — Transitive diskcache CVE; monitor for fastmcp update.
+
+## Accepted Risks
+
+| Item | Rationale |
+|------|-----------|
+| Auth disabled when ANNY_API_KEY empty | Dev convenience; documented in .env.example and CLAUDE.md |
+| In-memory rate limiting (resets on restart) | Acceptable for single-instance; nginx can add additional rate limiting |
+| Rate limit store unbounded keys (L-001) | Single-user deployment, very low traffic; nginx provides outer rate limit |
+| Transitive diskcache CVE (L-002) | Not used directly; no fix available until fastmcp updates |
+| No load testing | Documented in OPS checklist; single-user deployment has low traffic |
+| No CD pipeline | Deploy is manual via make deploy; SSH key would need GitHub secret |
+
+## Comparison with Previous Audit (Round 3)
+
+| Metric | Round 3 | Round 4 |
+|--------|---------|---------|
+| Total findings | 9 | 3 |
+| Critical | 0 | 0 |
+| High | 1 | 0 |
+| Medium | 3 | 1 |
+| Low | 5 | 2 |
+| New findings | — | 1 (M-001 version drift) |
+| Recurring | — | 2 (L-001, L-002 known) |
+
+Net improvement: 6 fewer findings. All previous High findings remain resolved.
+
+================================================================================
+END OF AUDIT
+================================================================================

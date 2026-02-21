@@ -13,11 +13,12 @@ Do not test against production systems without authorization.
 
 | Round | Date | Findings | Status |
 |-------|------|----------|--------|
+| 4 | 2026-02-20 | 0 High, 1 Medium, 2 Low | 1 new (version drift), 2 accepted (known) |
 | 3 | 2026-02-20 | 1 High, 3 Medium, 5 Low | All resolved (Bolt 8 review) |
 | 2 | 2026-02-20 | 1 High, 6 Medium, 4 Low | All resolved (Bolt 6 + Bolt 7) |
 | 1 | 2026-02-17 | 1 High, 4 Medium, 5 Low | All resolved (Bolt 5 + Bolt 6) |
 
-See `docs/security/20260220-143000-security-audit.txt` for latest details.
+See `docs/security/20260220-180000-security-audit.txt` for latest details.
 
 ## Security Controls
 
@@ -78,7 +79,7 @@ pip-audit
 
 All production dependencies pinned to exact versions in `requirements.txt`.
 
-Last scan: 2026-02-20 — 1 vulnerability found (diskcache CVE-2025-69872, transitive)
+Last scan: 2026-02-20 — 1 vulnerability found (diskcache CVE-2025-69872, transitive via fastmcp; not used directly)
 
 ## Known Limitations
 - No load/performance testing
