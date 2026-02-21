@@ -1,6 +1,6 @@
 # Anny — Requirements
 
-**Version:** 0.7.0
+**Version:** 0.8.0
 **Last updated:** 2026-02-20
 
 ---
