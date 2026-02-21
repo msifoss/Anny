@@ -105,6 +105,70 @@ tagged and pushed.
   - #21: GTM workspace management (L)
   - #27: CRO audit tooling (M)
 
+--- UPDATE: 2026-02-20 19:00:00 ---
+
+## Session Summary
+Post-Bolt 9 cleanup: ran Mother Hen (7/7), security audit round 4 (3 findings),
+fixed service account permissions bug blocking MCP in production, fixed version
+strings, deployed v0.8.0, configured backup cron on VPS. Also resolved a
+fail2ban/UFW issue that was blocking deploy SSH connections.
+
+## New Work Completed
+- Mother Hen compliance check — 7/7 passing (was 6/7 before Bolt 9)
+- Security audit round 4 — 0 Critical, 0 High, 1 Medium, 2 Low
+- Fixed M-001 (main.py version hardcoded at 0.7.0 → 0.8.0)
+- Fixed service account key permissions on VPS (chmod 600 → 644 for Docker)
+- Fixed REQUIREMENTS.md version (0.7.0 → 0.8.0)
+- Deployed v0.8.0 to anny.membies.com (deploy count 8)
+- Rollback image tagging verified working (89e8874073a1)
+- Uploaded backup.sh to VPS, configured daily cron (02:00 UTC)
+- Resolved fail2ban block on deploy IP (whitelisted 142.59.68.61)
+- Changed UFW port 22 from LIMIT to ALLOW (fail2ban handles brute-force)
+
+## Additional Commits
+- 147dd16: Fix REQUIREMENTS.md version: 0.7.0 → 0.8.0 (Mother Hen)
+- 54de39a: Fix service account key permissions for Docker container (chmod 644)
+- c7da6f9: Fix hardcoded version in main.py: 0.7.0 → 0.8.0
+- a2074cb: Update PM docs: v0.8.0 deployed, deploy count 8
+- 135b576: Update PM docs: backup cron configured, all pending actions complete
+
+## Issues Encountered
+- MCP data calls failing in production with "Permission denied" on
+  /secrets/service-account.json. Root cause: deploy.sh set chmod 600 (owner-only)
+  but the file is owned by deploy user while the container runs as anny (UID 1000).
+  Fix: chmod 644. The file is protected by directory permissions on the host.
+- Deploy script SSH connections blocked by fail2ban after rapid successive calls
+  (rsync + scp + scp + multiple SSH in quick succession). Fix: whitelist deploy IP.
+- UFW LIMIT rule on port 22 also dropping connections after 6 in 30 seconds,
+  compounding the fail2ban issue. Fix: change to ALLOW (fail2ban is sufficient).
+
+## Decisions Made
+- chmod 644 for service account key instead of 600: the key is inside
+  /opt/anny/secrets/ which is not world-accessible, and the Docker container
+  needs to read it as a non-root user. 644 is the minimum that works.
+- UFW ALLOW instead of LIMIT on port 22: fail2ban provides better SSH protection
+  (configurable, whitelist support) than UFW's blunt rate limit.
+
+## Lessons Learned
+- Docker bind mounts preserve host file ownership — chmod 600 files owned by
+  one user are unreadable by a different UID inside the container. This was
+  previously "fixed" in Bolt 5 (640→644) then reverted to 600 in Bolt 6
+  security audit. The security audit recommendation was correct in isolation
+  but wrong in the Docker context.
+- Deploy scripts that make many rapid SSH connections will trigger fail2ban
+  and UFW LIMIT rules. Always whitelist the deploy IP.
+
+## Updated Next Steps
+- All Bolt 9 pending actions complete — clean slate
+- Feature backlog candidates for next Bolt:
+  - #22: Multi-property GA4 support (M)
+  - #21: GTM workspace management (L)
+  - #27: CRO audit tooling (M)
+  - #28: Social channel strategy (S)
+- Consider updating deploy.sh rsync to also sync scripts/ directory
+
+--- END UPDATE ---
+
 ================================================================================
 END OF LOG
 ================================================================================
