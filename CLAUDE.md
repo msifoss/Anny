@@ -218,7 +218,7 @@ Anny/
 - Service layer shared between REST and MCP — never duplicate Google API logic
 - Lazy credentials — clients created on first use, not at startup
 
-## Current Status (2026-02-20)
+## Current Status (2026-02-21)
 - **Code:** Full implementation. 270 tests (240 unit, 11 integration, 19 e2e), pylint 10/10, 85% coverage.
 - **Services:** GA4 (incl. realtime), Search Console (incl. sitemaps), Tag Manager, Memory, Cache, Export — all implemented.
 - **Cache:** In-memory query cache with TTL (3600s) and LRU eviction (500 entries). Wired into GA4 and SC services.
