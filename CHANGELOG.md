@@ -8,6 +8,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed
+- FastAPI version string in `main.py` hardcoded at 0.7.0 — updated to 0.8.0
+- Service account key permissions in `deploy.sh`: chmod 600 → 644 for Docker container readability (anny UID 1000 couldn't read file owned by deploy user)
+
 ## [0.8.0] - 2026-02-20 (OPS Readiness Push — Bolt 9)
 
 ### Added
