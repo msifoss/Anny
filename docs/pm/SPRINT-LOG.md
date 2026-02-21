@@ -32,7 +32,7 @@ Archive of completed Bolts.
 | Tests | 249 collected / 230 unit+int passing / 19 e2e |
 | Coverage | 85% |
 | Pylint | 10/10 |
-| Deploys | 0 (no app code changes) |
+| Deploys | 1 (v0.8.0 to anny.membies.com, deploy count 8) |
 | OPS Readiness | 42/47 (89%) |
 
 ### Retro

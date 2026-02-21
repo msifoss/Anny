@@ -1,6 +1,6 @@
 # No Active Bolt
 
-Bolt 9 closed 2026-02-20. All items delivered, v0.8.0 tagged. OPS readiness 42/47 (89%).
+Bolt 9 closed 2026-02-20. All items delivered, v0.8.0 deployed (deploy count: 8).
 
 ## Next Bolt Candidates
 
@@ -13,6 +13,7 @@ Bolt 9 closed 2026-02-20. All items delivered, v0.8.0 tagged. OPS readiness 42/4
 
 ## Pending Actions
 
-- Deploy v0.8.0 to anny.membies.com
+- ~~Deploy v0.8.0 to anny.membies.com~~ done
+- ~~Verify rollback image tagging works on next deploy~~ done (89e8874073a1)
 - Run `scripts/backup.sh` on VPS and configure daily cron
-- Verify rollback image tagging works on next deploy
+- Fixed UFW: changed port 22 from LIMIT to ALLOW (fail2ban handles brute-force)
