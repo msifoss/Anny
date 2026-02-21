@@ -92,6 +92,7 @@ Anny/
 │           ├── auth.py          # Service account credential loading
 │           ├── cache.py         # QueryCache (in-memory, TTL+LRU)
 │           ├── config.py        # Settings(BaseSettings) from env
+│           ├── constants.py     # Shared constants (MAX_LIMIT, MAX_ROW_LIMIT)
 │           ├── date_utils.py    # Named date range parsing
 │           ├── dependencies.py  # Lazy singleton client factories
 │           ├── exceptions.py    # AnnyError, AuthError, APIError
