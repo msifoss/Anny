@@ -4,7 +4,7 @@
 > Size: S (< 1hr), M (< half day), L (~ 1 day), XL (multi-day).
 > Status: executable | blocked | done
 
-Last groomed: 2026-02-21 (post-v0.9.0)
+Last groomed: 2026-02-21 (post-review-fixes)
 
 ---
 
@@ -81,6 +81,7 @@ Last groomed: 2026-02-21 (post-v0.9.0)
 | 50 | Infrastructure Playbook expansion | S | done | v0.9.0 — full architecture, deployment, security, DR details |
 | 51 | Fix cross-test cache contamination | S | done | v0.9.0 — get_query_cache lru_cache clear in conftest |
 | 52 | Repo cleanup: stale versions, dead code, duplicated constants | S | done | Post-v0.9.0 — config default, REQUIREMENTS.md, README counts, _EMPTY_STORE, constants.py |
+| 53 | Five-persona review: fix 9 findings (2H, 4M, 3L) | M | done | ValidationError→400, rate limit cleanup, UTC dates, cache in exports, MCP error handling, MemoryStore resilience, feedpath validation, backup/smoke scripts |
 
 ---
 

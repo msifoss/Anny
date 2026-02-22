@@ -12,6 +12,9 @@ Bolt 9 closed 2026-02-20. v0.9.0 tagged and pushed (deploy count: 8, no deploy n
 | 172d550 | Compliance drift fix: constants.py in CLAUDE.md, v0.9.0 in release runbook | — |
 | 1231594 | Update status and backlog dates to 2026-02-21 | — |
 | 6eb66d9 | Captain's log: post-v0.9.0 repo cleanup session | — |
+| ebc0115 | Fix 9 findings from five-persona code review (19 files, +5 tests) | — |
+| a99e44d | Captain's log: five-persona review fixes session | — |
+| ed7904f | Compliance drift fix: test counts 270→275, changelog entries | — |
 
 ## Next Bolt Candidates
 
