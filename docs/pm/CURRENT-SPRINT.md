@@ -1,6 +1,6 @@
 # No Active Bolt
 
-Bolt 9 closed 2026-02-20. v0.9.0 tagged and pushed (deploy count: 8, no deploy needed — docs/config only).
+Bolt 9 closed 2026-02-20. Deploy count: 9 (review fixes deployed 2026-02-21).
 
 ## Since Last Bolt
 
@@ -15,6 +15,17 @@ Bolt 9 closed 2026-02-20. v0.9.0 tagged and pushed (deploy count: 8, no deploy n
 | ebc0115 | Fix 9 findings from five-persona code review (19 files, +5 tests) | — |
 | a99e44d | Captain's log: five-persona review fixes session | — |
 | ed7904f | Compliance drift fix: test counts 270→275, changelog entries | — |
+| bcdcd2c | PM update: review fix commits and backlog item #53 | — |
+
+## Metrics
+
+| Metric | Value |
+|--------|-------|
+| Tests | 275 collected (245 unit, 11 integration, 19 e2e) |
+| Pylint | 10/10 |
+| Coverage | 83% |
+| Deploys since Bolt 9 | 1 (deploy count 9) |
+| Commits since v0.9.0 | 12 |
 
 ## Next Bolt Candidates
 
@@ -27,4 +38,4 @@ Bolt 9 closed 2026-02-20. v0.9.0 tagged and pushed (deploy count: 8, no deploy n
 
 ## Pending Actions
 
-All pending actions from Bolt 9 are complete.
+None. All must-haves and should-haves complete across all phases.

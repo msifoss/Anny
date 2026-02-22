@@ -4,7 +4,7 @@
 > Size: S (< 1hr), M (< half day), L (~ 1 day), XL (multi-day).
 > Status: executable | blocked | done
 
-Last groomed: 2026-02-21 (post-review-fixes)
+Last groomed: 2026-02-21 (post-deploy, full groom)
 
 ---
 
