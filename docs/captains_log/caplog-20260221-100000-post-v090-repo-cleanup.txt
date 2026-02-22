@@ -1,0 +1,83 @@
+================================================================================
+CAPTAIN'S LOG: post-v090-repo-cleanup
+Date: 2026-02-21 10:00:00
+Previous Log: caplog-20260220-180000-bolt9-ops-readiness-v080.txt
+================================================================================
+
+## Summary
+Post-v0.9.0 housekeeping session. Conducted a code/docs audit that found 6 items
+(stale version refs, dead code, duplicated constants, stale test counts), fixed
+all of them, then ran PM update and two Mother Hen compliance checks to reach
+7/7 passing. No new features — pure cleanup and compliance maintenance.
+
+## Current State
+- v0.9.0 tagged. 4 commits past tag (cleanup, PM docs, compliance drift, dates).
+- 270 tests (240 unit, 11 integration, 19 e2e). Pylint 10/10, 85% coverage.
+- 26 MCP tools, 25 REST endpoints (unchanged).
+- OPS Readiness: 43/47 (91%).
+- Mother Hen: 7/7 passing.
+- No active Bolt. Clean working tree. All pushed to origin/main.
+- Deployed at anny.membies.com (deploy count 8, no redeploy needed — no app logic changes).
+
+## Work Completed
+- **Repo cleanup (6 items):**
+  - Fixed `app_version` default in `config.py`: 0.8.0 → 0.9.0
+  - Fixed version in `docs/REQUIREMENTS.md`: 0.8.0 → 0.9.0
+  - Fixed test counts in `README.md`: 230 → 270 (two locations)
+  - Removed unused `_EMPTY_STORE` constant from `clients/memory.py`
+  - Created `core/constants.py` with `MAX_LIMIT` and `MAX_ROW_LIMIT`
+  - Updated `mcp_server.py` and `export_routes.py` to import from constants.py
+- **PM update:**
+  - CURRENT-SPRINT.md: added cleanup commit to "Since Last Bolt" table
+  - BACKLOG.md: added item #52 (repo cleanup) as done
+  - CHANGELOG.md: added cleanup items under [Unreleased]
+  - SPRINT-LOG.md: updated Bolt 9 test counts (249→270, 230→251)
+- **Mother Hen compliance fixes (2 rounds):**
+  - Round 1: Added `constants.py` to CLAUDE.md project structure, added v0.9.0 to RELEASE_RUNBOOK.md version history
+  - Round 2: Updated CLAUDE.md status date and BACKLOG.md groomed date to 2026-02-21
+
+## Decisions Made
+- Extracted `MAX_LIMIT`/`MAX_ROW_LIMIT` into `core/constants.py` rather than
+  leaving duplicated in two files. Minimal new file, clear single source of truth.
+- Did NOT abstract cache boilerplate across services — 7 call sites with identical
+  pattern is acceptable; a helper would obscure the simple flow.
+- Did NOT add response models to cache endpoints — returns simple dict, Pydantic
+  model would add no value.
+- Kept `_EMPTY_STORE` deletion simple — confirmed it was defined but never
+  referenced (the empty store dict is constructed inline in `_read()` and `_modify()`).
+
+## Issues Encountered
+- None. All 270 tests passed on every run. Black clean, pylint 10/10, pre-commit
+  hooks passed on all 4 commits.
+
+## Commits Made
+- ebd609c: Fix stale versions, dead code, and duplicated constants
+- 68c6efb: Update PM docs and changelog after repo cleanup
+- 172d550: Fix compliance drift: add constants.py to CLAUDE.md, v0.9.0 to release runbook
+- 1231594: Update status and backlog dates to 2026-02-21
+
+## Mistakes & Lessons
+- The `_EMPTY_STORE` constant was introduced in the original memory.py implementation
+  but the actual code ended up using inline dicts instead. This is the kind of dead
+  code that creeps in during rapid development — the audit pattern of grepping for
+  unused symbols catches it cleanly.
+- Running Mother Hen twice in one session confirmed the value of the compliance
+  monitor as a tight feedback loop: first run found 3 warnings from the cleanup
+  work itself, second run was clean except for cosmetic date staleness.
+
+## Next Steps
+- No immediate work needed — project is in clean holding state
+- Feature backlog candidates for next Bolt:
+  - #22: Multi-property GA4 support (M)
+  - #21: GTM workspace management (L) — requires write scopes
+  - #27: Conversion optimization audit tooling (M)
+  - #28: Social channel reactivation strategy (S)
+- Consider bumping to v0.9.1 or v0.10.0 if more cleanup accumulates in [Unreleased]
+- Remaining OPS items (4 of 47):
+  - 2.5: Pre-commit tests — deliberately removed
+  - 2.6: Load testing — needs k6/locust setup
+  - 6.7: Blue-green deploy — overkill for single-container app
+
+================================================================================
+END OF LOG
+================================================================================
