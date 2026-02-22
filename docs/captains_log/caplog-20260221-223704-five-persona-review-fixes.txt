@@ -1,0 +1,103 @@
+================================================================================
+CAPTAIN'S LOG: five-persona-review-fixes
+Date: 2026-02-21 22:37:04
+Previous Log: caplog-20260221-100000-post-v090-repo-cleanup.txt
+================================================================================
+
+## Summary
+Ran a five-persona code review (Security, Performance, Reliability, Maintainability,
+UX experts) which surfaced 13 findings (0 Critical, 2 High, 5 Medium, 6 Low).
+Implemented 9 code fixes across 19 files, added 5 new tests, updated 8 existing
+tests. Dropped 4 findings as already-handled or intentional.
+
+## Current State
+- v0.9.0 tag + 2 commits past (cleanup + this review fix commit).
+- 275 tests (245 unit, 11 integration, 19 e2e). Pylint 10/10, 83% coverage.
+- 26 MCP tools, 25 REST endpoints (unchanged).
+- All pushed to origin/main. Clean working tree (except docs/reviews/ untracked).
+- Deployed at anny.membies.com (deploy count 8, redeploy needed for these fixes).
+
+## Work Completed
+- **F1 (HIGH) — ValidationError for bad input:**
+  - Added `ValidationError(AnnyError)` class in `core/exceptions.py`
+  - Mapped to HTTP 400 in `api/error_handlers.py` (checked before AuthError/APIError)
+  - Wrapped `ValueError` from `parse_date_range()` in GA4 and SC services
+  - Changed empty metrics/dimensions raises from `ValueError` to `ValidationError`
+- **F2 (HIGH) — Rate limit store cleanup:**
+  - Added counter-based periodic sweep in `main.py` rate limit middleware
+  - Every 1000 requests, removes stale IPs with no timestamps in current window
+  - Uses mutable list `[0]` pattern to avoid pylint global-statement warning
+- **F3 (MEDIUM) — UTC dates:**
+  - Replaced `date.today()` with `datetime.now(timezone.utc).date()` in `date_utils.py`
+  - Updated all date_utils tests to use UTC dates too
+- **F4 (MEDIUM) — Export routes cache:**
+  - Added `cache: QueryCache = Depends(get_query_cache)` to all 6 export endpoints
+  - Pass `cache=cache` to service calls (previously bypassed cache entirely)
+- **F6 (MEDIUM) — MCP ValueError handling:**
+  - Wrapped 8 date-accepting MCP tools with `try/except (ValidationError, ValueError)`
+  - Returns friendly `"Invalid input: {error}"` string instead of stack trace
+- **F7 (MEDIUM) — MemoryStore schema validation:**
+  - `_read()` catches `json.JSONDecodeError`, logs warning, returns defaults
+  - After load, ensures `insights`, `watchlist`, `segments` keys exist as lists
+- **F8 (LOW) — Feedpath validation:**
+  - Validates feedpath starts with `http://` or `https://` in sitemap details endpoint
+  - Returns HTTP 400 with clear message otherwise
+- **F10 (LOW) — Backup container detection:**
+  - Fallback section uses `docker ps --filter "name=anny"` to detect container name
+  - Falls back to hardcoded `anny-anny-1` only if docker ps returns empty
+- **F11 (LOW) — Smoke test auth:**
+  - Captures `ANNY_API_KEY` from `.env` source
+  - Passes `-H "X-API-Key: $API_KEY"` in `test_get` and `test_post` when set
+
+**Findings dropped (no code change):**
+- F5 (CSV injection) — already properly handled with `=`/`+`/`-`/`@`/`\t`/`\r` escaping
+- F9 (Log rotation) — Docker handles it via json-file driver with max-size/max-file
+- F12 (Credential TTL) — intentional; `lru_cache` keeps credentials for process lifetime
+- F13 (Ring buffer thread safety) — CPython GIL sufficient for append/slice operations
+
+## Decisions Made
+- **ValidationError inherits from AnnyError** rather than being standalone, so it flows
+  through the existing `anny_error_handler` exception handler without new middleware.
+- **Catch both ValidationError and ValueError in MCP tools** — belt-and-suspenders approach
+  since MCP tools don't go through FastAPI error handlers.
+- **Rate limit cleanup uses mutable list `[0]` pattern** instead of `global` statement
+  to satisfy pylint while keeping the counter simple.
+- **Export routes get cache via Depends** (same pattern as non-export routes) rather than
+  creating a separate cache instance — consistent with existing architecture.
+
+## Issues Encountered
+- **10 test failures on first run after code changes:**
+  - 5 date tests failed: UTC date was +1 day vs local (past midnight UTC). Fixed by
+    updating tests to use `datetime.now(timezone.utc).date()`.
+  - 3 service tests failed: expected `ValueError` but got `ValidationError`. Fixed by
+    updating `pytest.raises` to use `ValidationError`.
+  - 1 MCP tool test failed: `ga4_report` is a FastMCP `FunctionTool` wrapper, not
+    directly callable. Fixed by accessing `mcp._tool_manager._tools` to get underlying `fn`.
+  - 1 pylint failure: `_rate_limit_request_count` flagged as non-UPPER_CASE constant.
+    Fixed with mutable list pattern.
+- All issues resolved in one iteration, second run was clean.
+
+## Commits Made
+- ebc0115: Fix 9 findings from five-persona code review
+
+## Mistakes & Lessons
+- **Test updates are part of the fix, not an afterthought.** Changing `ValueError` to
+  `ValidationError` in services means every test that asserted `ValueError` needs updating.
+  Planning this upfront (in the plan phase) would have avoided the "surprise" failures.
+- **UTC vs local time matters.** The F3 fix caused test failures because the tests
+  themselves used `date.today()`. When you change a function's behavior, grep for all
+  callers — including tests that replicate the old behavior for assertions.
+- **FastMCP wraps tool functions** in `FunctionTool` objects. You can't call them directly
+  like `ga4_report()`. Access via `mcp._tool_manager._tools` to get the underlying `fn`.
+  This is a testing pattern worth remembering for future MCP tool tests.
+
+## Next Steps
+- Redeploy to anny.membies.com to pick up these fixes (especially F1 and F2)
+- Consider bumping to v0.9.1 for this review-fix release
+- Update CHANGELOG.md with review fix items under [Unreleased]
+- The `docs/reviews/` directory is untracked — decide whether to commit review output
+- Remaining backlog candidates unchanged from previous log
+
+================================================================================
+END OF LOG
+================================================================================
