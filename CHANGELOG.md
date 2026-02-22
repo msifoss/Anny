@@ -8,16 +8,30 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- `ValidationError` exception class mapped to HTTP 400 for bad user input (dates, empty metrics/dimensions)
+- Periodic cleanup of rate limit store to prevent unbounded memory growth from scanner/bot IPs
+- Query cache wired into all 6 export endpoints (previously bypassed cache)
+- Sitemap feedpath URL validation (rejects non-http/https paths with 400)
+- 5 new tests (ValidationError→400, MCP bad date_range, corrupted JSON memory, missing keys memory, invalid feedpath)
+
 ### Fixed
+- UTC dates in `date_utils.py`: replaced `date.today()` with `datetime.now(timezone.utc).date()` to avoid timezone drift
+- MCP tools now catch `ValidationError`/`ValueError` and return friendly error strings instead of stack traces
+- `MemoryStore._read()` handles corrupted JSON files (logs warning, returns defaults) and missing schema keys
 - Stale `app_version` default in `config.py`: 0.8.0 → 0.9.0
 - Stale version in `docs/REQUIREMENTS.md`: 0.8.0 → 0.9.0
 - Stale test counts in `README.md`: 230 → 270, 249 → 270
 
+### Changed
+- `ValueError` in GA4 and Search Console services replaced with `ValidationError(AnnyError)` for proper HTTP 400 mapping
+- Backup script (`scripts/backup.sh`): dynamic container name detection via `docker ps` before falling back to hardcoded default
+- Smoke test (`scripts/smoke_test.sh`): passes `X-API-Key` header when `ANNY_API_KEY` is configured
+- Deduplicated `MAX_LIMIT` / `MAX_ROW_LIMIT` constants into `core/constants.py` (imported by `mcp_server.py` and `export_routes.py`)
+- Test count: 270 → 275 (245 unit, 11 integration, 19 e2e)
+
 ### Removed
 - Unused `_EMPTY_STORE` constant in `clients/memory.py` (defined but never referenced)
-
-### Changed
-- Deduplicated `MAX_LIMIT` / `MAX_ROW_LIMIT` constants into `core/constants.py` (imported by `mcp_server.py` and `export_routes.py`)
 
 ## [0.9.0] - 2026-02-20 (Config Centralization & Compliance)
 

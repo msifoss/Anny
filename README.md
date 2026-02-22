@@ -56,7 +56,7 @@ Anny gives LLMs and programmatic clients unified access to your Google analytics
 - Single service account for all three APIs (readonly)
 - Named date ranges (`last_7_days`, `last_28_days`) -- no date math required
 - Lazy credential loading -- the health check works without any Google credentials
-- 270 tests, pylint 10/10, 85% coverage
+- 275 tests, pylint 10/10, 85% coverage
 - Pre-commit hooks enforce formatting and linting
 
 ---
@@ -497,10 +497,10 @@ make integration
 
 | Category | Count | What's tested |
 |----------|-------|---------------|
-| Unit | 219 | Clients, services, routes, MCP tools, config, auth, cache, export, logging, middleware, memory |
+| Unit | 245 | Clients, services, routes, MCP tools, config, auth, cache, export, logging, middleware, memory |
 | Integration | 11 | Full HTTP request flow through FastAPI with mocked Google API responses |
 | E2e | 19 | Real Google API calls (gated behind `ANNY_E2E=1`) |
-| **Total** | **270 collected** | **85% code coverage** |
+| **Total** | **275 collected** | **85% code coverage** |
 
 All unit and integration tests use mocked Google API responses -- no real credentials needed to run the test suite.
 
