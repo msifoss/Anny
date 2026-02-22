@@ -103,7 +103,7 @@ Last groomed: 2026-02-21 (post-deploy, full groom)
 | 21 | GTM workspace management (create/publish) | L | executable | Requires write scopes |
 | 22 | Multi-property support | M | executable | Query across multiple GA4 properties |
 | 23 | Data export (CSV/JSON download) | S | done | Bolt 8 — 6 endpoints, CSV+JSON, BOM for Excel |
-| 26 | GA4 key event creation via Admin API | M | blocked | Needs analytics.edit scope + Admin API |
+| 26 | GA4 key event creation via Admin API | M | blocked | Parked — needs analytics.edit scope + Admin API + new dependency; revisit when write access justified |
 | 27 | Conversion optimization audit tooling | M | executable | Only 9/40+ content pages have CTAs |
 | 28 | Social channel reactivation strategy | S | executable | Organic social dropped 92% Q3→Q4 |
 
