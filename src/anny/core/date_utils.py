@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 
 NAMED_RANGES = {
     "today": 0,
@@ -42,7 +42,7 @@ def parse_date_range(date_range: str) -> tuple[str, str]:
         )
 
     days = NAMED_RANGES[key]
-    today = date.today()
+    today = datetime.now(timezone.utc).date()
 
     if key == "today":
         return today.isoformat(), today.isoformat()

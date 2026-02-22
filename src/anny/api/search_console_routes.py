@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Security
+from fastapi import APIRouter, Depends, HTTPException, Security
 
 from anny.api.models import (
     SCQueryRequest,
@@ -87,4 +87,6 @@ async def sitemap_details(
     client: SearchConsoleClient = Depends(get_search_console_client),
     _: str = Security(verify_api_key),
 ):
+    if not feedpath.startswith(("http://", "https://")):
+        raise HTTPException(status_code=400, detail="feedpath must be a valid URL (http/https)")
     return search_console_service.get_sitemap_details(client, feedpath)

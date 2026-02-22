@@ -131,3 +131,17 @@ def test_sitemap_details_endpoint():
     data = response.json()
     assert data["path"] == "https://example.com/sitemap.xml"
     assert len(data["contents"]) == 1
+
+
+def test_sitemap_details_invalid_feedpath():
+    """feedpath that is not a URL should return 400."""
+    mock_client = _mock_sc_client()
+    _setup_overrides(mock_client)
+
+    tc = TestClient(app)
+    response = tc.get("/api/search-console/sitemaps/not-a-url")
+
+    _teardown_overrides()
+
+    assert response.status_code == 400
+    assert "feedpath" in response.json()["detail"].lower()

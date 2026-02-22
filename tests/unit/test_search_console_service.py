@@ -2,6 +2,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from anny.core.exceptions import ValidationError
 from anny.core.services import search_console_service
 
 
@@ -109,5 +110,5 @@ def test_get_sitemap_details():
 
 def test_get_search_analytics_rejects_empty_dimensions():
     mock_client = MagicMock()
-    with pytest.raises(ValueError, match="dimension"):
+    with pytest.raises(ValidationError, match="dimension"):
         search_console_service.get_search_analytics(mock_client, dimensions="")

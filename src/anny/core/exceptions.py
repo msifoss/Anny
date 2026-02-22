@@ -13,6 +13,13 @@ class AuthError(AnnyError):
         super().__init__(message)
 
 
+class ValidationError(AnnyError):
+    """Raised when user input fails validation (bad dates, empty metrics, etc.)."""
+
+    def __init__(self, message: str = "Invalid input"):
+        super().__init__(message)
+
+
 class APIError(AnnyError):
     """Raised when a Google API call fails."""
 

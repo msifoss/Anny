@@ -2,6 +2,7 @@ from unittest.mock import MagicMock, patch
 
 from anny.core.formatting import format_table
 from anny.core.services import ga4_service
+from anny.mcp_server import mcp
 
 
 def test_ga4_report_tool_flow():
@@ -64,3 +65,22 @@ def test_ga4_report_no_data():
         result = format_table(rows)
 
     assert result == "No data available."
+
+
+@patch("anny.mcp_server.get_query_cache")
+@patch("anny.mcp_server.get_ga4_client")
+def test_ga4_report_tool_bad_date_range(mock_get_client, mock_get_cache):
+    """MCP tool should return a friendly error for an invalid date range."""
+    mock_get_client.return_value = MagicMock()
+    mock_get_cache.return_value = MagicMock()
+
+    # Find the ga4_report tool's underlying function
+    tool = None
+    # pylint: disable=protected-access
+    for t in mcp._tool_manager._tools.values():
+        if t.name == "ga4_report":
+            tool = t
+            break
+    assert tool is not None, "ga4_report tool not found"
+    result = tool.fn(date_range="not_a_range")
+    assert "Invalid input" in result

@@ -58,6 +58,8 @@ check_env() {
     echo -e "${RED}ERROR: Key file not found: $GOOGLE_SERVICE_ACCOUNT_KEY_PATH${NC}"
     exit 1
   fi
+
+  API_KEY="${ANNY_API_KEY:-}"
 }
 
 # --- Start server ---
@@ -79,14 +81,22 @@ start_server() {
 }
 
 # --- Test helpers ---
+_auth_header() {
+  if [[ -n "${API_KEY:-}" ]]; then
+    echo "-H" "X-API-Key: $API_KEY"
+  fi
+}
+
 test_get() {
   local label="$1"
   local url="$2"
   local response
   local http_code
+  local -a auth
+  read -ra auth <<< "$(_auth_header)"
 
-  http_code=$(curl -sf -o /dev/null -w "%{http_code}" "$url" 2>/dev/null) || http_code="000"
-  response=$(curl -sf "$url" 2>/dev/null | head -c 200) || response="(no response)"
+  http_code=$(curl -sf -o /dev/null -w "%{http_code}" "${auth[@]}" "$url" 2>/dev/null) || http_code="000"
+  response=$(curl -sf "${auth[@]}" "$url" 2>/dev/null | head -c 200) || response="(no response)"
 
   if [[ "$http_code" == "200" ]]; then
     echo -e "  ${GREEN}PASS${NC}  $label  ${YELLOW}${response:0:120}${NC}"
@@ -103,9 +113,11 @@ test_post() {
   local body="$3"
   local http_code
   local response
+  local -a auth
+  read -ra auth <<< "$(_auth_header)"
 
-  http_code=$(curl -sf -o /dev/null -w "%{http_code}" -X POST -H "Content-Type: application/json" -d "$body" "$url" 2>/dev/null) || http_code="000"
-  response=$(curl -sf -X POST -H "Content-Type: application/json" -d "$body" "$url" 2>/dev/null | head -c 200) || response="(no response)"
+  http_code=$(curl -sf -o /dev/null -w "%{http_code}" -X POST -H "Content-Type: application/json" "${auth[@]}" -d "$body" "$url" 2>/dev/null) || http_code="000"
+  response=$(curl -sf -X POST -H "Content-Type: application/json" "${auth[@]}" -d "$body" "$url" 2>/dev/null | head -c 200) || response="(no response)"
 
   if [[ "$http_code" == "200" ]]; then
     echo -e "  ${GREEN}PASS${NC}  $label  ${YELLOW}${response:0:120}${NC}"

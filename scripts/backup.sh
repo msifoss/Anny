@@ -22,7 +22,8 @@ if [[ -f "${PROJECT_DIR}/config.yaml" ]] && command -v python3 >/dev/null 2>&1; 
 else
     # Fallback defaults (VPS standalone or no Python)
     BACKUP_DIR="/opt/anny/backups"
-    CONTAINER_NAME="anny-anny-1"
+    CONTAINER_NAME=$(docker ps --filter "name=anny" --format "{{.Names}}" | head -1)
+    CONTAINER_NAME="${CONTAINER_NAME:-anny-anny-1}"
     MEMORY_PATH="/home/anny/.anny/memory.json"
     RETENTION_DAYS=7
 fi

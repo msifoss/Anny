@@ -144,3 +144,26 @@ def test_file_created_with_restricted_permissions(tmp_path):
 
     file_mode = stat.S_IMODE(os.stat(path).st_mode)
     assert file_mode == 0o600
+
+
+def test_corrupted_json_returns_defaults(tmp_path):
+    """Corrupted JSON file should return empty defaults instead of crashing."""
+    path = str(tmp_path / "memory.json")
+    with open(path, "w", encoding="utf-8") as f:
+        f.write("{not valid json!!!")
+    store = MemoryStore(path)
+    assert store.list_insights() == []
+    assert store.list_watchlist() == []
+    assert store.list_segments() == []
+
+
+def test_missing_keys_returns_defaults(tmp_path):
+    """JSON missing required keys should fill them in as empty lists."""
+    path = str(tmp_path / "memory.json")
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump({"insights": [{"id": "ins_1", "text": "kept"}]}, f)
+    store = MemoryStore(path)
+    data = store.get_all()
+    assert len(data["insights"]) == 1
+    assert data["watchlist"] == []
+    assert data["segments"] == []

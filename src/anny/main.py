@@ -105,6 +105,8 @@ async def request_logging_middleware(request: Request, call_next):
 
 # --- Rate limiting for /api/* endpoints ---
 _rate_limit_store: dict[str, list[float]] = defaultdict(list)
+_RATE_LIMIT_REQUEST_COUNT: list[int] = [0]  # mutable container for middleware counter
+_RATE_LIMIT_CLEANUP_INTERVAL: int = 1000
 
 
 @app.middleware("http")
@@ -120,6 +122,14 @@ async def rate_limit_middleware(request: Request, call_next):
     timestamps = _rate_limit_store[client_ip]
     _rate_limit_store[client_ip] = [t for t in timestamps if t > window_start]
     _rate_limit_store[client_ip].append(now)
+
+    # Periodic sweep: remove stale IPs with no recent timestamps
+    _RATE_LIMIT_REQUEST_COUNT[0] += 1
+    if _RATE_LIMIT_REQUEST_COUNT[0] >= _RATE_LIMIT_CLEANUP_INTERVAL:
+        _RATE_LIMIT_REQUEST_COUNT[0] = 0
+        stale_ips = [ip for ip, ts in _rate_limit_store.items() if not ts or ts[-1] <= window_start]
+        for ip in stale_ips:
+            del _rate_limit_store[ip]
 
     if len(_rate_limit_store[client_ip]) > settings.rate_limit_requests:
         logger.warning("Rate limit exceeded for %s", client_ip)

@@ -3,6 +3,7 @@ from __future__ import annotations
 from anny.clients.ga4 import GA4Client
 from anny.core.cache import QueryCache
 from anny.core.date_utils import parse_date_range
+from anny.core.exceptions import ValidationError
 
 
 def get_report(
@@ -17,10 +18,13 @@ def get_report(
     metric_list = [m.strip() for m in metrics.split(",") if m.strip()]
     dimension_list = [d.strip() for d in dimensions.split(",") if d.strip()]
     if not metric_list:
-        raise ValueError("At least one metric is required")
+        raise ValidationError("At least one metric is required")
     if not dimension_list:
-        raise ValueError("At least one dimension is required")
-    start_date, end_date = parse_date_range(date_range)
+        raise ValidationError("At least one dimension is required")
+    try:
+        start_date, end_date = parse_date_range(date_range)
+    except ValueError as exc:
+        raise ValidationError(str(exc)) from exc
 
     if cache:
         key = cache.make_key(
@@ -58,7 +62,10 @@ def get_top_pages(
     cache: QueryCache | None = None,
 ) -> list[dict]:
     """Get top pages by screen page views."""
-    start_date, end_date = parse_date_range(date_range)
+    try:
+        start_date, end_date = parse_date_range(date_range)
+    except ValueError as exc:
+        raise ValidationError(str(exc)) from exc
 
     if cache:
         key = cache.make_key(
@@ -88,7 +95,10 @@ def get_traffic_summary(
     cache: QueryCache | None = None,
 ) -> list[dict]:
     """Get a traffic summary with key metrics by session source."""
-    start_date, end_date = parse_date_range(date_range)
+    try:
+        start_date, end_date = parse_date_range(date_range)
+    except ValueError as exc:
+        raise ValidationError(str(exc)) from exc
 
     if cache:
         key = cache.make_key("ga4_traffic_summary", {"start": start_date, "end": end_date})
@@ -118,7 +128,7 @@ def get_realtime_report(
     """Run a GA4 realtime report."""
     metric_list = [m.strip() for m in metrics.split(",") if m.strip()]
     if not metric_list:
-        raise ValueError("At least one metric is required")
+        raise ValidationError("At least one metric is required")
     dimension_list = [d.strip() for d in dimensions.split(",") if d.strip()] or None
 
     return client.run_realtime_report(

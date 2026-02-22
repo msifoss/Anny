@@ -5,7 +5,7 @@ from fastapi.testclient import TestClient
 from anny.clients.ga4 import GA4Client
 from anny.core.cache import QueryCache
 from anny.core.dependencies import get_ga4_client, get_query_cache, verify_api_key
-from anny.core.exceptions import APIError, AuthError
+from anny.core.exceptions import APIError, AuthError, ValidationError
 from anny.main import app
 
 
@@ -47,3 +47,17 @@ def test_api_error_returns_502():
 
     assert response.status_code == 502
     assert response.json()["error"] == "GA4 down"
+
+
+def test_validation_error_returns_400():
+    mock_client = MagicMock(spec=GA4Client)
+    mock_client.run_report.side_effect = ValidationError("bad date range")
+    _setup_overrides(mock_client)
+
+    tc = TestClient(app, raise_server_exceptions=False)
+    response = tc.get("/api/ga4/top-pages")
+
+    _teardown_overrides()
+
+    assert response.status_code == 400
+    assert response.json()["error"] == "bad date range"

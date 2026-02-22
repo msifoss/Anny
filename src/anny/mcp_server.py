@@ -8,6 +8,7 @@ from anny.core.dependencies import (
     get_tag_manager_client,
 )
 from anny.core.constants import MAX_LIMIT, MAX_ROW_LIMIT
+from anny.core.exceptions import ValidationError
 from anny.core.formatting import format_table
 from anny.core.services import (
     cache_service,
@@ -44,7 +45,10 @@ def ga4_report(
     limit = max(1, min(limit, MAX_LIMIT))
     client = get_ga4_client()
     cache = get_query_cache()
-    rows = ga4_service.get_report(client, metrics, dimensions, date_range, limit, cache=cache)
+    try:
+        rows = ga4_service.get_report(client, metrics, dimensions, date_range, limit, cache=cache)
+    except (ValidationError, ValueError) as exc:
+        return f"Invalid input: {exc}"
     return format_table(rows)
 
 
@@ -59,7 +63,10 @@ def ga4_top_pages(date_range: str = "last_28_days", limit: int = 10) -> str:
     limit = max(1, min(limit, MAX_LIMIT))
     client = get_ga4_client()
     cache = get_query_cache()
-    rows = ga4_service.get_top_pages(client, date_range, limit, cache=cache)
+    try:
+        rows = ga4_service.get_top_pages(client, date_range, limit, cache=cache)
+    except (ValidationError, ValueError) as exc:
+        return f"Invalid input: {exc}"
     return format_table(rows)
 
 
@@ -72,7 +79,10 @@ def ga4_traffic_summary(date_range: str = "last_28_days") -> str:
     """
     client = get_ga4_client()
     cache = get_query_cache()
-    rows = ga4_service.get_traffic_summary(client, date_range, cache=cache)
+    try:
+        rows = ga4_service.get_traffic_summary(client, date_range, cache=cache)
+    except (ValidationError, ValueError) as exc:
+        return f"Invalid input: {exc}"
     return format_table(rows)
 
 
@@ -88,7 +98,10 @@ def ga4_realtime(
         dimensions: Comma-separated dimensions (e.g. unifiedScreenName,country) — optional
     """
     client = get_ga4_client()
-    rows = ga4_service.get_realtime_report(client, metrics, dimensions)
+    try:
+        rows = ga4_service.get_realtime_report(client, metrics, dimensions)
+    except (ValidationError, ValueError) as exc:
+        return f"Invalid input: {exc}"
     return format_table(rows)
 
 
@@ -111,9 +124,12 @@ def search_console_query(
     row_limit = max(1, min(row_limit, MAX_ROW_LIMIT))
     client = get_search_console_client()
     cache = get_query_cache()
-    rows = search_console_service.get_search_analytics(
-        client, dimensions, date_range, row_limit, cache=cache
-    )
+    try:
+        rows = search_console_service.get_search_analytics(
+            client, dimensions, date_range, row_limit, cache=cache
+        )
+    except (ValidationError, ValueError) as exc:
+        return f"Invalid input: {exc}"
     return format_table(rows)
 
 
@@ -128,7 +144,10 @@ def search_console_top_queries(date_range: str = "last_28_days", limit: int = 10
     limit = max(1, min(limit, MAX_LIMIT))
     client = get_search_console_client()
     cache = get_query_cache()
-    rows = search_console_service.get_top_queries(client, date_range, limit, cache=cache)
+    try:
+        rows = search_console_service.get_top_queries(client, date_range, limit, cache=cache)
+    except (ValidationError, ValueError) as exc:
+        return f"Invalid input: {exc}"
     return format_table(rows)
 
 
@@ -143,7 +162,10 @@ def search_console_top_pages(date_range: str = "last_28_days", limit: int = 10) 
     limit = max(1, min(limit, MAX_LIMIT))
     client = get_search_console_client()
     cache = get_query_cache()
-    rows = search_console_service.get_top_pages(client, date_range, limit, cache=cache)
+    try:
+        rows = search_console_service.get_top_pages(client, date_range, limit, cache=cache)
+    except (ValidationError, ValueError) as exc:
+        return f"Invalid input: {exc}"
     return format_table(rows)
 
 
@@ -156,7 +178,10 @@ def search_console_summary(date_range: str = "last_28_days") -> str:
     """
     client = get_search_console_client()
     cache = get_query_cache()
-    rows = search_console_service.get_performance_summary(client, date_range, cache=cache)
+    try:
+        rows = search_console_service.get_performance_summary(client, date_range, cache=cache)
+    except (ValidationError, ValueError) as exc:
+        return f"Invalid input: {exc}"
     return format_table(rows)
 
 

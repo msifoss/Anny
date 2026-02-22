@@ -3,8 +3,14 @@ from fastapi.responses import StreamingResponse
 
 from anny.clients.ga4 import GA4Client
 from anny.clients.search_console import SearchConsoleClient
+from anny.core.cache import QueryCache
 from anny.core.constants import MAX_LIMIT, MAX_ROW_LIMIT
-from anny.core.dependencies import get_ga4_client, get_search_console_client, verify_api_key
+from anny.core.dependencies import (
+    get_ga4_client,
+    get_query_cache,
+    get_search_console_client,
+    verify_api_key,
+)
 from anny.core.services import export_service, ga4_service, search_console_service
 
 router = APIRouter(prefix="/api/export", tags=["Export"])
@@ -33,10 +39,11 @@ async def export_ga4_report(
     limit: int = 10,
     export_format: str = Query("csv", alias="format", pattern="^(csv|json)$"),
     client: GA4Client = Depends(get_ga4_client),
+    cache: QueryCache = Depends(get_query_cache),
     _: str = Security(verify_api_key),
 ):
     limit = max(1, min(limit, MAX_LIMIT))
-    rows = ga4_service.get_report(client, metrics, dimensions, date_range, limit)
+    rows = ga4_service.get_report(client, metrics, dimensions, date_range, limit, cache=cache)
     data = export_service.to_csv(rows) if export_format == "csv" else export_service.to_json(rows)
     return _stream(data, "ga4-report", export_format)
 
@@ -47,10 +54,11 @@ async def export_ga4_top_pages(
     limit: int = 10,
     export_format: str = Query("csv", alias="format", pattern="^(csv|json)$"),
     client: GA4Client = Depends(get_ga4_client),
+    cache: QueryCache = Depends(get_query_cache),
     _: str = Security(verify_api_key),
 ):
     limit = max(1, min(limit, MAX_LIMIT))
-    rows = ga4_service.get_top_pages(client, date_range=date_range, limit=limit)
+    rows = ga4_service.get_top_pages(client, date_range=date_range, limit=limit, cache=cache)
     data = export_service.to_csv(rows) if export_format == "csv" else export_service.to_json(rows)
     return _stream(data, "ga4-top-pages", export_format)
 
@@ -60,9 +68,10 @@ async def export_ga4_traffic_summary(
     date_range: str = "last_28_days",
     export_format: str = Query("csv", alias="format", pattern="^(csv|json)$"),
     client: GA4Client = Depends(get_ga4_client),
+    cache: QueryCache = Depends(get_query_cache),
     _: str = Security(verify_api_key),
 ):
-    rows = ga4_service.get_traffic_summary(client, date_range=date_range)
+    rows = ga4_service.get_traffic_summary(client, date_range=date_range, cache=cache)
     data = export_service.to_csv(rows) if export_format == "csv" else export_service.to_json(rows)
     return _stream(data, "ga4-traffic-summary", export_format)
 
@@ -74,10 +83,13 @@ async def export_sc_query(
     row_limit: int = 10,
     export_format: str = Query("csv", alias="format", pattern="^(csv|json)$"),
     client: SearchConsoleClient = Depends(get_search_console_client),
+    cache: QueryCache = Depends(get_query_cache),
     _: str = Security(verify_api_key),
 ):
     row_limit = max(1, min(row_limit, MAX_ROW_LIMIT))
-    rows = search_console_service.get_search_analytics(client, dimensions, date_range, row_limit)
+    rows = search_console_service.get_search_analytics(
+        client, dimensions, date_range, row_limit, cache=cache
+    )
     data = export_service.to_csv(rows) if export_format == "csv" else export_service.to_json(rows)
     return _stream(data, "sc-query", export_format)
 
@@ -88,10 +100,13 @@ async def export_sc_top_queries(
     limit: int = 10,
     export_format: str = Query("csv", alias="format", pattern="^(csv|json)$"),
     client: SearchConsoleClient = Depends(get_search_console_client),
+    cache: QueryCache = Depends(get_query_cache),
     _: str = Security(verify_api_key),
 ):
     limit = max(1, min(limit, MAX_LIMIT))
-    rows = search_console_service.get_top_queries(client, date_range=date_range, limit=limit)
+    rows = search_console_service.get_top_queries(
+        client, date_range=date_range, limit=limit, cache=cache
+    )
     data = export_service.to_csv(rows) if export_format == "csv" else export_service.to_json(rows)
     return _stream(data, "sc-top-queries", export_format)
 
@@ -102,9 +117,12 @@ async def export_sc_top_pages(
     limit: int = 10,
     export_format: str = Query("csv", alias="format", pattern="^(csv|json)$"),
     client: SearchConsoleClient = Depends(get_search_console_client),
+    cache: QueryCache = Depends(get_query_cache),
     _: str = Security(verify_api_key),
 ):
     limit = max(1, min(limit, MAX_LIMIT))
-    rows = search_console_service.get_top_pages(client, date_range=date_range, limit=limit)
+    rows = search_console_service.get_top_pages(
+        client, date_range=date_range, limit=limit, cache=cache
+    )
     data = export_service.to_csv(rows) if export_format == "csv" else export_service.to_json(rows)
     return _stream(data, "sc-top-pages", export_format)

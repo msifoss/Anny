@@ -2,6 +2,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from anny.core.exceptions import ValidationError
 from anny.core.services import ga4_service
 
 
@@ -85,7 +86,7 @@ def test_get_realtime_report():
 
 def test_get_realtime_report_empty_metrics():
     mock_client = MagicMock()
-    with pytest.raises(ValueError, match="metric"):
+    with pytest.raises(ValidationError, match="metric"):
         ga4_service.get_realtime_report(mock_client, metrics="")
 
 
@@ -104,11 +105,11 @@ def test_get_realtime_report_no_dimensions():
 
 def test_get_report_rejects_empty_metrics():
     mock_client = MagicMock()
-    with pytest.raises(ValueError, match="metric"):
+    with pytest.raises(ValidationError, match="metric"):
         ga4_service.get_report(mock_client, metrics="", dimensions="date")
 
 
 def test_get_report_rejects_empty_dimensions():
     mock_client = MagicMock()
-    with pytest.raises(ValueError, match="dimension"):
+    with pytest.raises(ValidationError, match="dimension"):
         ga4_service.get_report(mock_client, metrics="sessions", dimensions="")

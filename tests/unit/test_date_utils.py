@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
@@ -19,35 +19,35 @@ def test_explicit_range_with_spaces():
 
 def test_today():
     start, end = parse_date_range("today")
-    today = date.today().isoformat()
+    today = datetime.now(timezone.utc).date().isoformat()
     assert start == today
     assert end == today
 
 
 def test_yesterday():
     start, end = parse_date_range("yesterday")
-    yesterday = (date.today() - timedelta(days=1)).isoformat()
+    yesterday = (datetime.now(timezone.utc).date() - timedelta(days=1)).isoformat()
     assert start == yesterday
     assert end == yesterday
 
 
 def test_last_7_days():
     start, end = parse_date_range("last_7_days")
-    expected_start = (date.today() - timedelta(days=7)).isoformat()
+    expected_start = (datetime.now(timezone.utc).date() - timedelta(days=7)).isoformat()
     assert start == expected_start
-    assert end == date.today().isoformat()
+    assert end == datetime.now(timezone.utc).date().isoformat()
 
 
 def test_last_28_days():
     start, end = parse_date_range("last_28_days")
-    expected_start = (date.today() - timedelta(days=28)).isoformat()
+    expected_start = (datetime.now(timezone.utc).date() - timedelta(days=28)).isoformat()
     assert start == expected_start
-    assert end == date.today().isoformat()
+    assert end == datetime.now(timezone.utc).date().isoformat()
 
 
 def test_case_insensitive():
     start, _ = parse_date_range("Last_28_Days")
-    expected_start = (date.today() - timedelta(days=28)).isoformat()
+    expected_start = (datetime.now(timezone.utc).date() - timedelta(days=28)).isoformat()
     assert start == expected_start
 
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 from anny.clients.search_console import SearchConsoleClient
 from anny.core.cache import QueryCache
 from anny.core.date_utils import parse_date_range
+from anny.core.exceptions import ValidationError
 
 
 def get_search_analytics(
@@ -15,8 +16,11 @@ def get_search_analytics(
     """Run a custom Search Console query."""
     dimension_list = [d.strip() for d in dimensions.split(",") if d.strip()]
     if not dimension_list:
-        raise ValueError("At least one dimension is required")
-    start_date, end_date = parse_date_range(date_range)
+        raise ValidationError("At least one dimension is required")
+    try:
+        start_date, end_date = parse_date_range(date_range)
+    except ValueError as exc:
+        raise ValidationError(str(exc)) from exc
 
     if cache:
         key = cache.make_key(
@@ -52,7 +56,10 @@ def get_top_queries(
     cache: QueryCache | None = None,
 ) -> list[dict]:
     """Get top search queries by clicks."""
-    start_date, end_date = parse_date_range(date_range)
+    try:
+        start_date, end_date = parse_date_range(date_range)
+    except ValueError as exc:
+        raise ValidationError(str(exc)) from exc
 
     if cache:
         key = cache.make_key(
@@ -82,7 +89,10 @@ def get_top_pages(
     cache: QueryCache | None = None,
 ) -> list[dict]:
     """Get top pages by clicks."""
-    start_date, end_date = parse_date_range(date_range)
+    try:
+        start_date, end_date = parse_date_range(date_range)
+    except ValueError as exc:
+        raise ValidationError(str(exc)) from exc
 
     if cache:
         key = cache.make_key("sc_top_pages", {"start": start_date, "end": end_date, "limit": limit})
@@ -109,7 +119,10 @@ def get_performance_summary(
     cache: QueryCache | None = None,
 ) -> list[dict]:
     """Get overall performance summary (no dimension breakdown)."""
-    start_date, end_date = parse_date_range(date_range)
+    try:
+        start_date, end_date = parse_date_range(date_range)
+    except ValueError as exc:
+        raise ValidationError(str(exc)) from exc
 
     if cache:
         key = cache.make_key("sc_summary", {"start": start_date, "end": end_date})

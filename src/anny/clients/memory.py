@@ -1,8 +1,11 @@
 import fcntl
 import json
+import logging
 import os
 import random
 from datetime import datetime, timezone
+
+logger = logging.getLogger("anny")
 
 
 def _generate_id(prefix: str) -> str:
@@ -22,16 +25,26 @@ class MemoryStore:
     def path(self) -> str:
         return self._path
 
+    _DEFAULTS = {"insights": [], "watchlist": [], "segments": []}
+
     def _read(self) -> dict:
         """Read the JSON file and return its contents."""
         if not os.path.exists(self._path):
-            return {"insights": [], "watchlist": [], "segments": []}
+            return {k: list(v) for k, v in self._DEFAULTS.items()}
         with open(self._path, "r", encoding="utf-8") as f:
             fcntl.flock(f, fcntl.LOCK_SH)
             try:
-                return json.load(f)
+                data = json.load(f)
+            except json.JSONDecodeError:
+                logger.warning("Corrupted memory file %s — returning defaults", self._path)
+                return {k: list(v) for k, v in self._DEFAULTS.items()}
             finally:
                 fcntl.flock(f, fcntl.LOCK_UN)
+        # Ensure required keys exist
+        for key, default in self._DEFAULTS.items():
+            if key not in data or not isinstance(data[key], list):
+                data[key] = list(default)
+        return data
 
     def _modify(self, mutate_fn):
         """Atomically read, modify, and write the store under an exclusive lock."""
