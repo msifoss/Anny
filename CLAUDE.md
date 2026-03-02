@@ -211,15 +211,15 @@ Anny/
 
 ## Conventions
 - Python: formatted with Black (line-length=100), linted with pylint
-- Tests: pytest with pytest-cov (275 tests, 85% coverage)
+- Tests: pytest with pytest-cov (275 tests, 83% coverage)
 - Task runner: `make help` for all targets
 - FastAPI app in `src/anny/main.py`
 - Pre-commit hooks enforce format + lint on every commit (tests via `make test` + CI)
 - Service layer shared between REST and MCP — never duplicate Google API logic
 - Lazy credentials — clients created on first use, not at startup
 
-## Current Status (2026-02-21)
-- **Code:** Full implementation. 275 tests (245 unit, 11 integration, 19 e2e), pylint 10/10, 85% coverage.
+## Current Status (2026-03-02)
+- **Code:** Full implementation. 275 tests (245 unit, 11 integration, 19 e2e), pylint 10/10, 83% coverage.
 - **Services:** GA4 (incl. realtime), Search Console (incl. sitemaps), Tag Manager, Memory, Cache, Export — all implemented.
 - **Cache:** In-memory query cache with TTL (3600s) and LRU eviction (500 entries). Wired into GA4 and SC services.
 - **Export:** CSV and JSON download for GA4 and SC reports (6 endpoints with Content-Disposition headers, CSV injection protection, limit clamping).

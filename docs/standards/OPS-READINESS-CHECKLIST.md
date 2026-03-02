@@ -27,10 +27,10 @@
 
 ## 2. Testing (7 items)
 
-- [x] 2.1 Unit tests exist (240 unit tests)
+- [x] 2.1 Unit tests exist (245 unit tests)
 - [x] 2.2 Integration tests exist (11 integration tests)
 - [x] 2.3 E2e tests exist (19 e2e tests, gated behind ANNY_E2E=1)
-- [x] 2.4 Test coverage >= 80% (85%)
+- [x] 2.4 Test coverage >= 80% (83%)
 - [ ] 2.5 Pre-commit hooks run tests (removed — tests run via `make test` + CI)
 - [ ] 2.6 Load/performance testing exists
 - [x] 2.7 Smoke test runs automatically post-deploy (`scripts/smoke_test.sh` called from `deploy.sh`)
