@@ -1,0 +1,178 @@
+================================================================================
+FIVE-PERSONA CODE REVIEW
+Date: 2026-02-21
+Scope: Full codebase (src/, tests/, scripts/, config, Dockerfile, CI)
+================================================================================
+
+## Overview
+
+| # | Persona | Focus Area | Findings |
+|---|---------|------------|----------|
+| 1 | Staff Engineer | Code quality, error handling | 5 |
+| 2 | First Principles | Simplification | 3 |
+| 3 | Radical Transparency | Docs accuracy, ops readiness | 2 |
+| 4 | CTO / Security | Security, architecture | 4 |
+| 5 | SRE / DevOps | Infrastructure, monitoring | 4 |
+| | **Total raw findings** | | **18** |
+
+After deduplication: **13 unique findings**
+
+================================================================================
+## CONSOLIDATED FINDINGS — SORTED BY SEVERITY
+================================================================================
+
+### CRITICAL (0)
+
+(none)
+
+---
+
+### HIGH (2)
+
+**F1 — ValueError from date_utils and service layer returns 500 instead of 400**
+File: src/anny/core/date_utils.py, src/anny/core/services/ga4_service.py, src/anny/core/services/search_console_service.py
+Personas: Staff Engineer, CTO / Security
+Invalid date ranges (e.g. "2026-13-01,2026-01-01") and empty metrics/dimensions
+raise ValueError, which FastAPI converts to HTTP 500 (Internal Server Error)
+instead of 400 (Bad Request). This is misleading for API consumers and masks
+client-side input errors as server errors.
+Fix: Catch ValueError in route handlers (or add a ValidationError exception
+class mapped to 400 in error_handlers.py) so invalid input returns 400.
+
+**F2 — Rate limit store grows unbounded in memory**
+File: src/anny/main.py:55-75
+Personas: Staff Engineer, SRE / DevOps
+The rate limit store is a `defaultdict(list)` keyed by client IP. Timestamp
+pruning only happens when the same IP makes a new request. If many unique IPs
+hit the server (e.g. scanner, bot traffic), the store grows without bound.
+No cleanup of stale IPs ever occurs.
+Fix: Add periodic pruning (e.g. remove IPs with no requests in the last
+window_seconds on every Nth request) or cap the store size.
+
+---
+
+### MEDIUM (5)
+
+**F3 — date.today() uses local timezone, not UTC**
+File: src/anny/core/date_utils.py:7
+Personas: Staff Engineer, SRE / DevOps
+`date.today()` uses the server's local timezone. If the server is in a
+non-UTC timezone, named ranges like "today" or "yesterday" may be off by
+a day relative to what the user expects (or what Google Analytics uses).
+Fix: Use `datetime.now(timezone.utc).date()` instead of `date.today()`.
+
+**F4 — Export routes bypass query cache**
+File: src/anny/api/export_routes.py:38-41, 53-55, 65-67
+Personas: Staff Engineer, First Principles
+Export endpoints call `ga4_service.get_report(client, ...)` and
+`search_console_service.get_search_analytics(client, ...)` without passing
+the `cache` parameter. This means identical queries hit the Google API twice
+if accessed via both REST and export endpoints.
+Fix: Pass `cache=get_query_cache()` to service calls in export routes, or
+document this as intentional (exports are one-shot downloads).
+
+**F5 — CSV injection protection only checks first character**
+File: src/anny/core/services/export_service.py:10-15
+Personas: CTO / Security
+The CSV injection protection prefixes formula-triggering characters
+(`=`, `+`, `-`, `@`, `\t`, `\r`) with a tab, but only when the value
+starts with one of these characters. A value like `" =cmd|'/C calc'!A0"`
+(space then formula) would bypass the check. Most Excel versions strip
+leading spaces before evaluating.
+Fix: Also strip leading whitespace before checking, or wrap all cell values
+in single quotes with `="'value"` quoting.
+
+**F6 — MCP tools don't catch ValueError from date parsing**
+File: src/anny/mcp_server.py (all date-accepting tools)
+Personas: Staff Engineer, Radical Transparency
+When an MCP tool receives an invalid date_range like "not_a_date", the
+ValueError propagates as an unformatted exception. MCP clients see a raw
+Python traceback instead of a user-friendly error message.
+Fix: Wrap tool bodies in try/except ValueError and return a formatted
+error string (e.g. "Invalid date range: ...").
+
+**F7 — MemoryStore trusts JSON structure on read**
+File: src/anny/clients/memory.py:28-37
+Personas: CTO / Security, Staff Engineer
+`_read()` calls `json.load(f)` and returns the result with no schema
+validation. If the file is manually edited or corrupted (missing keys,
+wrong types), subsequent operations will crash with KeyError or TypeError.
+Fix: Add minimal schema validation after JSON load (check expected keys
+exist and are lists), or catch and reset to empty store with a warning.
+
+---
+
+### LOW (6)
+
+**F8 — Sitemap feedpath parameter not validated**
+File: src/anny/api/search_console_routes.py:46
+Personas: CTO / Security
+The `{feedpath:path}` parameter accepts any string. Malformed URLs are
+passed directly to the Google API, which will return an error. Not a
+security risk (readonly API), but produces unhelpful error messages.
+Fix: Validate feedpath starts with "http://" or "https://".
+
+**F9 — No log rotation for console output**
+File: src/anny/core/logging.py
+Personas: SRE / DevOps
+Docker JSON logging is configured with rotation (10MB/3 files), but if
+the app is run outside Docker (e.g. `make run` for development), console
+logs grow unbounded. Not an issue in production (Docker handles it).
+Fix: Low priority. Document that `make run` logs should be redirected
+for long-running dev sessions.
+
+**F10 — Backup script assumes specific container name**
+File: scripts/backup.sh:16
+Personas: SRE / DevOps
+The backup script defaults to container name `anny-anny-1` if config-get
+fails. If the docker-compose project name changes, backups silently skip
+(container not found warning, but exit 0).
+Fix: Use `docker compose ps -q anny` to dynamically find the container.
+
+**F11 — Smoke test doesn't send API key header**
+File: scripts/smoke_test.sh
+Personas: Radical Transparency
+The smoke test curls endpoints without an `X-API-Key` header. It only
+works when `ANNY_API_KEY` is empty (auth disabled). If auth is enabled
+in production, the smoke test will report all endpoints as failing.
+Fix: Read `ANNY_API_KEY` from `.env` and pass as `-H "X-API-Key: $KEY"`.
+
+**F12 — lru_cache on get_credentials has no TTL**
+File: src/anny/core/dependencies.py:42-47
+Personas: Staff Engineer
+Google service account credentials are cached indefinitely via lru_cache.
+If the key file is rotated on disk, the app continues using the old
+credentials until restarted. Acceptable for current single-deploy model.
+Fix: Low priority. Document that credential changes require restart.
+
+**F13 — Ring buffer handler not thread-safe**
+File: src/anny/core/logging.py:47-55
+Personas: Staff Engineer
+`RingBufferHandler.emit()` appends to a `deque(maxlen=1000)`. While
+`deque.append()` is atomic in CPython (GIL), it's not guaranteed in all
+Python implementations. The `/api/logs` endpoint reads from the same
+deque concurrently. No practical issue with CPython + FastAPI.
+Fix: Low priority. Add a threading.Lock if targeting non-CPython runtimes.
+
+================================================================================
+## SUMMARY
+================================================================================
+
+- Critical: 0 — no immediate blockers
+- High: 2 — fix this sprint (input validation 500→400, rate limit memory leak)
+- Medium: 5 — fix within 2 sprints (UTC dates, export cache, CSV injection, MCP error handling, memory schema)
+- Low: 6 — address when convenient (feedpath validation, log rotation, backup container name, smoke test auth, credential TTL, ring buffer safety)
+- Total unique: 13
+
+## COMPARISON TO PREVIOUS REVIEWS
+
+This is the 5th review of this codebase (4 security audits prior). The findings
+are shifting from security issues (all resolved) to operational robustness and
+edge case handling — a sign of a maturing codebase.
+
+Notable: No Critical findings. The 2 High findings (validation returns 500,
+rate limit leak) are both correctness/robustness issues, not security vulnerabilities.
+
+================================================================================
+END OF REVIEW
+================================================================================
