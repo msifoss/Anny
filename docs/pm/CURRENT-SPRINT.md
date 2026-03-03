@@ -1,25 +1,30 @@
-# Bolt 10 — Release & Cross-Skill Matrix
+# No Active Bolt
 
-**Goal:** Ship v0.10.0 (clear 15 unreleased commits) and create the cross-skill recommendation matrix for the callhero skill ecosystem.
+Bolt 10 closed 2026-03-03. Deploy count: 9 (v0.10.0 tagged, deploy pending).
 
-**Started:** 2026-03-03
-**Status:** In Progress
+## Since Last Bolt
 
----
+(none — bolt just closed)
 
-## Items
-
-| # | Item | Size | Status | Notes |
-|---|------|------|--------|-------|
-| 54 | Cross-skill recommendation matrix | S | in-progress | `docs/standards/CROSS-SKILL-MATRIX.md` |
-| 55 | Release v0.10.0 | S | pending | Bump version, tag, move [Unreleased] → [0.10.0] |
-
-## Metrics (Baseline)
+## Metrics
 
 | Metric | Value |
 |--------|-------|
 | Tests | 275 collected (245 unit, 11 integration, 19 e2e) |
 | Pylint | 10/10 |
 | Coverage | 83% |
-| Commits since v0.9.0 | 15 |
-| Deploys | 9 |
+| Deploys since Bolt 10 | 0 |
+| Commits since v0.10.0 | 0 |
+
+## Next Bolt Candidates
+
+| # | Item | Size | Notes |
+|---|------|------|-------|
+| 22 | Multi-property support | M | Query across multiple GA4 properties |
+| 21 | GTM workspace management (create/publish) | L | Requires write scopes |
+| 27 | Conversion optimization audit tooling | M | Only 9/40+ content pages have CTAs |
+| 28 | Social channel reactivation strategy | S | Organic social dropped 92% Q3→Q4 |
+
+## Pending Actions
+
+- Deploy v0.10.0 to production

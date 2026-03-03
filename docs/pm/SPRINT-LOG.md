@@ -4,6 +4,43 @@ Archive of completed Bolts.
 
 ---
 
+## Bolt 10 — Release & Cross-Skill Matrix (2026-03-03 → 2026-03-03)
+
+**Goal:** Ship v0.10.0 (clear 15+ unreleased commits) and create the cross-skill recommendation matrix for the callhero skill ecosystem.
+
+**Outcome:** ACHIEVED — Both items delivered. Cross-skill matrix documents 14 skills with triggers, chaining guide, cadence recommendations, and anti-patterns. v0.10.0 released with 17 commits including compliance fixes (coverage drift, stale test counts, AI-DLC case study).
+
+### Items Completed
+
+| Item | Size | Notes |
+|------|------|-------|
+| Cross-skill recommendation matrix (#54) | S | `docs/standards/CROSS-SKILL-MATRIX.md` — 14 skills, lifecycle chains, anti-patterns |
+| Release v0.10.0 (#55) | S | Version bumped, changelog moved, tag created, 4 doc version refs updated |
+
+### Items Not Completed (Returned to Backlog)
+
+(none — all items completed)
+
+### Metrics
+
+| Metric | Value |
+|--------|-------|
+| Commits | 17 (v0.9.0 → v0.10.0) |
+| Tests | 275 collected (245 unit, 11 integration, 19 e2e) |
+| Coverage | 83% |
+| Pylint | 10/10 |
+| Deploys | 0 (v0.10.0 tagged, deploy pending) |
+| AI-DLC Foundation | 14/14 (case study added) |
+| Standards Docs | +1 (CROSS-SKILL-MATRIX.md) |
+
+### Retro
+
+- **Went well:** Fast bolt — motherhen findings from prior session fed directly into actionable items. Two-item bolt kept scope tight.
+- **Improve:** Coverage dropped from 85% → 83% over time without notice; motherhen caught it. Should run motherhen before every release to catch drift early.
+- **Action:** Deploy v0.10.0 to production. Add motherhen to pre-release checklist (already documented in CROSS-SKILL-MATRIX.md).
+
+---
+
 ## Bolt 9 — OPS Readiness Push (2026-02-20 → 2026-02-20)
 
 **Goal:** Close the OPS readiness gap from 37/47 (79%) to 42/47 (89%) with 5 targeted items — incident response runbook, disaster recovery plan, backup script, and automated rollback.
