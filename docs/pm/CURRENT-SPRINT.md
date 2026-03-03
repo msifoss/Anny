@@ -1,6 +1,6 @@
 # No Active Bolt
 
-Bolt 10 closed 2026-03-03. Deploy count: 9 (v0.10.0 tagged, deploy pending).
+Bolt 10 closed 2026-03-03. Deploy count: 10 (v0.10.0 deployed).
 
 ## Since Last Bolt
 
@@ -13,7 +13,7 @@ Bolt 10 closed 2026-03-03. Deploy count: 9 (v0.10.0 tagged, deploy pending).
 | Tests | 275 collected (245 unit, 11 integration, 19 e2e) |
 | Pylint | 10/10 |
 | Coverage | 83% |
-| Deploys since Bolt 10 | 0 |
+| Deploys since Bolt 10 | 1 (deploy count 10) |
 | Commits since v0.10.0 | 0 |
 
 ## Next Bolt Candidates
@@ -27,4 +27,4 @@ Bolt 10 closed 2026-03-03. Deploy count: 9 (v0.10.0 tagged, deploy pending).
 
 ## Pending Actions
 
-- Deploy v0.10.0 to production
+None. v0.10.0 deployed successfully.

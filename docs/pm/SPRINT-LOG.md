@@ -29,7 +29,7 @@ Archive of completed Bolts.
 | Tests | 275 collected (245 unit, 11 integration, 19 e2e) |
 | Coverage | 83% |
 | Pylint | 10/10 |
-| Deploys | 0 (v0.10.0 tagged, deploy pending) |
+| Deploys | 1 (v0.10.0 to anny.membies.com, deploy count 10) |
 | AI-DLC Foundation | 14/14 (case study added) |
 | Standards Docs | +1 (CROSS-SKILL-MATRIX.md) |
 
