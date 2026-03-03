@@ -120,3 +120,4 @@ docker compose build && docker compose up -d
 | 0.7.0 | 2026-02-20 | v0.7.0 | Phase 3 feature expansion (cache, realtime, export) |
 | 0.8.0 | 2026-02-20 | v0.8.0 | OPS readiness push (incident response, DR, rollback) |
 | 0.9.0 | 2026-02-20 | v0.9.0 | Config centralization, CD pipeline, compliance fixes |
+| 0.10.0 | 2026-03-03 | v0.10.0 | Compliance hardening, cross-skill matrix, AI-DLC case study |

@@ -4,7 +4,7 @@
 > Size: S (< 1hr), M (< half day), L (~ 1 day), XL (multi-day).
 > Status: executable | blocked | done
 
-Last groomed: 2026-03-02 (motherhen compliance sweep)
+Last groomed: 2026-03-03 (Bolt 10 opened)
 
 ---
 
@@ -106,6 +106,13 @@ Last groomed: 2026-03-02 (motherhen compliance sweep)
 | 26 | GA4 key event creation via Admin API | M | blocked | Parked — needs analytics.edit scope + Admin API + new dependency; revisit when write access justified |
 | 27 | Conversion optimization audit tooling | M | executable | Only 9/40+ content pages have CTAs |
 | 28 | Social channel reactivation strategy | S | executable | Organic social dropped 92% Q3→Q4 |
+
+### Should Have
+
+| # | Item | Size | Status | Notes |
+|---|------|------|--------|-------|
+| 54 | Cross-skill recommendation matrix | S | done | Bolt 10 — `docs/standards/CROSS-SKILL-MATRIX.md` |
+| 55 | Release v0.10.0 | S | done | Bolt 10 — bump version, tag, clear [Unreleased] |
 
 ---
 

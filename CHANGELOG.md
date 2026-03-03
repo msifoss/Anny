@@ -8,12 +8,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-03-03 (Compliance Hardening & Cross-Skill Matrix — Bolt 10)
+
 ### Added
 - `ValidationError` exception class mapped to HTTP 400 for bad user input (dates, empty metrics/dimensions)
 - Periodic cleanup of rate limit store to prevent unbounded memory growth from scanner/bot IPs
 - Query cache wired into all 6 export endpoints (previously bypassed cache)
 - Sitemap feedpath URL validation (rejects non-http/https paths with 400)
 - 5 new tests (ValidationError→400, MCP bad date_range, corrupted JSON memory, missing keys memory, invalid feedpath)
+- Cross-skill recommendation matrix (`docs/standards/CROSS-SKILL-MATRIX.md`) — skill triggers, chaining guide, cadence recommendations
+- AI-DLC case study (`docs/AI-DLC-CASE-STUDY.md`) — 14/14 foundational documents now complete
 
 ### Fixed
 - UTC dates in `date_utils.py`: replaced `date.today()` with `datetime.now(timezone.utc).date()` to avoid timezone drift
@@ -22,6 +26,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Stale `app_version` default in `config.py`: 0.8.0 → 0.9.0
 - Stale version in `docs/REQUIREMENTS.md`: 0.8.0 → 0.9.0
 - Stale test counts in `README.md`: 230 → 270, 249 → 270
+- Coverage metric drift: aligned all docs from 85% → 83% (actual)
+- Stale test counts in TRACEABILITY-MATRIX.md (270 → 275) and OPS-READINESS-CHECKLIST.md (240 → 245 unit)
 
 ### Changed
 - `ValueError` in GA4 and Search Console services replaced with `ValidationError(AnnyError)` for proper HTTP 400 mapping
@@ -29,6 +35,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Smoke test (`scripts/smoke_test.sh`): passes `X-API-Key` header when `ANNY_API_KEY` is configured
 - Deduplicated `MAX_LIMIT` / `MAX_ROW_LIMIT` constants into `core/constants.py` (imported by `mcp_server.py` and `export_routes.py`)
 - Test count: 270 → 275 (245 unit, 11 integration, 19 e2e)
+- Version bumped to 0.10.0
 
 ### Removed
 - Unused `_EMPTY_STORE` constant in `clients/memory.py` (defined but never referenced)
