@@ -4,7 +4,7 @@
 > Size: S (< 1hr), M (< half day), L (~ 1 day), XL (multi-day).
 > Status: executable | blocked | done
 
-Last groomed: 2026-03-03 (Bolt 10 opened)
+Last groomed: 2026-03-03 (PM status review)
 
 ---
 
@@ -113,6 +113,7 @@ Last groomed: 2026-03-03 (Bolt 10 opened)
 |---|------|------|--------|-------|
 | 54 | Cross-skill recommendation matrix | S | done | Bolt 10 — `docs/standards/CROSS-SKILL-MATRIX.md` |
 | 55 | Release v0.10.0 | S | done | Bolt 10 — bump version, tag, clear [Unreleased] |
+| 56 | Deploy TLDR manual | S | done | Post-Bolt 10 — `docs/manuals/DEPLOY-TLDR.md` |
 
 ---
 

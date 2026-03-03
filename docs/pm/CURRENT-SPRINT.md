@@ -4,7 +4,9 @@ Bolt 10 closed 2026-03-03. Deploy count: 10 (v0.10.0 deployed).
 
 ## Since Last Bolt
 
-(none — bolt just closed)
+| Commit | What |
+|--------|------|
+| c133442 | Add DEPLOY-TLDR.md (#56) |
 
 ## Metrics
 
@@ -14,7 +16,7 @@ Bolt 10 closed 2026-03-03. Deploy count: 10 (v0.10.0 deployed).
 | Pylint | 10/10 |
 | Coverage | 83% |
 | Deploys since Bolt 10 | 1 (deploy count 10) |
-| Commits since v0.10.0 | 0 |
+| Commits since v0.10.0 | 3 |
 
 ## Next Bolt Candidates
 
