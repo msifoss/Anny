@@ -100,12 +100,12 @@ Last groomed: 2026-03-03 (PM status review)
 |---|------|------|--------|-------|
 | 19 | GA4 realtime report tool | M | done | Bolt 8 — client, service, REST, MCP |
 | 20 | Search Console sitemap tools | S | done | Bolt 8 — list + details (readonly) |
-| 21 | GTM workspace management (create/publish) | L | executable | Requires write scopes |
-| 22 | Multi-property support | M | executable | Query across multiple GA4 properties |
+| 21 | GTM workspace management (create/publish) | L | won't do | Moved to Won't Do |
+| 22 | Multi-property support | M | won't do | Moved to Won't Do |
 | 23 | Data export (CSV/JSON download) | S | done | Bolt 8 — 6 endpoints, CSV+JSON, BOM for Excel |
-| 26 | GA4 key event creation via Admin API | M | blocked | Parked — needs analytics.edit scope + Admin API + new dependency; revisit when write access justified |
-| 27 | Conversion optimization audit tooling | M | executable | Only 9/40+ content pages have CTAs |
-| 28 | Social channel reactivation strategy | S | executable | Organic social dropped 92% Q3→Q4 |
+| 26 | GA4 key event creation via Admin API | M | won't do | Moved to Won't Do |
+| 27 | Conversion optimization audit tooling | M | won't do | Moved to Won't Do |
+| 28 | Social channel reactivation strategy | S | won't do | Moved to Won't Do |
 
 ### Should Have
 
@@ -121,3 +121,8 @@ Last groomed: 2026-03-03 (PM status review)
 
 | Item | Reason |
 |------|--------|
+| #21 GTM workspace management | Requires write scopes — not justified for readonly analytics tool |
+| #22 Multi-property support | No current need |
+| #26 GA4 key event creation | Requires Admin API + write scopes — out of scope |
+| #27 Conversion optimization audit tooling | Business task, not an Anny feature |
+| #28 Social channel reactivation strategy | Marketing task, not an Anny feature |

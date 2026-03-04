@@ -20,12 +20,7 @@ Bolt 10 closed 2026-03-03. Deploy count: 10 (v0.10.0 deployed).
 
 ## Next Bolt Candidates
 
-| # | Item | Size | Notes |
-|---|------|------|-------|
-| 22 | Multi-property support | M | Query across multiple GA4 properties |
-| 21 | GTM workspace management (create/publish) | L | Requires write scopes |
-| 27 | Conversion optimization audit tooling | M | Only 9/40+ content pages have CTAs |
-| 28 | Social channel reactivation strategy | S | Organic social dropped 92% Q3→Q4 |
+No executable items in backlog. All features complete. Project in maintenance mode.
 
 ## Pending Actions
 
