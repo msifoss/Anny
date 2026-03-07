@@ -1,8 +1,19 @@
 from anny.clients.memory import MemoryStore
+from anny.core.constants import MAX_NAME_LENGTH, MAX_PATH_LENGTH, MAX_TEXT_LENGTH
+from anny.core.exceptions import ValidationError
+
+
+def _check_len(value: str, label: str, limit: int) -> str:
+    if len(value) > limit:
+        raise ValidationError(f"{label} too long (max {limit} characters)")
+    return value
 
 
 def save_insight(store: MemoryStore, text: str, source: str, tags: str = "") -> dict:
     """Save an insight. Tags is a comma-separated string."""
+    _check_len(text, "text", MAX_TEXT_LENGTH)
+    _check_len(source, "source", MAX_NAME_LENGTH)
+    _check_len(tags, "tags", MAX_TEXT_LENGTH)
     tag_list = [t.strip() for t in tags.split(",") if t.strip()] if tags else []
     return store.add_insight(text, source, tag_list)
 
@@ -25,6 +36,8 @@ def add_to_watchlist(
     baseline_pageviews: int | None = None,
 ) -> dict:
     """Add a page to the watchlist with optional baseline metrics."""
+    _check_len(page_path, "page_path", MAX_PATH_LENGTH)
+    _check_len(label, "label", MAX_NAME_LENGTH)
     baseline = {}
     if baseline_sessions is not None:
         baseline["sessions"] = baseline_sessions
@@ -51,6 +64,10 @@ def save_segment(
     patterns: str,
 ) -> dict:
     """Save a reusable filter segment. Patterns is a comma-separated string."""
+    _check_len(name, "name", MAX_NAME_LENGTH)
+    _check_len(description, "description", MAX_TEXT_LENGTH)
+    _check_len(filter_type, "filter_type", MAX_NAME_LENGTH)
+    _check_len(patterns, "patterns", MAX_TEXT_LENGTH)
     pattern_list = [p.strip() for p in patterns.split(",") if p.strip()]
     return store.add_segment(name, description, filter_type, pattern_list)
 

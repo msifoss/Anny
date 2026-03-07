@@ -33,10 +33,10 @@ def _stream(data: bytes, filename: str, export_format: str) -> StreamingResponse
 
 @router.get("/ga4/report")
 async def export_ga4_report(
-    metrics: str = "sessions,totalUsers",
-    dimensions: str = "date",
-    date_range: str = "last_28_days",
-    limit: int = 10,
+    metrics: str = Query("sessions,totalUsers", max_length=500),
+    dimensions: str = Query("date", max_length=500),
+    date_range: str = Query("last_28_days", max_length=50),
+    limit: int = Query(10, ge=1, le=100),
     export_format: str = Query("csv", alias="format", pattern="^(csv|json)$"),
     client: GA4Client = Depends(get_ga4_client),
     cache: QueryCache = Depends(get_query_cache),
@@ -50,8 +50,8 @@ async def export_ga4_report(
 
 @router.get("/ga4/top-pages")
 async def export_ga4_top_pages(
-    date_range: str = "last_28_days",
-    limit: int = 10,
+    date_range: str = Query("last_28_days", max_length=50),
+    limit: int = Query(10, ge=1, le=100),
     export_format: str = Query("csv", alias="format", pattern="^(csv|json)$"),
     client: GA4Client = Depends(get_ga4_client),
     cache: QueryCache = Depends(get_query_cache),
@@ -65,7 +65,7 @@ async def export_ga4_top_pages(
 
 @router.get("/ga4/traffic-summary")
 async def export_ga4_traffic_summary(
-    date_range: str = "last_28_days",
+    date_range: str = Query("last_28_days", max_length=50),
     export_format: str = Query("csv", alias="format", pattern="^(csv|json)$"),
     client: GA4Client = Depends(get_ga4_client),
     cache: QueryCache = Depends(get_query_cache),
@@ -78,9 +78,9 @@ async def export_ga4_traffic_summary(
 
 @router.get("/search-console/query")
 async def export_sc_query(
-    dimensions: str = "query",
-    date_range: str = "last_28_days",
-    row_limit: int = 10,
+    dimensions: str = Query("query", max_length=500),
+    date_range: str = Query("last_28_days", max_length=50),
+    row_limit: int = Query(10, ge=1, le=1000),
     export_format: str = Query("csv", alias="format", pattern="^(csv|json)$"),
     client: SearchConsoleClient = Depends(get_search_console_client),
     cache: QueryCache = Depends(get_query_cache),
@@ -96,8 +96,8 @@ async def export_sc_query(
 
 @router.get("/search-console/top-queries")
 async def export_sc_top_queries(
-    date_range: str = "last_28_days",
-    limit: int = 10,
+    date_range: str = Query("last_28_days", max_length=50),
+    limit: int = Query(10, ge=1, le=100),
     export_format: str = Query("csv", alias="format", pattern="^(csv|json)$"),
     client: SearchConsoleClient = Depends(get_search_console_client),
     cache: QueryCache = Depends(get_query_cache),
@@ -113,8 +113,8 @@ async def export_sc_top_queries(
 
 @router.get("/search-console/top-pages")
 async def export_sc_top_pages(
-    date_range: str = "last_28_days",
-    limit: int = 10,
+    date_range: str = Query("last_28_days", max_length=50),
+    limit: int = Query(10, ge=1, le=100),
     export_format: str = Query("csv", alias="format", pattern="^(csv|json)$"),
     client: SearchConsoleClient = Depends(get_search_console_client),
     cache: QueryCache = Depends(get_query_cache),

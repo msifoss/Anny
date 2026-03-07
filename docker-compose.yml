@@ -1,6 +1,7 @@
 services:
   anny:
     build: .
+    image: anny:latest
     restart: unless-stopped
     ports:
       - "127.0.0.1:${APP_PORT:-8000}:${APP_PORT:-8000}"

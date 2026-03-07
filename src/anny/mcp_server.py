@@ -291,7 +291,7 @@ def gtm_list_tags(container_path: str) -> str:
         container_path: The GTM container path (e.g. "accounts/123/containers/456")
     """
     client = get_tag_manager_client()
-    rows = client.list_tags(container_path)
+    rows = tag_manager_service.get_tags(client, container_path)
     return format_table(rows)
 
 

@@ -1,0 +1,223 @@
+================================================================================
+SECURITY AUDIT: Anny v0.10.0
+Date: 2026-03-05 12:00
+Scope: Full codebase, infrastructure, deployment scripts
+Auditor: Claude (AI-assisted) — Round 5
+================================================================================
+
+## Summary
+
+| Category          | Findings | Critical | High | Medium | Low |
+|-------------------|----------|----------|------|--------|-----|
+| Authentication    |        1 |        0 |    0 |      1 |   0 |
+| Input Validation  |        5 |        0 |    2 |      2 |   1 |
+| Secrets           |        2 |        1 |    0 |      1 |   0 |
+| Encryption        |        0 |        0 |    0 |      0 |   0 |
+| Network           |        2 |        0 |    1 |      0 |   1 |
+| Infrastructure    |        2 |        0 |    0 |      2 |   0 |
+| Dependencies      |        0 |        0 |    0 |      0 |   0 |
+| Monitoring        |        0 |        0 |    0 |      0 |   0 |
+| Operational       |        1 |        0 |    0 |      0 |   1 |
+| **Total**         |   **13** |    **1** |**3** |  **6** |**3**|
+
+## Findings
+
+### Critical
+
+[C1] Leaked secrets in .claude/settings.local.json
+File: .claude/settings.local.json:5-8 (FIXED during this session)
+Category: Secrets
+Description: Four permission rules contained entire file contents from a
+different repo (skillzees), including heredoc writes. Two of those rules
+also contained the ANNY_API_KEY and VULTR_API_KEY values in Bash permission
+patterns (lines 34, 56).
+Risk: Anyone with read access to this file could extract the production API
+key and Vultr infrastructure key. The file was NOT committed to git (verified).
+Fix: APPLIED — Removed the 4 corrupted entries. The ANNY_API_KEY also appears
+in line 56 (the mcp-remote permission rule) which is a legitimate permission
+pattern but still contains the key in plaintext. Consider rotating the API key.
+Status: PARTIALLY FIXED — corrupted entries removed; API key still in line 56.
+
+### High
+
+[H1] Missing input length constraints on query string parameters
+File: src/anny/api/ga4_routes.py:32-61, search_console_routes.py:34-72
+Category: Input Validation
+Description: Query parameters date_range, metrics, dimensions, and url_filter
+are accepted as raw strings without max_length or pattern constraints at the
+Pydantic/FastAPI level. While downstream parsing validates content, arbitrarily
+long strings can consume memory before reaching validation.
+Risk: Potential DoS via megabyte-sized query parameters that bypass rate limiting
+(one request, large payload).
+Fix: Add Field constraints to all string query parameters:
+  date_range: str = Query("last_28_days", max_length=50)
+  metrics: str = Query(..., max_length=500, pattern=r"^[a-zA-Z0-9_,]+$")
+  dimensions: str = Query(..., max_length=500, pattern=r"^[a-zA-Z0-9_,]+$")
+
+[H2] Weak feedpath URL validation on sitemap endpoint
+File: src/anny/api/search_console_routes.py:84-92
+Category: Input Validation
+Description: Sitemap feedpath only checks for http/https prefix. No length
+limit, no URL format validation, no private IP blocking. Passes arbitrary
+URLs to Google Search Console API.
+Risk: SSRF-adjacent — while Google's API handles the actual request, overly
+long URLs could cause DoS. No protection against internal IP ranges.
+Fix: Add length limit (max 2048), validate with urllib.parse.urlparse(),
+optionally block private IP ranges.
+
+[H3] Rate limit IP detection may fall back to "unknown"
+File: src/anny/main.py:106-141
+Category: Network
+Description: Rate limiting uses request.client.host which returns "unknown"
+when client IP cannot be determined. All unknown clients share one rate limit
+bucket instead of being individually limited.
+Risk: Clients behind broken proxies or with spoofed headers could bypass
+per-IP rate limiting by sharing the "unknown" bucket.
+Fix: Use X-Real-IP or X-Forwarded-For headers (nginx already forwards them).
+Fall back to request.client.host only if headers absent. Consider rejecting
+requests with no identifiable IP.
+
+### Medium
+
+[M1] Service account key file permissions set to 644 (world-readable)
+File: scripts/deploy.sh:78
+Category: Infrastructure
+Description: Deploy script sets service account key to chmod 644, allowing
+any user on the VPS to read Google credentials. This contradicts SECURITY.md
+which documents "chmod 600, owner-only".
+Risk: Local privilege escalation — any process on the VPS can read the
+service account key and access GA4, Search Console, and GTM data.
+Fix: Change line 78 to: remote "chmod 600 ${REMOTE_DIR}/secrets/service-account.json"
+
+[M2] Overly permissive certbot sudoers rule
+File: scripts/server-setup.sh:82
+Category: Infrastructure
+Description: Sudoers rule allows deploy user to run certbot with any arguments.
+The --renew-hook flag accepts arbitrary shell commands, enabling privilege
+escalation if the deploy account is compromised.
+Risk: Attacker with deploy access could execute arbitrary commands as root
+via: sudo certbot renew --renew-hook 'malicious command'
+Fix: Restrict to: deploy ALL=(ALL) NOPASSWD: /usr/bin/certbot renew
+
+[M3] Shared API key for REST and MCP transports
+File: src/anny/core/dependencies.py:28,43
+Category: Authentication
+Description: Both REST (X-API-Key) and MCP (Bearer token) authenticate against
+the same ANNY_API_KEY. Compromise of either transport exposes both.
+Risk: Violates least privilege — a leaked REST key also grants MCP access.
+Fix: Consider separate keys (ANNY_REST_API_KEY, ANNY_MCP_API_KEY) if
+multi-client access patterns emerge. Acceptable for single-user deployment.
+
+[M4] Missing input length limits on memory service (insights, watchlist, segments)
+File: src/anny/mcp_server.py:302-348
+Category: Input Validation
+Description: MCP tools save_insight, add_to_watchlist, save_segment accept
+arbitrary-length strings without validation. Memory store has no size limits.
+Risk: Disk exhaustion via repeated large writes to memory.json.
+Fix: Add length constraints: text max 5000, name/label max 100, page_path max 1000.
+
+[M5] Incomplete CSV injection protection (leading whitespace bypass)
+File: src/anny/core/services/export_service.py:8-12
+Category: Input Validation
+Description: CSV sanitization checks first character for formula prefixes
+(=, +, -, @, |, \t). Cells with leading whitespace followed by formula
+characters bypass the check: " =cmd|'/C calc'" passes sanitization.
+Risk: CSV injection when exported files are opened in Excel. Requires user
+to open exported CSV and enable macros/external data.
+Fix: Strip leading whitespace before checking: stripped = value.lstrip()
+
+[M6] Credential filename logged
+File: src/anny/core/auth.py:23
+Category: Secrets
+Description: Logs "Loaded service account credentials from anny-service-account.json"
+which reveals the exact filename.
+Risk: Information disclosure — attacker seeing logs knows filename to target.
+Fix: Change to generic: logger.info("Loaded service account credentials")
+
+### Low
+
+[L1] In-memory rate limit store resets on restart
+File: src/anny/main.py:107-140
+Category: Network
+Description: Rate limit counters use in-memory defaultdict, reset on container
+restart. Burst traffic possible during restart window.
+Risk: Low — single instance behind nginx. Theoretical bypass during deploys.
+Status: ACCEPTED RISK (documented in SECURITY.md)
+
+[L2] Missing credential rotation documentation
+File: SECURITY.md
+Category: Operational
+Description: No documented procedure for rotating ANNY_API_KEY, Google service
+account key, or deploy SSH key.
+Risk: Stale credentials increase blast radius of compromise.
+Fix: Add rotation runbook to SECURITY.md with schedule and steps.
+
+[L3] Date validation error messages include user input
+File: src/anny/core/date_utils.py:30-34
+Category: Input Validation
+Description: Error messages echo back the user-supplied date_range value.
+Risk: Minor information reflection. Not exploitable but poor hygiene.
+Fix: Use generic error message without echoing input.
+
+## Positive Findings (No Issues)
+
+ 1. Timing-safe API key comparison (hmac.compare_digest) — both REST and MCP
+ 2. Safe YAML loading (yaml.safe_load) in config.py
+ 3. Memory store file permissions 0600 (owner-only)
+ 4. Restrictive CORS (empty origins, no credentials)
+ 5. Google API scopes are read-only — no write access
+ 6. TLS 1.2+ enforced in nginx with modern ciphers and HSTS
+ 7. Docker: non-root user (UID 1000), multi-stage build, no secrets in image
+ 8. Gitleaks pre-commit hook active (v8.24.0)
+ 9. All dependencies pinned to exact versions
+10. Structured JSON logging with request-ID propagation
+11. Security headers in nginx (X-Frame-Options, X-Content-Type-Options, HSTS,
+    Referrer-Policy, Permissions-Policy)
+12. No secrets in git history (verified with git log -S)
+13. .env in .gitignore, .env.example has no real values
+14. Pre-commit hooks enforce format + lint on every commit
+
+## Recommendations
+
+Priority 1 — Fix Before Next Deploy:
+1. Rotate ANNY_API_KEY (exposed in settings.local.json permission rule)
+2. Fix deploy.sh line 78: chmod 644 -> chmod 600 for service account key
+3. Add max_length constraints to all string query parameters
+4. Fix CSV injection whitespace bypass in export_service.py
+
+Priority 2 — This Sprint:
+5. Restrict certbot sudoers rule to "renew" only
+6. Add URL length/format validation to feedpath endpoint
+7. Add length limits to memory service inputs
+8. Remove credential filename from log message
+
+Priority 3 — This Quarter:
+9. Add credential rotation documentation to SECURITY.md
+10. Consider separate REST/MCP API keys
+11. Improve rate limit IP detection to use X-Real-IP/X-Forwarded-For
+
+## Accepted Risks
+
+| Item | Rationale |
+|------|-----------|
+| In-memory rate limiting | Single instance, nginx as primary control |
+| Shared REST/MCP API key | Single-user deployment, both use timing-safe comparison |
+| No CSRF protection | API-only server, no browser sessions |
+| Memory store unencrypted | Relies on filesystem permissions + VPS disk encryption |
+
+## Comparison with Previous Audits
+
+| Metric      | Round 4 (2026-02-20) | Round 5 (2026-03-05) |
+|-------------|----------------------|----------------------|
+| Total       | 3                    | 13                   |
+| Critical    | 0                    | 1                    |
+| High        | 0                    | 3                    |
+| Medium      | 1                    | 6                    |
+| Low         | 2                    | 3                    |
+
+Note: Round 5 expanded scope to include deployment scripts (deploy.sh,
+server-setup.sh) and .claude/ configuration files not previously audited.
+
+================================================================================
+END OF AUDIT
+================================================================================

@@ -114,7 +114,11 @@ async def rate_limit_middleware(request: Request, call_next):
     if not (request.url.path.startswith("/api/") or request.url.path.startswith("/mcp")):
         return await call_next(request)
 
-    client_ip = request.client.host if request.client else "unknown"
+    client_ip = (
+        request.headers.get("X-Real-IP")
+        or (request.headers.get("X-Forwarded-For", "").split(",")[0].strip() or None)
+        or (request.client.host if request.client else "unknown")
+    )
     now = time.time()
     window_start = now - settings.rate_limit_window
 

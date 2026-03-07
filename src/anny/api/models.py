@@ -2,10 +2,22 @@ from pydantic import BaseModel, Field
 
 
 class GA4ReportRequest(BaseModel):
-    metrics: str = Field(default="sessions,totalUsers", description="Comma-separated GA4 metrics")
-    dimensions: str = Field(default="date", description="Comma-separated GA4 dimensions")
+    metrics: str = Field(
+        default="sessions,totalUsers",
+        max_length=500,
+        pattern=r"^[a-zA-Z0-9_,]+$",
+        description="Comma-separated GA4 metrics",
+    )
+    dimensions: str = Field(
+        default="date",
+        max_length=500,
+        pattern=r"^[a-zA-Z0-9_,]*$",
+        description="Comma-separated GA4 dimensions",
+    )
     date_range: str = Field(
-        default="last_28_days", description="Named range or YYYY-MM-DD,YYYY-MM-DD"
+        default="last_28_days",
+        max_length=50,
+        description="Named range or YYYY-MM-DD,YYYY-MM-DD",
     )
     limit: int = Field(default=10, ge=1, le=100, description="Max rows to return")
 
@@ -18,10 +30,14 @@ class GA4ReportResponse(BaseModel):
 class SCQueryRequest(BaseModel):
     dimensions: str = Field(
         default="query",
+        max_length=500,
+        pattern=r"^[a-zA-Z0-9_,]+$",
         description="Comma-separated dimensions (query, page, date, country, device)",
     )
     date_range: str = Field(
-        default="last_28_days", description="Named range or YYYY-MM-DD,YYYY-MM-DD"
+        default="last_28_days",
+        max_length=50,
+        description="Named range or YYYY-MM-DD,YYYY-MM-DD",
     )
     row_limit: int = Field(default=10, ge=1, le=1000, description="Max rows to return")
 

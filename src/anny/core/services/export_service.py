@@ -7,8 +7,10 @@ _FORMULA_PREFIXES = ("=", "+", "-", "@", "\t", "\r")
 
 def _sanitize_cell(value: str) -> str:
     """Prefix formula-triggering characters with a tab to prevent CSV injection."""
-    if isinstance(value, str) and value and value[0] in _FORMULA_PREFIXES:
-        return f"\t{value}"
+    if isinstance(value, str) and value:
+        stripped = value.lstrip()
+        if stripped and stripped[0] in _FORMULA_PREFIXES:
+            return f"\t{value}"
     return value
 
 

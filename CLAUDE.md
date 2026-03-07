@@ -114,7 +114,6 @@ Anny/
 │   ├── e2e/                     # 19 e2e tests
 │   └── mocks/
 ├── scripts/
-├── architecture/
 └── docs/
 ```
 

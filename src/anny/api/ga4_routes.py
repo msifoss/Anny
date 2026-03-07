@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Security
+from fastapi import APIRouter, Depends, Query, Security
 
 from anny.api.models import GA4ReportRequest, GA4ReportResponse
 from anny.clients.ga4 import GA4Client
@@ -29,8 +29,8 @@ async def report(
 
 @router.get("/top-pages", response_model=GA4ReportResponse)
 async def top_pages(
-    date_range: str = "last_28_days",
-    limit: int = 10,
+    date_range: str = Query("last_28_days", max_length=50),
+    limit: int = Query(10, ge=1, le=100),
     client: GA4Client = Depends(get_ga4_client),
     cache: QueryCache = Depends(get_query_cache),
     _: str = Security(verify_api_key),
@@ -41,7 +41,7 @@ async def top_pages(
 
 @router.get("/traffic-summary", response_model=GA4ReportResponse)
 async def traffic_summary(
-    date_range: str = "last_28_days",
+    date_range: str = Query("last_28_days", max_length=50),
     client: GA4Client = Depends(get_ga4_client),
     cache: QueryCache = Depends(get_query_cache),
     _: str = Security(verify_api_key),
@@ -52,8 +52,8 @@ async def traffic_summary(
 
 @router.get("/realtime", response_model=GA4ReportResponse)
 async def realtime(
-    metrics: str = "activeUsers",
-    dimensions: str = "",
+    metrics: str = Query("activeUsers", max_length=500),
+    dimensions: str = Query("", max_length=500),
     client: GA4Client = Depends(get_ga4_client),
     _: str = Security(verify_api_key),
 ):

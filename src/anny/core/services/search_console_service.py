@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from anny.clients.search_console import SearchConsoleClient
 from anny.core.cache import QueryCache
 from anny.core.date_utils import parse_date_range

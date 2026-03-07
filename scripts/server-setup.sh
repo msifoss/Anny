@@ -79,7 +79,7 @@ remote "cat > /etc/sudoers.d/anny << 'SUDOERS'
 deploy ALL=(ALL) NOPASSWD: /usr/sbin/nginx -t
 deploy ALL=(ALL) NOPASSWD: /usr/bin/systemctl reload nginx
 deploy ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart nginx
-deploy ALL=(ALL) NOPASSWD: /usr/bin/certbot *
+deploy ALL=(ALL) NOPASSWD: /usr/bin/certbot renew *
 deploy ALL=(ALL) NOPASSWD: /usr/bin/cp /tmp/anny-https.conf /etc/nginx/sites-enabled/anny.conf
 SUDOERS
 chmod 440 /etc/sudoers.d/anny"

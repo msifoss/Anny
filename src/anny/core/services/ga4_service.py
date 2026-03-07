@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from anny.clients.ga4 import GA4Client
 from anny.core.cache import QueryCache
 from anny.core.date_utils import parse_date_range

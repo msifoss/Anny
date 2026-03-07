@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Security
+from fastapi import APIRouter, Depends, Query, Security
 
 from anny.api.models import GTMContainerSetupResponse, GTMListResponse
 from anny.clients.tag_manager import TagManagerClient
@@ -19,7 +19,7 @@ async def accounts(
 
 @router.get("/containers", response_model=GTMListResponse)
 async def containers(
-    account_id: str,
+    account_id: str = Query(max_length=50),
     client: TagManagerClient = Depends(get_tag_manager_client),
     _: str = Security(verify_api_key),
 ):
@@ -29,37 +29,37 @@ async def containers(
 
 @router.get("/tags", response_model=GTMListResponse)
 async def tags(
-    container_path: str,
+    container_path: str = Query(max_length=200),
     client: TagManagerClient = Depends(get_tag_manager_client),
     _: str = Security(verify_api_key),
 ):
-    items = client.list_tags(container_path)
+    items = tag_manager_service.get_tags(client, container_path)
     return GTMListResponse(items=items, count=len(items))
 
 
 @router.get("/triggers", response_model=GTMListResponse)
 async def triggers(
-    container_path: str,
+    container_path: str = Query(max_length=200),
     client: TagManagerClient = Depends(get_tag_manager_client),
     _: str = Security(verify_api_key),
 ):
-    items = client.list_triggers(container_path)
+    items = tag_manager_service.get_triggers(client, container_path)
     return GTMListResponse(items=items, count=len(items))
 
 
 @router.get("/variables", response_model=GTMListResponse)
 async def variables(
-    container_path: str,
+    container_path: str = Query(max_length=200),
     client: TagManagerClient = Depends(get_tag_manager_client),
     _: str = Security(verify_api_key),
 ):
-    items = client.list_variables(container_path)
+    items = tag_manager_service.get_variables(client, container_path)
     return GTMListResponse(items=items, count=len(items))
 
 
 @router.get("/container-setup", response_model=GTMContainerSetupResponse)
 async def container_setup(
-    container_path: str,
+    container_path: str = Query(max_length=200),
     client: TagManagerClient = Depends(get_tag_manager_client),
     _: str = Security(verify_api_key),
 ):

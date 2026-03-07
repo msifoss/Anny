@@ -62,7 +62,7 @@ def test_explicit_range_invalid_format():
 
 
 def test_explicit_range_start_after_end():
-    with pytest.raises(ValueError, match="Start date .* is after end date"):
+    with pytest.raises(ValueError, match="Start date is after end date"):
         parse_date_range("2024-12-31,2024-01-01")
 
 

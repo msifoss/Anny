@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Security
+from fastapi import APIRouter, Depends, HTTPException, Query, Security
 
 from anny.api.models import (
     SCQueryRequest,
@@ -33,8 +33,8 @@ async def query(
 
 @router.get("/top-queries", response_model=SCQueryResponse)
 async def top_queries(
-    date_range: str = "last_28_days",
-    limit: int = 10,
+    date_range: str = Query("last_28_days", max_length=50),
+    limit: int = Query(10, ge=1, le=100),
     client: SearchConsoleClient = Depends(get_search_console_client),
     cache: QueryCache = Depends(get_query_cache),
     _: str = Security(verify_api_key),
@@ -47,8 +47,8 @@ async def top_queries(
 
 @router.get("/top-pages", response_model=SCQueryResponse)
 async def top_pages(
-    date_range: str = "last_28_days",
-    limit: int = 10,
+    date_range: str = Query("last_28_days", max_length=50),
+    limit: int = Query(10, ge=1, le=100),
     client: SearchConsoleClient = Depends(get_search_console_client),
     cache: QueryCache = Depends(get_query_cache),
     _: str = Security(verify_api_key),
@@ -61,7 +61,7 @@ async def top_pages(
 
 @router.get("/summary", response_model=SCQueryResponse)
 async def summary(
-    date_range: str = "last_28_days",
+    date_range: str = Query("last_28_days", max_length=50),
     client: SearchConsoleClient = Depends(get_search_console_client),
     cache: QueryCache = Depends(get_query_cache),
     _: str = Security(verify_api_key),
@@ -87,6 +87,8 @@ async def sitemap_details(
     client: SearchConsoleClient = Depends(get_search_console_client),
     _: str = Security(verify_api_key),
 ):
+    if len(feedpath) > 2048:
+        raise HTTPException(status_code=400, detail="feedpath too long (max 2048 characters)")
     if not feedpath.startswith(("http://", "https://")):
         raise HTTPException(status_code=400, detail="feedpath must be a valid URL (http/https)")
     return search_console_service.get_sitemap_details(client, feedpath)

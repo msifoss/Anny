@@ -27,18 +27,16 @@ def parse_date_range(date_range: str) -> tuple[str, str]:
             start_dt = date.fromisoformat(start_str)
             end_dt = date.fromisoformat(end_str)
         except ValueError as exc:
-            raise ValueError(
-                f"Invalid date format: '{date_range}'. Use YYYY-MM-DD,YYYY-MM-DD"
-            ) from exc
+            raise ValueError("Invalid date format. Use YYYY-MM-DD,YYYY-MM-DD") from exc
         if start_dt > end_dt:
-            raise ValueError(f"Start date {start_str} is after end date {end_str}")
+            raise ValueError("Start date is after end date")
         return start_str, end_str
 
     key = date_range.lower().strip()
     if key not in NAMED_RANGES:
         raise ValueError(
-            f"Unknown date range: '{date_range}'. "
-            f"Use one of: {', '.join(NAMED_RANGES.keys())} or 'YYYY-MM-DD,YYYY-MM-DD'"
+            f"Unknown date range. Use one of: {', '.join(NAMED_RANGES.keys())} "
+            "or 'YYYY-MM-DD,YYYY-MM-DD'"
         )
 
     days = NAMED_RANGES[key]

@@ -13,12 +13,13 @@ Do not test against production systems without authorization.
 
 | Round | Date | Findings | Status |
 |-------|------|----------|--------|
+| 5 | 2026-03-05 | 1 Critical, 3 High, 6 Medium, 3 Low | 1 fixed (settings.local.json), 12 open |
 | 4 | 2026-02-20 | 0 High, 1 Medium, 2 Low | 1 new (version drift), 2 accepted (known) |
 | 3 | 2026-02-20 | 1 High, 3 Medium, 5 Low | All resolved (Bolt 8 review) |
 | 2 | 2026-02-20 | 1 High, 6 Medium, 4 Low | All resolved (Bolt 6 + Bolt 7) |
 | 1 | 2026-02-17 | 1 High, 4 Medium, 5 Low | All resolved (Bolt 5 + Bolt 6) |
 
-See `docs/security/20260220-180000-security-audit.txt` for latest details.
+See `docs/security/20260305-120000-security-audit.txt` for latest details.
 
 ## Security Controls
 
@@ -84,3 +85,9 @@ Last scan: 2026-02-20 — 1 vulnerability found (diskcache CVE-2025-69872, trans
 ## Known Limitations
 - No load/performance testing
 - Gitleaks secret scanning only in pre-commit (not in CI)
+- In-memory rate limiting resets on container restart (accepted — single instance behind nginx)
+- Shared API key for REST and MCP transports (accepted — single-user deployment)
+- Memory store unencrypted at rest (relies on filesystem permissions + VPS disk encryption)
+- No credential rotation documentation or schedule
+- Deploy script sets service account key to 644 instead of 600 (open finding M1)
+- String query parameters lack max_length constraints at Pydantic level (open finding H1)
